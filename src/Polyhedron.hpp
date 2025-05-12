@@ -22,6 +22,8 @@ struct Polyhedron
 	vector<unsigned int> Cell2DsId = {};		// Id delle facce
 	vector<unsigned int> Cell2DsNumVertices = {};	// numero di vertici di una faccia
 	vector<unsigned int> Cell2DsNumEdges = {};		// numero di spigoli di una faccia
-	vector<vector int
+	vector<vector<unsigned int>> Cell2DsVertices = {};	// id dei vertici che compongono la faccia
+	vector<vector<unsigned int>> Cell2DsEdges = {};		// id degli spigoli che compongono la faccia		
+	
 	
 };
