@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
 	convert >> p >> q >> b >> c;
 	if (argc == 7)
 		convert >> id_vertice_1 >> id_vertice_2;*/
+	
 	std::cout<<"main eseguito"<<std::endl;
 	poliedro poliedro_1;
 	poliedro_1.numero_lati = 2;
