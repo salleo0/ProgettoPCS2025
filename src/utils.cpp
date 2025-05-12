@@ -3,24 +3,53 @@
 #include <fstream>
 #include <sstream>
 #include "Eigen/Eigen"
+#include"utils.hpp"
 using namespace Eigen;
 using namespace std;
 
 bool ImportPolyhedron(Polyhedron& polyhedron, const string& InputFile){
 	if(!ImportCell0Ds(polyhedron,InputFile+"Cell0Ds.csv"))
 		return false;
-	/*
 	if(!ImportCell1Ds(polyhedron,InputFile+"Cell1Ds.csv"))
 		return false;
 	if(!ImportCell2Ds(polyhedron,InputFile+"Cell2Ds.csv"))
 		return false;
-	*/
+	
+	/*le seguenti righe sono solo per controllare che tutta la memorizzazione sia stata
+	effettuata correttamente, cancellare a tempo debito 
+	
+	for(unsigned int i = 0; i<polyhedron.NumCell0Ds;i++)
+	{
+		cout<<polyhedron.Cell0DsId[i]<<endl;
+		cout<<polyhedron.Cell0DsCoordinates(0,i)<<" "<<polyhedron.Cell0DsCoordinates(1,i)<<" "
+		<< polyhedron.Cell0DsCoordinates(2,i)<<endl;
+	}
+	
+	for(unsigned int i = 0; i<polyhedron.NumCell1Ds; i++){
+		cout<<polyhedron.Cell1DsId[i]<<endl;
+		cout<<polyhedron.Cell1DsExtrema(0,i)<<" "<<polyhedron.Cell1DsExtrema(1,i)<<endl;
+	} 
+	
+	for(unsigned int i = 0; i<polyhedron.NumCell2Ds; i++){
+		cout<<polyhedron.Cell2DsId[i]<<endl;
+		for(unsigned int j = 0; j<3; j++){
+			cout<<polyhedron.Cell2DsVertices[i][j]<<" ";
+		}
+		cout<<endl;
+		for(unsigned int j = 0; j<3; j++){
+			cout<<polyhedron.Cell2DsEdges[i][j]<<" ";
+		}
+		cout<<endl;
+		
+	}
+*/
+	
 	return true;
 	
 }
 
 bool ImportCell0Ds(Polyhedron& polyhedron, const string& InputFile){
-	ifstream file(InputFile+"Cell0Ds.csv");
+	ifstream file(InputFile);
 	if(file.fail()){
 		cerr<<"Unable to open Cell0Ds.csv file"<<endl;
 		return false;
@@ -42,26 +71,26 @@ bool ImportCell0Ds(Polyhedron& polyhedron, const string& InputFile){
 		return false;
 	}
 	
-	polyhedron.Cell0DsID.reserve(polyhedron.NumCell0Ds);
-	polyhedron.Cell0DsCoordinates = MatrixXd::Zero(3,polyhedra.NumCell0Ds);
+	polyhedron.Cell0DsId.reserve(polyhedron.NumCell0Ds);
+	polyhedron.Cell0DsCoordinates = MatrixXd::Zero(3,polyhedron.NumCell0Ds);
 	
 	for (const string& str: listlines){
 		string line = str;
 		replace(line.begin(), line.end(), ';', ' ');
-		istringstream coonverter(line);
+		istringstream converter(line);
 		
 		unsigned int id;
 		
 		converter>>id>>polyhedron.Cell0DsCoordinates(0,id)>>polyhedron.Cell0DsCoordinates(1,id)>>polyhedron.Cell0DsCoordinates(2,id);
 		
-		polyhedron.Cell0DsID.push_back(id);
+		polyhedron.Cell0DsId.push_back(id);
 	}
 	return true;
 }
 	
 bool ImportCell1Ds(Polyhedron& polyhedron, const string& InputFile)
 {
-	ifstream file(InputFile + "Cell1Ds.csv");
+	ifstream file(InputFile);
 	
 	if(file.fail())
 	{
@@ -122,9 +151,9 @@ bool ImportCell1Ds(Polyhedron& polyhedron, const string& InputFile)
 	return true;
 }
 	
-bool ImportCell2Ds(Polyhedron& polyhedron, string& InputFile) 
+bool ImportCell2Ds(Polyhedron& polyhedron, const string& InputFile) 
 {
-	ifstream file(InputFile + "Cell2Ds.csv");
+	ifstream file(InputFile);
 	
 	if(file.fail())
 	{

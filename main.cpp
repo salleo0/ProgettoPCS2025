@@ -1,6 +1,6 @@
 #include <sstream>
-#include "FileProva.hpp"
-
+#include "Polyhedron.hpp"
+#include "utils.hpp"
 int main(int argc, char *argv[])
 {
 	/*unsigned int p;
@@ -19,9 +19,15 @@ int main(int argc, char *argv[])
 	if (argc == 7)
 		convert >> id_vertice_1 >> id_vertice_2;*/
 	
-	std::cout<<"main eseguito"<<std::endl;
+	/*std::cout<<"main eseguito"<<std::endl;
 	poliedro poliedro_1;
 	poliedro_1.numero_lati = 2;
-	cout<<poliedro_1.numero_lati;
+	cout<<poliedro_1.numero_lati;*/
+	Polyhedron polyhedron;
+	
+	/* Mettere qui la directory del file del poliedro, mi raccomando ../ prima */
+	
+	if(!ImportPolyhedron(polyhedron, "../SolidiPlatonici/Tetraedro/"))
+		return 1;
 	return 0;
 }
