@@ -1,6 +1,9 @@
 #include <sstream>
 #include "Polyhedron.hpp"
 #include "utils.hpp"
+
+using namespace std;
+
 int main(int argc, char *argv[])
 {
 	/*unsigned int p;
@@ -29,5 +32,6 @@ int main(int argc, char *argv[])
 	
 	if(!ImportPolyhedron(polyhedron, "../SolidiPlatonici/Tetraedro/"))
 		return 1;
+	
 	return 0;
 }

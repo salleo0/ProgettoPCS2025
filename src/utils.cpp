@@ -8,92 +8,102 @@ using namespace Eigen;
 using namespace std;
 
 bool ImportPolyhedron(Polyhedron& polyhedron, const string& InputFile){
+	
 	if(!ImportCell0Ds(polyhedron,InputFile+"Cell0Ds.csv"))
 		return false;
+	
 	if(!ImportCell1Ds(polyhedron,InputFile+"Cell1Ds.csv"))
 		return false;
+	
 	if(!ImportCell2Ds(polyhedron,InputFile+"Cell2Ds.csv"))
 		return false;
 	
-	/*le seguenti righe sono solo per controllare che tutta la memorizzazione sia stata
-	effettuata correttamente, cancellare a tempo debito 
+	// Le seguenti righe sono solo per controllare che tutta la memorizzazione sia stata
+	// effettuata correttamente, cancellare a tempo debito 
 	
-	for(unsigned int i = 0; i<polyhedron.NumCell0Ds;i++)
-	{
-		cout<<polyhedron.Cell0DsId[i]<<endl;
-		cout<<polyhedron.Cell0DsCoordinates(0,i)<<" "<<polyhedron.Cell0DsCoordinates(1,i)<<" "
-		<< polyhedron.Cell0DsCoordinates(2,i)<<endl;
+	/*
+	for(unsigned int i = 0; i < polyhedron.NumCell0Ds;i++){
+		cout << polyhedron.Cell0DsId[i] << endl;
+		cout << polyhedron.Cell0DsCoordinates(0,i) << " " << polyhedron.Cell0DsCoordinates(1,i) << " ";
+		cout << polyhedron.Cell0DsCoordinates(2,i) << endl;
 	}
+	*/
 	
-	for(unsigned int i = 0; i<polyhedron.NumCell1Ds; i++){
-		cout<<polyhedron.Cell1DsId[i]<<endl;
-		cout<<polyhedron.Cell1DsExtrema(0,i)<<" "<<polyhedron.Cell1DsExtrema(1,i)<<endl;
+	/*	
+	for(unsigned int i = 0; i < polyhedron.NumCell1Ds; i++){
+		cout << polyhedron.Cell1DsId[i] << endl;
+		cout << polyhedron.Cell1DsExtrema(0,i) << " " << polyhedron.Cell1DsExtrema(1,i) << endl;
 	} 
+	*/
 	
-	for(unsigned int i = 0; i<polyhedron.NumCell2Ds; i++){
-		cout<<polyhedron.Cell2DsId[i]<<endl;
-		for(unsigned int j = 0; j<3; j++){
-			cout<<polyhedron.Cell2DsVertices[i][j]<<" ";
+	/*
+	for(unsigned int i = 0; i < polyhedron.NumCell2Ds; i++){
+		cout << polyhedron.Cell2DsId[i] << endl;
+		for(unsigned int j = 0; j < 3; j++){
+			cout << polyhedron.Cell2DsVertices[i][j] << " ";
 		}
-		cout<<endl;
-		for(unsigned int j = 0; j<3; j++){
-			cout<<polyhedron.Cell2DsEdges[i][j]<<" ";
+		cout << endl;
+		for(unsigned int j = 0; j < 3; j++){
+			cout << polyhedron.Cell2DsEdges[i][j] << " ";
 		}
-		cout<<endl;
-		
+		cout << endl;
 	}
-*/
+	*/
 	
 	return true;
 	
 }
 
-bool ImportCell0Ds(Polyhedron& polyhedron, const string& InputFile){
+/************************************/
+
+bool ImportCell0Ds(Polyhedron& polyhedron, const string& InputFile)
+{
 	ifstream file(InputFile);
 	if(file.fail()){
-		cerr<<"Unable to open Cell0Ds.csv file"<<endl;
+		cerr << "Unable to open Cell0Ds.csv file" << endl;
 		return false;
 	}
 	
-	/* Importo in una lista tutte le righe del file */
-	list<string> listlines;
+	// Importo in una lista tutte le righe del file 
+	list<string> listLines;
 	string line;
-	while(getline(file,line))
-		listlines.push_back(line);
+	while(getline(file, line))
+		listLines.push_back(line);
 	file.close();
 	
 	//remove header
-	listlines.pop_front();
+	listLines.pop_front();
 	
-	polyhedron.NumCell0Ds = listlines.size();
+	polyhedron.NumCell0Ds = listLines.size();
 	if(polyhedron.NumCell0Ds == 0){
-		cerr <<"There are no Cells 0D"<<endl;
+		cerr << "There are no Cells 0D" << endl;
 		return false;
 	}
 	
 	polyhedron.Cell0DsId.reserve(polyhedron.NumCell0Ds);
 	polyhedron.Cell0DsCoordinates = MatrixXd::Zero(3,polyhedron.NumCell0Ds);
 	
-	for (const string& str: listlines){
+	for (const string& str: listLines){
 		string line = str;
 		replace(line.begin(), line.end(), ';', ' ');
 		istringstream converter(line);
 		
 		unsigned int id;
 		
-		converter>>id>>polyhedron.Cell0DsCoordinates(0,id)>>polyhedron.Cell0DsCoordinates(1,id)>>polyhedron.Cell0DsCoordinates(2,id);
+		converter >> id >> polyhedron.Cell0DsCoordinates(0,id) >> polyhedron.Cell0DsCoordinates(1,id) >> polyhedron.Cell0DsCoordinates(2,id);
 		
 		polyhedron.Cell0DsId.push_back(id);
 	}
 	return true;
 }
-	
+
+/************************************/
+
 bool ImportCell1Ds(Polyhedron& polyhedron, const string& InputFile)
 {
 	ifstream file(InputFile);
 	
-	if(file.fail())
-	{
+	if(file.fail()){
 		cerr << "unable to open Cell1Ds.csv file" << endl;
 		return false;
 	}
@@ -111,8 +121,7 @@ bool ImportCell1Ds(Polyhedron& polyhedron, const string& InputFile)
 	
 	polyhedron.NumCell1Ds = listLines.size();
 	
-	if (polyhedron.NumCell1Ds == 0)
-	{
+	if (polyhedron.NumCell1Ds == 0){
 		cerr << "There is no cell 1D" << endl;
 		return false;
 	}
@@ -121,10 +130,7 @@ bool ImportCell1Ds(Polyhedron& polyhedron, const string& InputFile)
 	polyhedron.Cell1DsId.reserve(polyhedron.NumCell1Ds);
 	polyhedron.Cell1DsExtrema = MatrixXi::Zero(2, polyhedron.NumCell1Ds);
 	
-
-	
-	for (const string& str : listLines)
-	{	
+	for (const string& str : listLines){	
 		string line = str;
 		replace(line.begin(), line.end(), ';', ' ');
 		istringstream converter(line);
@@ -136,8 +142,7 @@ bool ImportCell1Ds(Polyhedron& polyhedron, const string& InputFile)
 		converter >> id >> Origin >> End;
 		
 		// test per verificare che nessun bordo abbia lunghezza zero
-		if(Origin == End)
-		{
+		if(Origin == End){
 			cerr << "at least one edge has zero length";
 			return false;
 		}
@@ -150,13 +155,14 @@ bool ImportCell1Ds(Polyhedron& polyhedron, const string& InputFile)
 	}
 	return true;
 }
-	
+
+/************************************/
+
 bool ImportCell2Ds(Polyhedron& polyhedron, const string& InputFile) 
 {
 	ifstream file(InputFile);
 	
-	if(file.fail())
-	{
+	if(file.fail()){
 		cerr << "unable to open Cell2Ds.csv file" << endl;
 		return false;
 	}
@@ -174,8 +180,7 @@ bool ImportCell2Ds(Polyhedron& polyhedron, const string& InputFile)
 	
 	polyhedron.NumCell2Ds = listLines.size();
 	
-	if(polyhedron.NumCell2Ds == 0)
-	{
+	if(polyhedron.NumCell2Ds == 0){
 		cerr << "there is no cell 2D" << endl;
 		return false;
 	}
@@ -185,8 +190,7 @@ bool ImportCell2Ds(Polyhedron& polyhedron, const string& InputFile)
 	polyhedron.Cell2DsVertices.reserve(polyhedron.NumCell2Ds);
 	polyhedron.Cell2DsEdges.reserve(polyhedron.NumCell2Ds);
 	
-	for (const string& str : listLines)
-	{
+	for (const string& str : listLines){
 		string line = str;
 		replace(line.begin(), line.end(), ';', ' ');
 		istringstream converter(line);
