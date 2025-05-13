@@ -6,7 +6,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-	/*unsigned int p;
+	unsigned int p;
 	unsigned int q;
 	unsigned int b;
 	unsigned int c;
@@ -15,27 +15,55 @@ int main(int argc, char *argv[])
 	
 	stringstream convert;
 	
-	for (unsigned int i = 1; i < argc; i++)
-		convert << argv[i];
+	for (int i = 1; i < argc; i++)
+		convert << argv[i] << " ";
 	
 	convert >> p >> q >> b >> c;
 	if (argc == 7)
-		convert >> id_vertice_1 >> id_vertice_2;*/
+		convert >> id_vertice_1 >> id_vertice_2;
 	
-	/*std::cout<<"main eseguito"<<std::endl;
-	poliedro poliedro_1;
-	poliedro_1.numero_lati = 2;
-	cout<<poliedro_1.numero_lati;*/
-	
-	PolyhedronMesh PlatonicPolyhedron;
-	
-	/* Mettere qui la directory del file del poliedro, mi raccomando ../ prima */
-	
-	if(!ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Tetraedro/"))
+	if (p != 3){
+		cerr << "The construction of a geodetic solid requires a value of p equal to 3" << endl;
 		return 1;
+	}
+	
+	// chiamata alla costruzione del solido platonico di partenza
+	string InputFile = "../SolidiPlatonici";
+	PolyhedronMesh PlatonicPolyhedron;
+	switch(q) {
+		case 3:
+			// tetraedro
+			cout << "The platonic polyhedron corresponding to the Schlafli symbol {3, " << q << "} is a tetrahedron" << endl;
+			InputFile += "/Tetraedro/";
+			break;
+		case 4:
+			// ottaedro
+			cout << "The platonic polyhedron corresponding to the Schlafli symbol {3, " << q << "} is a octahedron" << endl;
+			InputFile += "/Ottaedro/";
+			break;
+		case 5:
+			// icosaedro
+			cout << "The platonic polyhedron corresponding to the Schlafli symbol {3, " << q << "} is a icosahedron" << endl;
+			InputFile += "/Icosaedro/";
+			break;
+		default:
+			cerr << "A platonic polygon with Schlafli symbol {3, " << q << "} does not exist" << endl;
+			return 1;
+			break;
+	}
+	
+	if(!ImportPolyhedronMesh(PlatonicPolyhedron, InputFile)){
+		cerr << "Something went wrong during the creation of the platonic polyhedron mesh" << endl;
+		return 1;
+	}
 	
 	PolyhedronMesh GeodeticSolid;
 	
-	
+	/*
+	std::cout<<"main eseguito"<<std::endl;
+	poliedro poliedro_1;
+	poliedro_1.numero_lati = 2;
+	cout<<poliedro_1.numero_lati;
+	*/
 	return 0;
 }
