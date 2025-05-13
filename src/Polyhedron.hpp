@@ -1,11 +1,12 @@
 #pragma once
+
 #include <iostream>
 #include"Eigen/Eigen"
 
 using namespace std;
 using namespace Eigen;
 
-struct Polyhedron
+struct PolyhedronMesh
 {
 	// Cell0D
 	unsigned int NumCell0Ds = 0;				// numero di vertici

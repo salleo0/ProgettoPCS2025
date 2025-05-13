@@ -5,15 +5,15 @@
 using namespace std;
 
 
-bool ImportCell0Ds(Polyhedron& polyhedron, 
+bool ImportCell0Ds(PolyhedronMesh& polyhedron, 
 					const string& InputFile);
 
-bool ImportCell1Ds(Polyhedron& polyhedron, 
+bool ImportCell1Ds(PolyhedronMesh& polyhedron, 
 					const string& InputFile);
 
-bool ImportCell2Ds(Polyhedron& polyhedron, 
+bool ImportCell2Ds(PolyhedronMesh& polyhedron, 
 					const string& InputFile);
 
 
-bool ImportPolyhedron(Polyhedron& polyhedron, 
+bool ImportPolyhedronMesh(PolyhedronMesh& polyhedron, 
 						const string& InputFile);

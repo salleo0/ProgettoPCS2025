@@ -7,7 +7,7 @@
 using namespace Eigen;
 using namespace std;
 
-bool ImportPolyhedron(Polyhedron& polyhedron, const string& InputFile){
+bool ImportPolyhedronMesh(PolyhedronMesh& polyhedron, const string& InputFile){
 	
 	if(!ImportCell0Ds(polyhedron,InputFile+"Cell0Ds.csv"))
 		return false;
@@ -56,7 +56,7 @@ bool ImportPolyhedron(Polyhedron& polyhedron, const string& InputFile){
 
 /************************************/
 
-bool ImportCell0Ds(Polyhedron& polyhedron, const string& InputFile)
+bool ImportCell0Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 {
 	ifstream file(InputFile);
 	if(file.fail()){
@@ -99,7 +99,7 @@ bool ImportCell0Ds(Polyhedron& polyhedron, const string& InputFile)
 
 /************************************/
 
-bool ImportCell1Ds(Polyhedron& polyhedron, const string& InputFile)
+bool ImportCell1Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 {
 	ifstream file(InputFile);
 	
@@ -158,7 +158,7 @@ bool ImportCell1Ds(Polyhedron& polyhedron, const string& InputFile)
 
 /************************************/
 
-bool ImportCell2Ds(Polyhedron& polyhedron, const string& InputFile) 
+bool ImportCell2Ds(PolyhedronMesh& polyhedron, const string& InputFile) 
 {
 	ifstream file(InputFile);
 	

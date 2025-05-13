@@ -26,11 +26,11 @@ int main(int argc, char *argv[])
 	poliedro poliedro_1;
 	poliedro_1.numero_lati = 2;
 	cout<<poliedro_1.numero_lati;*/
-	Polyhedron polyhedron;
+	PolyhedronMesh polyhedron;
 	
 	/* Mettere qui la directory del file del poliedro, mi raccomando ../ prima */
 	
-	if(!ImportPolyhedron(polyhedron, "../SolidiPlatonici/Tetraedro/"))
+	if(!ImportPolyhedronMesh(polyhedron, "../SolidiPlatonici/Tetraedro/"))
 		return 1;
 	
 	return 0;
