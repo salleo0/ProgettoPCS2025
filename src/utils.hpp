@@ -4,6 +4,8 @@
 
 using namespace std;
 
+bool ImportPolyhedronMesh(PolyhedronMesh& polyhedron, 
+						const string& InputFileDirectory);
 
 bool ImportCell0Ds(PolyhedronMesh& polyhedron, 
 					const string& InputFile);
@@ -14,5 +16,3 @@ bool ImportCell1Ds(PolyhedronMesh& polyhedron,
 bool ImportCell2Ds(PolyhedronMesh& polyhedron, 
 					const string& InputFile);
 
-bool ImportPolyhedronMesh(PolyhedronMesh& polyhedron, 
-						const string& InputFile);

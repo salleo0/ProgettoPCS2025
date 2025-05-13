@@ -59,11 +59,5 @@ int main(int argc, char *argv[])
 	
 	PolyhedronMesh GeodeticSolid;
 	
-	/*
-	std::cout<<"main eseguito"<<std::endl;
-	poliedro poliedro_1;
-	poliedro_1.numero_lati = 2;
-	cout<<poliedro_1.numero_lati;
-	*/
 	return 0;
 }

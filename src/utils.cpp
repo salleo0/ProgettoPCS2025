@@ -7,15 +7,15 @@
 using namespace Eigen;
 using namespace std;
 
-bool ImportPolyhedronMesh(PolyhedronMesh& polyhedron, const string& InputFile){
+bool ImportPolyhedronMesh(PolyhedronMesh& polyhedron, const string& InputFileDirectory){
 	
-	if(!ImportCell0Ds(polyhedron,InputFile+"Cell0Ds.csv"))
+	if(!ImportCell0Ds(polyhedron,InputFileDirectory + "Cell0Ds.csv"))
 		return false;
 	
-	if(!ImportCell1Ds(polyhedron,InputFile+"Cell1Ds.csv"))
+	if(!ImportCell1Ds(polyhedron,InputFileDirectory + "Cell1Ds.csv"))
 		return false;
 	
-	if(!ImportCell2Ds(polyhedron,InputFile+"Cell2Ds.csv"))
+	if(!ImportCell2Ds(polyhedron,InputFileDirectory + "Cell2Ds.csv"))
 		return false;
 	
 	// Le seguenti righe sono solo per controllare che tutta la memorizzazione sia stata
@@ -205,11 +205,13 @@ bool ImportCell2Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 		vector<unsigned int> vertices(3);
 		for(unsigned int i = 0; i < 3; i++)
 			converter >> vertices[i];
+		
 		polyhedron.Cell2DsVertices.push_back(vertices);
 		
 		vector<unsigned int> edges(3);
 		for(unsigned int i = 0; i < 3; i++)
 			converter >> edges[i];
+		
 		polyhedron.Cell2DsEdges.push_back(edges);
 		
 	}
