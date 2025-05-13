@@ -71,7 +71,7 @@ bool ImportCell0Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 		listLines.push_back(line);
 	file.close();
 	
-	//remove header
+	// Remove header
 	listLines.pop_front();
 	
 	polyhedron.NumCell0Ds = listLines.size();
@@ -116,7 +116,7 @@ bool ImportCell1Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 	
 	file.close();
 	
-	// remove header
+	// Remove header
 	listLines.pop_front();
 	
 	polyhedron.NumCell1Ds = listLines.size();

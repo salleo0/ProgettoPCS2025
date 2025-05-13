@@ -1,6 +1,6 @@
 #pragma once
 #include <sstream>
-#include "Polyhedron.hpp"
+#include "PolyhedronMesh.hpp"
 
 using namespace std;
 

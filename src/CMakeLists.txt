@@ -1,4 +1,4 @@
-list(APPEND src_headers ${CMAKE_CURRENT_SOURCE_DIR}/Polyhedron.hpp)
+list(APPEND src_headers ${CMAKE_CURRENT_SOURCE_DIR}/PolyhedronMesh.hpp)
 list(APPEND src_headers ${CMAKE_CURRENT_SOURCE_DIR}/utils.hpp)
 
 list(APPEND src_sources ${CMAKE_CURRENT_SOURCE_DIR}/utils.cpp)

@@ -1,5 +1,5 @@
 #include <sstream>
-#include "Polyhedron.hpp"
+#include "PolyhedronMesh.hpp"
 #include "utils.hpp"
 
 using namespace std;
