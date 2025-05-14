@@ -16,6 +16,7 @@ bool ImportCell1Ds(PolyhedronMesh& polyhedron,
 bool ImportCell2Ds(PolyhedronMesh& polyhedron, 
 					const string& InputFile);
 					
-bool GenerateGeodeticSolid(const PolyhedronMesh& PlatonicPolyhedron,
-							PolyhedronMesh& GeodeticSolid);
+bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron,
+							PolyhedronMesh& GeodeticSolid,
+							const unsigned int& b);
 

@@ -221,13 +221,32 @@ bool ImportCell2Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 
 /************************************/
 
-bool GenerateGeodeticSolid(const PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid)
+bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, const unsigned int& num_segments)
 {
-	
+	// scorro le facce del solido platonico
+	for (const auto id : PlatonicPolyhedron.Cell2DsId) {
+		
+		// salvo in 3 vettori le coordinate dei vertici della faccia corrente del solido platonico
+		Vector3d Vertex1 = PlatonicPolyhedron.Cell0DsCoordinates.col(PlatonicPolyhedron.Cell2DsVertices[id][0]);
+		Vector3d Vertex2 = PlatonicPolyhedron.Cell0DsCoordinates.col(PlatonicPolyhedron.Cell2DsVertices[id][1]);
+		Vector3d Vertex3 = PlatonicPolyhedron.Cell0DsCoordinates.col(PlatonicPolyhedron.Cell2DsVertices[id][2]);
+		
+		// 
+		for (unsigned int i = 0; i <= num_segments; i++) {
+			for (unsigned int j = 0; j <= i; j++) {
+				
+				// pesi dei punti
+				int a = num_segments - i;
+				int b = i - j;
+				int c = j;
+				
+				Vector3d PointCoordinates = double(a)/num_segments*Vertex1 + double(b)/num_segments*Vertex2 + double(c)/num_segments*Vertex3;
+				
+				cout << PointCoordinates << endl << endl;
+			}
+		}
+	}
 	return true;
 }
 
-
 /************************************/
-
-//bool Generate
