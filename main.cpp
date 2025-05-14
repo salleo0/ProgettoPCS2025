@@ -6,12 +6,12 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-	unsigned int p;
-	unsigned int q;
-	unsigned int b;
-	unsigned int c;
-	unsigned int id_vertice_1;
-	unsigned int id_vertice_2;
+	int p;
+	int q;
+	int b;
+	int c;
+	int id_vertice_1;
+	int id_vertice_2;
 	
 	stringstream convert;
 	

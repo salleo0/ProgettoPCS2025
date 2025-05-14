@@ -18,7 +18,8 @@ bool ImportCell2Ds(PolyhedronMesh& polyhedron,
 					
 bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron,
 							PolyhedronMesh& GeodeticSolid,
-							const unsigned int& b);
-bool CheckDuplicates(const MatrixXd& mat, const Vector3d& vec, unsigned int matSize, unsigned int& duplicate_pos);
+							const int& b);
+							
+bool CheckDuplicates(const MatrixXd& mat, const Vector3d& vec, int matSize, int& duplicate_pos);
 
 

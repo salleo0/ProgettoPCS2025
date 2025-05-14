@@ -22,7 +22,7 @@ bool ImportPolyhedronMesh(PolyhedronMesh& polyhedron, const string& InputFileDir
 	// effettuata correttamente, cancellare a tempo debito 
 	
 	/*
-	for(unsigned int i = 0; i < polyhedron.NumCell0Ds;i++){
+	for( int i = 0; i < polyhedron.NumCell0Ds;i++){
 		cout << polyhedron.Cell0DsId[i] << endl;
 		cout << polyhedron.Cell0DsCoordinates(0,i) << " " << polyhedron.Cell0DsCoordinates(1,i) << " ";
 		cout << polyhedron.Cell0DsCoordinates(2,i) << endl;
@@ -30,20 +30,20 @@ bool ImportPolyhedronMesh(PolyhedronMesh& polyhedron, const string& InputFileDir
 	*/
 	
 	/*	
-	for(unsigned int i = 0; i < polyhedron.NumCell1Ds; i++){
+	for( int i = 0; i < polyhedron.NumCell1Ds; i++){
 		cout << polyhedron.Cell1DsId[i] << endl;
 		cout << polyhedron.Cell1DsExtrema(0,i) << " " << polyhedron.Cell1DsExtrema(1,i) << endl;
 	} 
 	*/
 	
 	/*
-	for(unsigned int i = 0; i < polyhedron.NumCell2Ds; i++){
+	for( int i = 0; i < polyhedron.NumCell2Ds; i++){
 		cout << polyhedron.Cell2DsId[i] << endl;
-		for(unsigned int j = 0; j < 3; j++){
+		for( int j = 0; j < 3; j++){
 			cout << polyhedron.Cell2DsVertices[i][j] << " ";
 		}
 		cout << endl;
-		for(unsigned int j = 0; j < 3; j++){
+		for( int j = 0; j < 3; j++){
 			cout << polyhedron.Cell2DsEdges[i][j] << " ";
 		}
 		cout << endl;
@@ -88,7 +88,7 @@ bool ImportCell0Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 		replace(line.begin(), line.end(), ';', ' ');
 		istringstream converter(line);
 		
-		unsigned int id;
+		 int id;
 		
 		converter >> id >> polyhedron.Cell0DsCoordinates(0,id) >> polyhedron.Cell0DsCoordinates(1,id) >> polyhedron.Cell0DsCoordinates(2,id);
 		
@@ -135,9 +135,9 @@ bool ImportCell1Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 		replace(line.begin(), line.end(), ';', ' ');
 		istringstream converter(line);
 		
-		unsigned int id;
-		unsigned int Origin;
-		unsigned int End;
+		int id;
+		int Origin;
+		int End;
 		
 		converter >> id >> Origin >> End;
 		
@@ -195,21 +195,21 @@ bool ImportCell2Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 		replace(line.begin(), line.end(), ';', ' ');
 		istringstream converter(line);
 		
-		unsigned int id;
+		int id;
 		
 		converter >> id;
 		
 		polyhedron.Cell2DsId.push_back(id);
 		
 		// memorizzo i vertici e gli spigoli
-		vector<unsigned int> vertices(3);
-		for(unsigned int i = 0; i < 3; i++)
+		vector<int> vertices(3);
+		for(int i = 0; i < 3; i++)
 			converter >> vertices[i];
 		
 		polyhedron.Cell2DsVertices.push_back(vertices);
 		
-		vector<unsigned int> edges(3);
-		for(unsigned int i = 0; i < 3; i++)
+		vector<int> edges(3);
+		for(int i = 0; i < 3; i++)
 			converter >> edges[i];
 		
 		polyhedron.Cell2DsEdges.push_back(edges);
@@ -221,13 +221,27 @@ bool ImportCell2Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 
 /************************************/
 
-bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, const unsigned int& num_segments)
+bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, const int& num_segments)
 {
-	unsigned int points_id = 0;
-	int total_points = (PlatonicPolyhedron.NumCell2Ds)*((num_segments + 1) * (num_segments + 2) / 2);
+	int points_id = 0;		// id dei punti che andremo a generare
+	int duplicate_id = 0;	// id che servirà per controllare se esiste già un duplicato
+	
+	int total_points = (PlatonicPolyhedron.NumCell2Ds)*((num_segments + 1) * (num_segments + 2) / 2);	// numero totale di punti dato b
+	
+	// usiamo total points per allocare memoria
 	GeodeticSolid.Cell0DsId.reserve(total_points);
 	GeodeticSolid.Cell0DsCoordinates = MatrixXd::Zero(3,total_points);
-	map<array<int, 4>, unsigned int> point_coefficients;
+	
+	//
+	map<array<int, 4>, int> point_coefficients;
+	
+	int edge_id = 0;
+	int face_id = 0;
+	
+	int total_edges = 30*(num_segments^2);
+	int total_faces = 20*(num_segments^2);
+	GeodeticSolid.Cell1DsId.reserve(total_edges);
+	GeodeticSolid.Cell2DsId.reserve(total_faces);
 	
 	// scorro le facce del solido platonico
 	for (const auto id : PlatonicPolyhedron.Cell2DsId) {
@@ -236,46 +250,53 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 		Vector3d Vertex1 = PlatonicPolyhedron.Cell0DsCoordinates.col(PlatonicPolyhedron.Cell2DsVertices[id][0]);
 		Vector3d Vertex2 = PlatonicPolyhedron.Cell0DsCoordinates.col(PlatonicPolyhedron.Cell2DsVertices[id][1]);
 		Vector3d Vertex3 = PlatonicPolyhedron.Cell0DsCoordinates.col(PlatonicPolyhedron.Cell2DsVertices[id][2]);
-		// 
 		
-		for (unsigned int i = 0; i <= num_segments; i++) {
-			for (unsigned int j = 0; j <= i; j++) {
+		// GENERAZIONE DEI VERTICI DEL POLIEDRO GEODETICO
+		for (int i = 0; i <= num_segments; i++) {
+			for (int j = 0; j <= i; j++) {
 				
 				// pesi dei punti
 				int a = num_segments - i;
 				int b = i - j;
 				int c = j;
 				
-				// coordinate dei punti della mesh
+				// coordinate dei punti del poliedro geodetico
 				Vector3d PointCoordinates = double(a)/num_segments*Vertex1 + double(b)/num_segments*Vertex2 + double(c)/num_segments*Vertex3;
-				
 				
 				// aggiungo al dizionario chiave = [a,b,c] e valore = id
 				array<int, 4> coefficients;
-				coefficients[0]=a;
-				coefficients[1]=b;
-				coefficients[2]=c;
-				coefficients[3]=id;
+				coefficients[0] = a;
+				coefficients[1] = b;
+				coefficients[2] = c;
+				coefficients[3] = id;
 					
 					
 				// se il punto PointCoordinates è gia presente in GeodeticSolid.Cell0DsCoordinates non lo aggiungo nuovamente
-				unsigned int duplicate_id = 0;
 				if (!CheckDuplicates(GeodeticSolid.Cell0DsCoordinates, PointCoordinates, points_id, duplicate_id)){
 					point_coefficients[coefficients] = points_id;
 					GeodeticSolid.Cell0DsId.push_back(points_id);
-					GeodeticSolid.Cell0DsCoordinates(0,points_id)=PointCoordinates[0];
-					GeodeticSolid.Cell0DsCoordinates(1,points_id)=PointCoordinates[1];
-					GeodeticSolid.Cell0DsCoordinates(2,points_id)=PointCoordinates[2];
+					GeodeticSolid.Cell0DsCoordinates(0,points_id) = PointCoordinates[0];
+					GeodeticSolid.Cell0DsCoordinates(1,points_id) = PointCoordinates[1];
+					GeodeticSolid.Cell0DsCoordinates(2,points_id) = PointCoordinates[2];
 					points_id ++;
+					GeodeticSolid.NumCell0Ds++;
 				}
 				else
 					point_coefficients[coefficients] = duplicate_id;
 				
 			}
 		}
+		
+		for (int i = 0; i < num_segments; i++){
+			for (int j = 0; j < num_segments - i; j++){
+				int Origin = point_coefficients[{i, num_segments - i - j, j, id}];
+				int End = point_coefficients[{i, num_segments - i - j, j + 1, id}];
+				cout << Origin << " " << End << endl;
+			}
+		}
 	}
 	
-	/*for(unsigned int i = 0; i < points_id;i++){
+	/*for(int i = 0; i < points_id;i++){
 		cout << GeodeticSolid.Cell0DsId[i] << endl;
 		cout << GeodeticSolid.Cell0DsCoordinates(0,i) << " " << GeodeticSolid.Cell0DsCoordinates(1,i) << " ";
 		cout << GeodeticSolid.Cell0DsCoordinates(2,i) << endl;
@@ -287,20 +308,21 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 		cout<<"id del punto: "<<itor.second<<endl;
 		
 	}
+	
+	
 	return true;
 }
 
 /************************************/
 
-
 // funzione che guarda se vec è gia presewnte come colonna di mat
-bool CheckDuplicates(const MatrixXd& mat, const Vector3d& vec, unsigned int matSize, unsigned int& duplicate_pos)
+bool CheckDuplicates(const MatrixXd& mat, const Vector3d& vec, int matSize, int& duplicate_pos)
 {
-	for(int i = 0; i<matSize; i++){
-		if( (mat.col(i)-vec).norm() < 1e-16 ){
+	for(int i = 0; i < matSize; i++){
+		if( (mat.col(i) - vec).norm() < 1e-16 ){
 			duplicate_pos = i;
 			return true;
-			}
+		}
 	}
 	return false;
 }
