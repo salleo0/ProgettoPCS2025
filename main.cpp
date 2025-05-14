@@ -59,5 +59,7 @@ int main(int argc, char *argv[])
 	
 	PolyhedronMesh GeodeticSolid;
 	
+	GenerateGeodeticSolid(PlatonicPolyhedron, GeodeticSolid);
+	
 	return 0;
 }

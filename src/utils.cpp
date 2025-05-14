@@ -227,6 +227,7 @@ bool GenerateGeodeticSolid(const PolyhedronMesh& PlatonicPolyhedron, PolyhedronM
 	return true;
 }
 
+
 /************************************/
 
 //bool Generate
