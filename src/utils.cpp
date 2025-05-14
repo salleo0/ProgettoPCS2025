@@ -281,34 +281,18 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 					points_id++;
 					GeodeticSolid.NumCell0Ds++;
 				}
-				else
+				else{
 					point_coefficients[coefficients] = duplicate_id;
-				
+				}
 			}
 		}
 		
-		for (int i = 0; i < num_segments; i++){
-			for (int j = 0; j < num_segments - i; j++){
-				int Origin = point_coefficients[{i, num_segments - i - j, j, id}];
-				int End = point_coefficients[{i, num_segments - i - j, j + 1, id}];
-				cout << Origin << " " << End << endl;
-			}
-		}
 	}
 	
-	/*for(int i = 0; i < points_id;i++){
-		cout << GeodeticSolid.Cell0DsId[i] << endl;
-		cout << GeodeticSolid.Cell0DsCoordinates(0,i) << " " << GeodeticSolid.Cell0DsCoordinates(1,i) << " ";
-		cout << GeodeticSolid.Cell0DsCoordinates(2,i) << endl;
-	}*/
-	
-	
-	for(auto &itor : point_coefficients){
-		cout<<"coefficienti: "<<itor.first[0]<<" "<<itor.first[1]<<" "<<itor.first[2]<<" "<<itor.first[3]<<endl;
-		cout<<"id del punto: "<<itor.second<<endl;
-		
-	}
-	
+	cout<<"-----------------------------"<<endl;
+	for(auto& itor:point_coefficients)
+		cout<<itor.first[0]<<" "<<itor.first[1]<<" "<<itor.first[2]<<" "<<itor.first[3]<<" value: "<<itor.second<<endl;
+	cout<<"-----------------------------"<<endl;
 	
 	return true;
 }
