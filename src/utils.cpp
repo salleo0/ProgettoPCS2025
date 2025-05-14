@@ -278,7 +278,7 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 					GeodeticSolid.Cell0DsCoordinates(0,points_id) = PointCoordinates[0];
 					GeodeticSolid.Cell0DsCoordinates(1,points_id) = PointCoordinates[1];
 					GeodeticSolid.Cell0DsCoordinates(2,points_id) = PointCoordinates[2];
-					points_id ++;
+					points_id++;
 					GeodeticSolid.NumCell0Ds++;
 				}
 				else
