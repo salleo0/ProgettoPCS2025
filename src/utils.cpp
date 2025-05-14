@@ -223,6 +223,11 @@ bool ImportCell2Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 
 bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, const unsigned int& num_segments)
 {
+	unsigned int points_id = 0;
+	int total_points = (PlatonicPolyhedron.NumCell2Ds)*((num_segments + 1) * (num_segments + 2) / 2);
+	GeodeticSolid.Cell0DsId.reserve(total_points);
+	GeodeticSolid.Cell0DsCoordinates = MatrixXd::Zero(3,total_points);
+	
 	// scorro le facce del solido platonico
 	for (const auto id : PlatonicPolyhedron.Cell2DsId) {
 		
@@ -230,8 +235,8 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 		Vector3d Vertex1 = PlatonicPolyhedron.Cell0DsCoordinates.col(PlatonicPolyhedron.Cell2DsVertices[id][0]);
 		Vector3d Vertex2 = PlatonicPolyhedron.Cell0DsCoordinates.col(PlatonicPolyhedron.Cell2DsVertices[id][1]);
 		Vector3d Vertex3 = PlatonicPolyhedron.Cell0DsCoordinates.col(PlatonicPolyhedron.Cell2DsVertices[id][2]);
-		
 		// 
+		
 		for (unsigned int i = 0; i <= num_segments; i++) {
 			for (unsigned int j = 0; j <= i; j++) {
 				
@@ -240,13 +245,43 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 				int b = i - j;
 				int c = j;
 				
+				// coordinate dei punti della mesh
 				Vector3d PointCoordinates = double(a)/num_segments*Vertex1 + double(b)/num_segments*Vertex2 + double(c)/num_segments*Vertex3;
 				
-				cout << PointCoordinates << endl << endl;
+				// se il punto PointCoordinates è gia presente in GeodeticSolid.Cell0DsCoordinates non lo aggiungo nuovamente
+				
+				if (!CheckDuplicates(GeodeticSolid.Cell0DsCoordinates, PointCoordinates, points_id)){
+				
+					GeodeticSolid.Cell0DsId.push_back(points_id);
+					GeodeticSolid.Cell0DsCoordinates(0,points_id)=PointCoordinates[0];
+					GeodeticSolid.Cell0DsCoordinates(1,points_id)=PointCoordinates[1];
+					GeodeticSolid.Cell0DsCoordinates(2,points_id)=PointCoordinates[2];
+					points_id ++;
+				}
+				
 			}
 		}
 	}
+	
+	/*for(unsigned int i = 0; i < points_id;i++){
+		cout << GeodeticSolid.Cell0DsId[i] << endl;
+		cout << GeodeticSolid.Cell0DsCoordinates(0,i) << " " << GeodeticSolid.Cell0DsCoordinates(1,i) << " ";
+		cout << GeodeticSolid.Cell0DsCoordinates(2,i) << endl;
+	}*/
+	
+
 	return true;
 }
 
 /************************************/
+
+
+// funzione che guarda se vec è gia presewnte come colonna di mat
+bool CheckDuplicates(const MatrixXd& mat, const Vector3d& vec, unsigned int matSize)
+{
+	for(int i = 0; i<matSize; i++){
+		if( (mat.col(i)-vec).norm() < 1e-16 )
+			return true;
+	}
+	return false;
+}
