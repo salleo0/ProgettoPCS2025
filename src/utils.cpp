@@ -227,6 +227,7 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 	int total_points = (PlatonicPolyhedron.NumCell2Ds)*((num_segments + 1) * (num_segments + 2) / 2);
 	GeodeticSolid.Cell0DsId.reserve(total_points);
 	GeodeticSolid.Cell0DsCoordinates = MatrixXd::Zero(3,total_points);
+	map<array<int, 4>, unsigned int> point_coefficients;
 	
 	// scorro le facce del solido platonico
 	for (const auto id : PlatonicPolyhedron.Cell2DsId) {
@@ -248,16 +249,27 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 				// coordinate dei punti della mesh
 				Vector3d PointCoordinates = double(a)/num_segments*Vertex1 + double(b)/num_segments*Vertex2 + double(c)/num_segments*Vertex3;
 				
+				
+				// aggiungo al dizionario chiave = [a,b,c] e valore = id
+				array<int, 4> coefficients;
+				coefficients[0]=a;
+				coefficients[1]=b;
+				coefficients[2]=c;
+				coefficients[3]=id;
+					
+					
 				// se il punto PointCoordinates è gia presente in GeodeticSolid.Cell0DsCoordinates non lo aggiungo nuovamente
-				
-				if (!CheckDuplicates(GeodeticSolid.Cell0DsCoordinates, PointCoordinates, points_id)){
-				
+				unsigned int duplicate_id = 0;
+				if (!CheckDuplicates(GeodeticSolid.Cell0DsCoordinates, PointCoordinates, points_id, duplicate_id)){
+					point_coefficients[coefficients] = points_id;
 					GeodeticSolid.Cell0DsId.push_back(points_id);
 					GeodeticSolid.Cell0DsCoordinates(0,points_id)=PointCoordinates[0];
 					GeodeticSolid.Cell0DsCoordinates(1,points_id)=PointCoordinates[1];
 					GeodeticSolid.Cell0DsCoordinates(2,points_id)=PointCoordinates[2];
 					points_id ++;
 				}
+				else
+					point_coefficients[coefficients] = duplicate_id;
 				
 			}
 		}
@@ -269,7 +281,12 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 		cout << GeodeticSolid.Cell0DsCoordinates(2,i) << endl;
 	}*/
 	
-
+	
+	for(auto &itor : point_coefficients){
+		cout<<"coefficienti: "<<itor.first[0]<<" "<<itor.first[1]<<" "<<itor.first[2]<<" "<<itor.first[3]<<endl;
+		cout<<"id del punto: "<<itor.second<<endl;
+		
+	}
 	return true;
 }
 
@@ -277,11 +294,13 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 
 
 // funzione che guarda se vec è gia presewnte come colonna di mat
-bool CheckDuplicates(const MatrixXd& mat, const Vector3d& vec, unsigned int matSize)
+bool CheckDuplicates(const MatrixXd& mat, const Vector3d& vec, unsigned int matSize, unsigned int& duplicate_pos)
 {
 	for(int i = 0; i<matSize; i++){
-		if( (mat.col(i)-vec).norm() < 1e-16 )
+		if( (mat.col(i)-vec).norm() < 1e-16 ){
+			duplicate_pos = i;
 			return true;
+			}
 	}
 	return false;
 }
