@@ -20,6 +20,8 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron,
 							PolyhedronMesh& GeodeticSolid,
 							const int& b);
 							
-bool CheckDuplicates(const MatrixXd& mat, const Vector3d& vec, int matSize, int& duplicate_pos);
+bool CheckDuplicatesVertex(const MatrixXd& mat, const Vector3d& vec, int& matSize, int& duplicate_pos);
+
+bool CheckDuplicatesEdge(const MatrixXi& mat, const int& v1, const int& v2, int& matSize);
 
 
