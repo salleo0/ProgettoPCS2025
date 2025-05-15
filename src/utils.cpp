@@ -243,10 +243,10 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 	int total_faces = 20*(num_segments^2);
 	GeodeticSolid.Cell1DsId.reserve(total_edges);
 	GeodeticSolid.Cell2DsId.reserve(total_faces);
-	GeodeticSolid.Cell2DsEdges.reserve(total_faces);
-	GeodeticSolid.Cell2DsNumEdges.reserve(total_faces);
-	GeodeticSolid.Cell2DsVertices.reserve(total_faces);
-	GeodeticSolid.Cell2DsNumVertices.reserve(total_faces);
+	GeodeticSolid.Cell2DsEdges.resize(total_faces);
+	GeodeticSolid.Cell2DsNumEdges.resize(total_faces);
+	GeodeticSolid.Cell2DsVertices.resize(total_faces);
+	GeodeticSolid.Cell2DsNumVertices.resize(total_faces);
 	
 	// scorro le facce del solido platonico
 	for (const auto& id : PlatonicPolyhedron.Cell2DsId) {
@@ -306,11 +306,13 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 				GeodeticSolid.Cell2DsId.push_back(face_id);
 				cout<<"1"<<endl;
 				GeodeticSolid.Cell2DsNumVertices[face_id] = 3;
+				cout<<"2"<<endl;
 				GeodeticSolid.Cell2DsNumEdges[face_id] = 3;
+				cout<<"3"<<endl;
 				vector<int> VerticesVector = {Vertex1, Vertex2, Vertex3};
 				GeodeticSolid.Cell2DsVertices[face_id] = VerticesVector;
 				GeodeticSolid.Cell2DsEdges[face_id].reserve(3);				
-				face_id++;
+				
 				// edges
 				for (int k = 0; k < 3; k++) {
 					int originVertex = GeodeticSolid.Cell2DsVertices[face_id][k];
@@ -327,7 +329,7 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 						edge_id++;
 					}
 				}
-				
+				face_id++;
 				// generazione triangolo "a punta in giù"
 				if(i>0){
 					int Vertex4 = point_coefficients[{i-1,num_segments-(i-1)-j,j,id}];
@@ -337,7 +339,7 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 					VerticesVector[2] = Vertex4;
 					GeodeticSolid.Cell2DsVertices[face_id] = VerticesVector;
 					GeodeticSolid.Cell2DsEdges[face_id].reserve(3);
-					face_id++;
+					
 					for (int k = 0; k < 3; k++) {
 						int originVertex = GeodeticSolid.Cell2DsVertices[face_id][k];
 						int endVertex;
@@ -353,6 +355,7 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 							edge_id++;
 						}
 					}
+					face_id++;
 				}
 				/*
 				// primo edge
