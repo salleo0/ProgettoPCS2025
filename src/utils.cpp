@@ -239,8 +239,8 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 	
 	
 	
-	int total_edges = 30*(num_segments^2);
-	int total_faces = 20*(num_segments^2);
+	int total_edges = 30*(num_segments*num_segments);
+	int total_faces = 20*(num_segments*num_segments);
 	GeodeticSolid.Cell1DsId.reserve(total_edges);
 	GeodeticSolid.Cell2DsId.reserve(total_faces);
 	GeodeticSolid.Cell2DsEdges.resize(total_faces);
@@ -304,7 +304,6 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 				// generazione triangolo "a punta in su"
 				// face
 				GeodeticSolid.Cell2DsId.push_back(face_id);
-				cout<<"1"<<endl;
 				GeodeticSolid.Cell2DsNumVertices[face_id] = 3;
 				cout<<"2"<<endl;
 				GeodeticSolid.Cell2DsNumEdges[face_id] = 3;
