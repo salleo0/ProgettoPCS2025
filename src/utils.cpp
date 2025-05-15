@@ -244,7 +244,7 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 	GeodeticSolid.Cell2DsId.reserve(total_faces);
 	
 	// scorro le facce del solido platonico
-	for (const auto id : PlatonicPolyhedron.Cell2DsId) {
+	for (const auto& id : PlatonicPolyhedron.Cell2DsId) {
 		
 		// salvo in 3 vettori le coordinate dei vertici della faccia corrente del solido platonico
 		Vector3d Vertex1 = PlatonicPolyhedron.Cell0DsCoordinates.col(PlatonicPolyhedron.Cell2DsVertices[id][0]);
@@ -291,10 +291,9 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 	
 	/*for(const auto& itor:point_coefficients){
 		cout<<"Terna di numeri: "<<itor.first[0]<<" "<<itor.first[1]<<" "<<itor.first[2]<<" "<<" id della facia: "<<itor.first[3]<<" id del punto: "<<itor.second<<endl;
-	}*/
-	
+	}
 	cout<<"-------------------------"<<endl;
-	for(const auto& id:PlatonicPolyhedron.Cell0DsId){
+	for(const auto& id:PlatonicPolyhedron.Cell2DsId){
 		for(int i = 0; i < num_segments; i++){
 			for(int j = 0; j<num_segments-i;j++){
 				cout<<"ID faccia: "<<id<<endl;
@@ -302,15 +301,15 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 				cout<<"Terna di numeri nella faccia inizio: "<<i<<" "<<num_segments-i-j<<" "<<j<<endl;
 				cout<<"ID del punto inizio: "<<point_coefficients[{i,num_segments-i-j,j,id}]<<endl;
 				cout<<"Terna di numeri nella faccia fine: "<<i<<" "<<num_segments-i-(j+1)<<" "<<j+1<<endl;
-				cout<<"ID del punto fine: "<<point_coefficients[{i,num_segments-i-(j+1),j,id}]<<endl;
+				cout<<"ID del punto fine: "<<point_coefficients[{i,num_segments-i-(j+1),j+1,id}]<<endl;
 				cout<<"Terna di numeri nella faccia inizio: "<<i<<" "<<num_segments-i-(j+1)<<" "<<j+1<<endl;
-				cout<<"ID del punto inizio: "<<point_coefficients[{i,num_segments-i-(j+1),j,id}]<<endl;
+				cout<<"ID del punto inizio: "<<point_coefficients[{i,num_segments-i-(j+1),j+1,id}]<<endl;
 				cout<<"Terna di numeri nella faccia fine: "<<i+1<<" "<<num_segments-(i+1)-j<<" "<<j<<endl;
 				cout<<"ID del punto fine: "<<point_coefficients[{i+1,num_segments-(i+1)-j,j,id}]<<endl;
 				cout<<"Terna di numeri nella faccia inizio: "<<i+1<<" "<<num_segments-(i+1)-j<<" "<<j<<endl;
 				cout<<"ID del punto inizio: "<<point_coefficients[{i+1,num_segments-(i+1)-j,j,id}]<<endl;
 				cout<<"Terna di numeri nella faccia fine: "<<i<<" "<<num_segments-i-j<<" "<<j<<endl;
-				cout<<"ID del punto fine: "<<point_coefficients[{i+1,num_segments-i-j,j,id}]<<endl;
+				cout<<"ID del punto fine: "<<point_coefficients[{i,num_segments-i-j,j,id}]<<endl;
 				if(i!=0){
 					cout<<"TRIANGOLO SOTTO: "<<endl;
 					cout<<"Terna di numeri nella faccia inizio: "<<i<<" "<<num_segments-i-j<<" "<<j<<endl;
@@ -328,7 +327,7 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 				}
 			}
 		}
-	}
+	}*/
 	
 	return true;
 }
