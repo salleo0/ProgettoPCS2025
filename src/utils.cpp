@@ -9,13 +9,13 @@ using namespace std;
 
 bool ImportPolyhedronMesh(PolyhedronMesh& polyhedron, const string& InputFileDirectory){
 	
-	if(!ImportCell0Ds(polyhedron,InputFileDirectory + "Cell0Ds.csv"))
+	if(!ImportCell0Ds(polyhedron, InputFileDirectory + "Cell0Ds.csv"))
 		return false;
 	
-	if(!ImportCell1Ds(polyhedron,InputFileDirectory + "Cell1Ds.csv"))
+	if(!ImportCell1Ds(polyhedron, InputFileDirectory + "Cell1Ds.csv"))
 		return false;
 	
-	if(!ImportCell2Ds(polyhedron,InputFileDirectory + "Cell2Ds.csv"))
+	if(!ImportCell2Ds(polyhedron, InputFileDirectory + "Cell2Ds.csv"))
 		return false;	
 	
 	return true;
@@ -38,7 +38,7 @@ bool ImportCell0Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 		listLines.push_back(line);
 	file.close();
 	
-	// Remove header
+	// rimozione header
 	listLines.pop_front();
 	
 	polyhedron.NumCell0Ds = listLines.size();
@@ -47,20 +47,19 @@ bool ImportCell0Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 		return false;
 	}
 	
+	// salvo le informazioni nelle righe in polyhedron
 	polyhedron.Cell0DsId.reserve(polyhedron.NumCell0Ds);
 	polyhedron.Cell0DsCoordinates = MatrixXd::Zero(3,polyhedron.NumCell0Ds);
 	
-	for (const string& str: listLines){
-		string line = str;
+	for (string& line: listLines){
 		replace(line.begin(), line.end(), ';', ' ');
 		istringstream converter(line);
-		
-		 int id;
+		int id;
 		
 		converter >> id >> polyhedron.Cell0DsCoordinates(0,id) >> polyhedron.Cell0DsCoordinates(1,id) >> polyhedron.Cell0DsCoordinates(2,id);
-		
 		polyhedron.Cell0DsId.push_back(id);
 	}
+	
 	return true;
 }
 
@@ -69,7 +68,6 @@ bool ImportCell0Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 bool ImportCell1Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 {
 	ifstream file(InputFile);
-	
 	if(file.fail()){
 		cerr << "unable to open Cell1Ds.csv file" << endl;
 		return false;
@@ -80,14 +78,12 @@ bool ImportCell1Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 	string line;
 	while(getline(file,line))
 		listLines.push_back(line);
-	
 	file.close();
 	
-	// Remove header
+	// rimozione header
 	listLines.pop_front();
 	
 	polyhedron.NumCell1Ds = listLines.size();
-	
 	if (polyhedron.NumCell1Ds == 0){
 		cerr << "There is no cell 1D" << endl;
 		return false;
@@ -97,18 +93,16 @@ bool ImportCell1Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 	polyhedron.Cell1DsId.reserve(polyhedron.NumCell1Ds);
 	polyhedron.Cell1DsExtrema = MatrixXi::Zero(2, polyhedron.NumCell1Ds);
 	
-	for (const string& str : listLines){	
-		string line = str;
+	for (string& line : listLines){	
 		replace(line.begin(), line.end(), ';', ' ');
 		istringstream converter(line);
-		
 		int id;
 		int Origin;
 		int End;
 		
 		converter >> id >> Origin >> End;
 		
-		// test per verificare che nessun bordo abbia lunghezza zero
+		// test per verificare che nessun edge abbia lunghezza zero
 		if(Origin == End){
 			cerr << "at least one edge has zero length";
 			return false;
@@ -116,10 +110,9 @@ bool ImportCell1Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 		
 		polyhedron.Cell1DsExtrema(0, id) = Origin;
 		polyhedron.Cell1DsExtrema(1, id) = End;
-		
 		polyhedron.Cell1DsId.push_back(id);
-	
 	}
+	
 	return true;
 }
 
@@ -128,7 +121,6 @@ bool ImportCell1Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 bool ImportCell2Ds(PolyhedronMesh& polyhedron, const string& InputFile) 
 {
 	ifstream file(InputFile);
-	
 	if(file.fail()){
 		cerr << "unable to open Cell2Ds.csv file" << endl;
 		return false;
@@ -139,14 +131,12 @@ bool ImportCell2Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 	string line;
 	while (getline(file, line))
 		listLines.push_back(line);
-	
 	file.close();
 	
 	// remove header
 	listLines.pop_front();
 	
 	polyhedron.NumCell2Ds = listLines.size();
-	
 	if(polyhedron.NumCell2Ds == 0){
 		cerr << "there is no cell 2D" << endl;
 		return false;
@@ -157,30 +147,24 @@ bool ImportCell2Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 	polyhedron.Cell2DsVertices.reserve(polyhedron.NumCell2Ds);
 	polyhedron.Cell2DsEdges.reserve(polyhedron.NumCell2Ds);
 	
-	for (const string& str : listLines){
-		string line = str;
+	for (string& line : listLines){
 		replace(line.begin(), line.end(), ';', ' ');
 		istringstream converter(line);
-		
 		int id;
 		
 		converter >> id;
-		
 		polyhedron.Cell2DsId.push_back(id);
 		
 		// memorizzo i vertici e gli spigoli
 		vector<int> vertices(3);
 		for(int i = 0; i < 3; i++)
 			converter >> vertices[i];
-		
 		polyhedron.Cell2DsVertices.push_back(vertices);
 		
 		vector<int> edges(3);
 		for(int i = 0; i < 3; i++)
 			converter >> edges[i];
-		
-		polyhedron.Cell2DsEdges.push_back(edges);
-		
+		polyhedron.Cell2DsEdges.push_back(edges);	
 	}
 	
 	return true;
@@ -188,34 +172,33 @@ bool ImportCell2Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 
 /************************************/
 
-bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, const int& num_segments)
+void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, const int& num_segments)
 {
-	int points_id = 0;		// id dei punti che andremo a generare
-	int duplicate_id = 0;	// id che servirà per controllare se esiste già un duplicato
-	int edge_id = 0;
-	int face_id = 0;
+	int points_id = 0;		// id dei vertici del poliedro geodetico che andremo a generare
+	int duplicate_id = 0;	// id che servirà per controllare se esiste un duplicato di un vertice
+	int edge_id = 0;		// id degli spigoli del poliedro geodetico che andremo a generare
+	int face_id = 0;		// id delle facce del poliedro geodetico che andremo a generare
 	
-	int total_points = (PlatonicPolyhedron.NumCell2Ds)*((num_segments + 1) * (num_segments + 2) / 2);	// numero totale di punti dato b
+	int total_points = (PlatonicPolyhedron.NumCell2Ds)*((num_segments + 1) * (num_segments + 2) / 2);	// numero totale MASSIMO di vertici
+	int total_edges = 30*(num_segments*num_segments);													// numero totale MASSIMO di spigoli
+	int total_faces = 20*(num_segments*num_segments);													// numero totale MASSIMO di facce
 	
-	// usiamo total points per allocare memoria
+	
+	// usiamo i total points per allocare memoria
 	GeodeticSolid.Cell0DsId.reserve(total_points);
 	GeodeticSolid.Cell0DsCoordinates = MatrixXd::Zero(3,total_points);
 	
-	//
-	map<array<int, 4>, int> point_coefficients;
-	
-	
-	
-	int total_edges = 30*(num_segments*num_segments);
-	int total_faces = 20*(num_segments*num_segments);
+	GeodeticSolid.Cell1DsExtrema = MatrixXi::Zero(2, total_edges);
 	GeodeticSolid.Cell1DsId.reserve(total_edges);
+	
 	GeodeticSolid.Cell2DsId.reserve(total_faces);
 	GeodeticSolid.Cell2DsEdges.resize(total_faces);
 	GeodeticSolid.Cell2DsNumEdges.resize(total_faces);
 	GeodeticSolid.Cell2DsVertices.resize(total_faces);
 	GeodeticSolid.Cell2DsNumVertices.resize(total_faces);
 	
-	GeodeticSolid.Cell1DsExtrema = MatrixXi::Zero(2, total_edges);
+	// 
+	map<array<int, 4>, int> point_coefficients;
 	
 	// scorro le facce del solido platonico
 	for (const auto& id : PlatonicPolyhedron.Cell2DsId) {
@@ -333,7 +316,6 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 			}
 		}
 	}
-	return true;
 }
 
 /************************************/

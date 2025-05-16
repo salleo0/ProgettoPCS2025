@@ -6,12 +6,18 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
+	// salvataggio dei dati in input
+	// - {p, q} individuano il solido platonico di partenza
+	// - (b, c) indicano come triangolare il solido platonico e di consequenza il 
+	//			poliedro geodetico corrispondente
+	// id_vertex_1 -> id_vertex_2: cercare il cammino minimo tra questi vertici
+	//								del poliedro geodetico 
 	int p;
 	int q;
 	int b;
 	int c;
-	int id_vertice_1;
-	int id_vertice_2;
+	int id_vertex_1;
+	int id_vertex_2;
 	
 	stringstream convert;
 	
@@ -20,14 +26,17 @@ int main(int argc, char *argv[])
 	
 	convert >> p >> q >> b >> c;
 	if (argc == 7)
-		convert >> id_vertice_1 >> id_vertice_2;
+		convert >> id_vertex_1 >> id_vertex_2;
 	
+	// COSTRUZIONE DELLA MESH DEL POLIEDRO PLATONICO
+	// richiediamo che il poliedro platonico abbia facce di 3 vertici (<=> p = 3)
 	if (p != 3){
 		cerr << "The construction of a geodetic solid requires a value of p equal to 3" << endl;
 		return 1;
 	}
 	
 	// chiamata alla costruzione del solido platonico di partenza
+	// {p, q} individuano un poliedro platonico tra: Tetraedro, Ottaedro e Icosaedro
 	string InputFile = "../SolidiPlatonici";
 	PolyhedronMesh PlatonicPolyhedron;
 	switch(q) {
@@ -57,37 +66,14 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	
-	PolyhedronMesh GeodeticSolid;
+	// COSTRUZIONE DELLA MESH DEL POLIEDRO GEODETICO
+	PolyhedronMesh GeodeticPolyhedron;
+	if ( b > 0 && q == 0)
+		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, b);
+	else if ( b == 0 && q > 0)
+		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, q);
 	
-	GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticSolid, b);
 	
-	
-	for( int i = 0; i < GeodeticSolid.NumCell0Ds;i++){
-		cout << GeodeticSolid.Cell0DsId[i] << endl;
-		cout << GeodeticSolid.Cell0DsCoordinates(0,i) << " " << GeodeticSolid.Cell0DsCoordinates(1,i) << " ";
-		cout << GeodeticSolid.Cell0DsCoordinates(2,i) << endl;
-	}
-	
-	cout << "-----------------" << endl;
-	
-	for( int i = 0; i < GeodeticSolid.NumCell1Ds; i++){
-		cout << GeodeticSolid.Cell1DsId[i] << endl;
-		cout << GeodeticSolid.Cell1DsExtrema(0,i) << " " << GeodeticSolid.Cell1DsExtrema(1,i) << endl;
-	} 
-	cout << "-----------------" << endl;
-	
-	for( int i = 0; i < GeodeticSolid.NumCell2Ds; i++){
-		cout << GeodeticSolid.Cell2DsId[i] << endl;
-		for( int j = 0; j < 3; j++){
-			cout << GeodeticSolid.Cell2DsVertices[i][j] << " ";
-		}
-		cout << endl;
-		
-		for( int j = 0; j < 3; j++){
-			cout << GeodeticSolid.Cell2DsEdges[i][j] << " ";
-		}
-		cout << endl;
-	}
 	
 	return 0;
 }
