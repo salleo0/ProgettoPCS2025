@@ -219,7 +219,6 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 				
 				// coordinate dei punti del poliedro geodetico
 				Vector3d PointCoordinates = double(a)/num_segments*Vertex1 + double(b)/num_segments*Vertex2 + double(c)/num_segments*Vertex3;
-				
 				// aggiungo al dizionario chiave = [a,b,c] e valore = id
 				array<int, 4> coefficients;
 				coefficients[0] = a;
@@ -240,9 +239,15 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 				}
 				else
 					point_coefficients[coefficients] = duplicate_id;
-		
 			}
 		}
+	}
+	
+	for(int i = 0; i <GeodeticSolid.NumCell0Ds;i++){
+		double Norm_factor = (GeodeticSolid.Cell0DsCoordinates.col(i)).norm();
+		GeodeticSolid.Cell0DsCoordinates(0,i) = GeodeticSolid.Cell0DsCoordinates(0,i)/Norm_factor;
+		GeodeticSolid.Cell0DsCoordinates(1,i) = GeodeticSolid.Cell0DsCoordinates(1,i)/Norm_factor;
+		GeodeticSolid.Cell0DsCoordinates(2,i) = GeodeticSolid.Cell0DsCoordinates(2,i)/Norm_factor;
 	}
 	
 	for  (const auto& id : PlatonicPolyhedron.Cell2DsId){
@@ -322,7 +327,7 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 bool CheckDuplicatesVertex(const MatrixXd& mat, const Vector3d& vec, int& matSize, int& duplicate_pos)
 {
 	for(int i = 0; i < matSize; i++){
-		if( (mat.col(i) - vec).norm() < 1e-16 ){
+		if( (mat.col(i) - vec).norm() < 1e-8 ){
 			duplicate_pos = i;
 			return true;
 		}

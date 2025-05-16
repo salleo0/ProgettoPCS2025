@@ -47,6 +47,13 @@ list(APPEND Project_TEST_SOURCES ${src_test_sources})
 list(APPEND Project_TEST_HEADERS ${src_test_headers})
 list(APPEND Project_TEST_INCLUDE ${src_test_includes})
 
+add_subdirectory(ExportParaview)
+
+list(APPEND Project_SOURCES ${src_paraview_sources})
+list(APPEND Project_HEADERS ${src_paraview_headers})
+list(APPEND Project_INCLUDE ${src_paraview_includes})
+
+
 # Create executable
 ################################################################################
 add_executable(${PROJECT_NAME}
