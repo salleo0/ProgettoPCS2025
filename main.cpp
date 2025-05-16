@@ -61,14 +61,14 @@ int main(int argc, char *argv[])
 	
 	GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticSolid, b);
 	
-	/*
+	
 	for( int i = 0; i < GeodeticSolid.NumCell0Ds;i++){
 		cout << GeodeticSolid.Cell0DsId[i] << endl;
 		cout << GeodeticSolid.Cell0DsCoordinates(0,i) << " " << GeodeticSolid.Cell0DsCoordinates(1,i) << " ";
 		cout << GeodeticSolid.Cell0DsCoordinates(2,i) << endl;
 	}
-	*/
 	
+	cout << "-----------------" << endl;
 	
 	for( int i = 0; i < GeodeticSolid.NumCell1Ds; i++){
 		cout << GeodeticSolid.Cell1DsId[i] << endl;

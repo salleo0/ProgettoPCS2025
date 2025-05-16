@@ -16,41 +16,9 @@ bool ImportPolyhedronMesh(PolyhedronMesh& polyhedron, const string& InputFileDir
 		return false;
 	
 	if(!ImportCell2Ds(polyhedron,InputFileDirectory + "Cell2Ds.csv"))
-		return false;
-	
-	// Le seguenti righe sono solo per controllare che tutta la memorizzazione sia stata
-	// effettuata correttamente, cancellare a tempo debito 
-	/*
-	for( int i = 0; i < polyhedron.NumCell0Ds;i++){
-		cout << polyhedron.Cell0DsId[i] << endl;
-		cout << polyhedron.Cell0DsCoordinates(0,i) << " " << polyhedron.Cell0DsCoordinates(1,i) << " ";
-		cout << polyhedron.Cell0DsCoordinates(2,i) << endl;
-	}
-	
-	
-	
-	for( int i = 0; i < polyhedron.NumCell1Ds; i++){
-		cout << polyhedron.Cell1DsId[i] << endl;
-		cout << polyhedron.Cell1DsExtrema(0,i) << " " << polyhedron.Cell1DsExtrema(1,i) << endl;
-	} 
-	
-	
-	
-	for( int i = 0; i < polyhedron.NumCell2Ds; i++){
-		cout << polyhedron.Cell2DsId[i] << endl;
-		for( int j = 0; j < 3; j++){
-			cout << polyhedron.Cell2DsVertices[i][j] << " ";
-		}
-		cout << endl;
-		for( int j = 0; j < 3; j++){
-			cout << polyhedron.Cell2DsEdges[i][j] << " ";
-		}
-		cout << endl;
-	}*/
-	
+		return false;	
 	
 	return true;
-	
 }
 
 /************************************/
@@ -309,28 +277,31 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 				GeodeticSolid.Cell2DsNumEdges[face_id] = 3;
 				vector<int> VerticesVector = {Vertex1, Vertex2, Vertex3};
 				GeodeticSolid.Cell2DsVertices[face_id] = VerticesVector;
-				GeodeticSolid.Cell2DsEdges[face_id].resize(3);				
+				GeodeticSolid.Cell2DsEdges[face_id].resize(3);
 				
 				// edges
 				for (int k = 0; k < 3; k++) {
 					int originVertex = GeodeticSolid.Cell2DsVertices[face_id][k];
 					int endVertex;
+					
 					if ( k == 2 )
 						endVertex = GeodeticSolid.Cell2DsVertices[face_id][0];
 					else
 						endVertex = GeodeticSolid.Cell2DsVertices[face_id][k+1];
+					
 					if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, originVertex, endVertex, edge_id)){
 						GeodeticSolid.NumCell1Ds++;
 						GeodeticSolid.Cell1DsId.push_back(edge_id);
 						GeodeticSolid.Cell1DsExtrema(0, edge_id) = originVertex;
 						GeodeticSolid.Cell1DsExtrema(1, edge_id) = endVertex;
+						GeodeticSolid.Cell2DsEdges[face_id][k] = edge_id;
 						edge_id++;
 					}
 				}
 				face_id++;
 				// generazione triangolo "a punta in giù"
 				if(i>0){
-					int Vertex4 = point_coefficients[{i-1,num_segments-(i-1)-j,j,id}];
+					int Vertex4 = point_coefficients[{i-1,num_segments-(i-1)-(j+1),(j+1),id}];
 					GeodeticSolid.NumCell2Ds++;
 					GeodeticSolid.Cell2DsId.push_back(face_id);
 					GeodeticSolid.Cell2DsNumVertices[face_id] = 3;
@@ -342,95 +313,26 @@ bool GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 					for (int k = 0; k < 3; k++) {
 						int originVertex = GeodeticSolid.Cell2DsVertices[face_id][k];
 						int endVertex;
+						
 						if ( k == 2 )
 							endVertex = GeodeticSolid.Cell2DsVertices[face_id][0];
 						else
 							endVertex = GeodeticSolid.Cell2DsVertices[face_id][k+1];
+						
 						if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, originVertex, endVertex, edge_id)){
 							GeodeticSolid.NumCell1Ds++;
 							GeodeticSolid.Cell1DsId.push_back(edge_id);
 							GeodeticSolid.Cell1DsExtrema(0, edge_id) = originVertex;
 							GeodeticSolid.Cell1DsExtrema(1, edge_id) = endVertex;
+							GeodeticSolid.Cell2DsEdges[face_id][k] = edge_id;
 							edge_id++;
 						}
 					}
 					face_id++;
 				}
-				/*
-				// primo edge
-				originVertex = point_coefficients[{i,num_segments-i-j,j,id}];
-				endVertex = point_coefficients[{i,num_segments-i-(j+1),j+1,id}];
-				if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, originVertex, endVertex, edge_id){
-					GeodeticSolid.NumCell1Ds++;
-					GeodeticSolid.Cell1DsId.push_back(edge_id);
-					GeodeticSolid.Cell1DsExtrema(edge_id, 0) = originVertex;
-					GeodeticSolid.Cell1DsExtrema(edge_id, 1) = endVertex;
-					edge_id++;
-					
-				}
-				// secondo edge
-				originVertex = point_coefficients[{i,num_segments-i-(j+1),j+1,id}];
-				endVertex = point_coefficients[{i+1,num_segments-(i+1)-j,j,id}];
-				if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, originVertex, endVertex, edge_id){
-					GeodeticSolid.NumCell1Ds++;
-					GeodeticSolid.Cell1DsId.push_back(edge_id);
-					GeodeticSolid.Cell1DsExtrema(edge_id, 0) = originVertex;
-					GeodeticSolid.Cell1DsExtrema(edge_id, 1) = endVertex;
-					edge_id++;
-				}
-				// terzo edge
-				originVertex = point_coefficients[{i+1,num_segments-(i+1)-j,j,id}];
-				endVertex = point_coefficients[{i,num_segments-i-j,j,id}];
-				if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, originVertex, endVertex, edge_id){
-					GeodeticSolid.NumCell1Ds++;
-					GeodeticSolid.Cell1DsId.push_back(edge_id);
-					GeodeticSolid.Cell1DsExtrema(edge_id, 0) = originVertex;
-					GeodeticSolid.Cell1DsExtrema(edge_id, 1) = endVertex;
-					edge_id++;
-				}*/
 			}
 		}
 	}
-	/*for(const auto& itor:point_coefficients){
-		cout<<"Terna di numeri: "<<itor.first[0]<<" "<<itor.first[1]<<" "<<itor.first[2]<<" "<<" id della facia: "<<itor.first[3]<<" id del punto: "<<itor.second<<endl;
-	}
-	cout<<"-------------------------"<<endl;
-	for(const auto& id:PlatonicPolyhedron.Cell2DsId){
-		for(int i = 0; i < num_segments; i++){
-			for(int j = 0; j<num_segments-i;j++){
-				cout<<"ID faccia: "<<id<<endl;
-				cout<<"TRIANGOLO SOPRA"<<endl;
-				cout<<"Terna di numeri nella faccia inizio: "<<i<<" "<<num_segments-i-j<<" "<<j<<endl;
-				cout<<"ID del punto inizio: "<<point_coefficients[{i,num_segments-i-j,j,id}]<<endl;
-				cout<<"Terna di numeri nella faccia fine: "<<i<<" "<<num_segments-i-(j+1)<<" "<<j+1<<endl;
-				cout<<"ID del punto fine: "<<point_coefficients[{i,num_segments-i-(j+1),j+1,id}]<<endl;
-				cout<<"Terna di numeri nella faccia inizio: "<<i<<" "<<num_segments-i-(j+1)<<" "<<j+1<<endl;
-				cout<<"ID del punto inizio: "<<point_coefficients[{i,num_segments-i-(j+1),j+1,id}]<<endl;
-				cout<<"Terna di numeri nella faccia fine: "<<i+1<<" "<<num_segments-(i+1)-j<<" "<<j<<endl;
-				cout<<"ID del punto fine: "<<point_coefficients[{i+1,num_segments-(i+1)-j,j,id}]<<endl;
-				cout<<"Terna di numeri nella faccia inizio: "<<i+1<<" "<<num_segments-(i+1)-j<<" "<<j<<endl;
-				cout<<"ID del punto inizio: "<<point_coefficients[{i+1,num_segments-(i+1)-j,j,id}]<<endl;
-				cout<<"Terna di numeri nella faccia fine: "<<i<<" "<<num_segments-i-j<<" "<<j<<endl;
-				cout<<"ID del punto fine: "<<point_coefficients[{i,num_segments-i-j,j,id}]<<endl;
-				if(i!=0){
-					cout<<"TRIANGOLO SOTTO: "<<endl;
-					cout<<"Terna di numeri nella faccia inizio: "<<i<<" "<<num_segments-i-j<<" "<<j<<endl;
-					cout<<"ID del punto inizio: "<<point_coefficients[{i,num_segments-i-j,j,id}]<<endl;
-					cout<<"Terna di numeri nella faccia fine: "<<i-1<<" "<<num_segments-(i-1)-(j+1)<<" "<<j+1<<endl;
-					cout<<"ID del punto fine: "<<point_coefficients[{i-1,num_segments-(i-1)-(j+1),j+1,id}]<<endl;
-					cout<<"Terna di numeri nella faccia inizio: "<<i-1<<" "<<num_segments-(i-1)-(j+1)<<" "<<j+1<<endl;
-					cout<<"ID del punto inizio: "<<point_coefficients[{i-1,num_segments-(i-1)-(j+1),j+1,id}]<<endl;
-					cout<<"Terna di numeri nella faccia fine: "<<i<<" "<<num_segments-i-(j+1)<<" "<<j+1<<endl;
-					cout<<"ID del punto fine: "<<point_coefficients[{i,num_segments-i-(j+1),j+1,id}]<<endl;
-					cout<<"Terna di numeri nella faccia inizio: "<<i<<" "<<num_segments-i-(j+1)<<" "<<j+1<<endl;
-					cout<<"ID del punto inizio: "<<point_coefficients[{i,num_segments-i-(j+1),j+1,id}]<<endl;
-					cout<<"Terna di numeri nella faccia fine: "<<i<<" "<<num_segments-i-j<<" "<<j<<endl;
-					cout<<"ID del punto fine: "<<point_coefficients[{i,num_segments-i-j,j,id}]<<endl;
-				}
-			}
-		}
-	}*/
-	
 	return true;
 }
 
