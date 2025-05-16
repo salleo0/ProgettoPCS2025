@@ -50,6 +50,6 @@ bool CheckDuplicatesVertex(const MatrixXd& mat, const Vector3d& vec, int& matSiz
 // v1 e v2: id di vertici
 // matSize: numero di colonne della matrice mat
 // ritorna vero se un duplicato è stato trovato, falso altrimenti
-bool CheckDuplicatesEdge(const MatrixXi& mat, const int& v1, const int& v2, int& matSize);
+bool CheckDuplicatesEdge(const MatrixXi& mat, const int& v1, const int& v2, int& matSize, int& duplicate_pos);
 
 

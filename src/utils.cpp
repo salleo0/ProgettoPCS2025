@@ -178,7 +178,7 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 	int duplicate_id = 0;	// id che servirà per controllare se esiste un duplicato di un vertice
 	int edge_id = 0;		// id degli spigoli del poliedro geodetico che andremo a generare
 	int face_id = 0;		// id delle facce del poliedro geodetico che andremo a generare
-	
+	int duplicate_pos = 0;
 	int total_points = (PlatonicPolyhedron.NumCell2Ds)*((num_segments + 1) * (num_segments + 2) / 2);	// numero totale MASSIMO di vertici
 	int total_edges = 30*(num_segments*num_segments);													// numero totale MASSIMO di spigoli
 	int total_faces = 20*(num_segments*num_segments);													// numero totale MASSIMO di facce
@@ -251,7 +251,6 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 				int Vertex1 = point_coefficients[{i,num_segments-i-j,j,id}];
 				int Vertex2 = point_coefficients[{i,num_segments-i-(j+1),j+1,id}];
 				int Vertex3 = point_coefficients[{i+1,num_segments-(i+1)-j,j,id}];
-				
 				// generazione triangolo "a punta in su"
 				// face
 				GeodeticSolid.NumCell2Ds++;
@@ -266,13 +265,11 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 				for (int k = 0; k < 3; k++) {
 					int originVertex = GeodeticSolid.Cell2DsVertices[face_id][k];
 					int endVertex;
-					
 					if ( k == 2 )
 						endVertex = GeodeticSolid.Cell2DsVertices[face_id][0];
 					else
 						endVertex = GeodeticSolid.Cell2DsVertices[face_id][k+1];
-					
-					if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, originVertex, endVertex, edge_id)){
+					if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, originVertex, endVertex, edge_id, duplicate_pos)){
 						GeodeticSolid.NumCell1Ds++;
 						GeodeticSolid.Cell1DsId.push_back(edge_id);
 						GeodeticSolid.Cell1DsExtrema(0, edge_id) = originVertex;
@@ -280,10 +277,13 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 						GeodeticSolid.Cell2DsEdges[face_id][k] = edge_id;
 						edge_id++;
 					}
+					else
+						GeodeticSolid.Cell2DsEdges[face_id][k] = GeodeticSolid.Cell1DsId[duplicate_pos];
 				}
 				face_id++;
 				// generazione triangolo "a punta in giù"
 				if(i>0){
+					
 					int Vertex4 = point_coefficients[{i-1,num_segments-(i-1)-(j+1),(j+1),id}];
 					GeodeticSolid.NumCell2Ds++;
 					GeodeticSolid.Cell2DsId.push_back(face_id);
@@ -292,17 +292,14 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 					VerticesVector[2] = Vertex4;
 					GeodeticSolid.Cell2DsVertices[face_id] = VerticesVector;
 					GeodeticSolid.Cell2DsEdges[face_id].resize(3);
-					
 					for (int k = 0; k < 3; k++) {
 						int originVertex = GeodeticSolid.Cell2DsVertices[face_id][k];
 						int endVertex;
-						
 						if ( k == 2 )
 							endVertex = GeodeticSolid.Cell2DsVertices[face_id][0];
 						else
 							endVertex = GeodeticSolid.Cell2DsVertices[face_id][k+1];
-						
-						if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, originVertex, endVertex, edge_id)){
+						if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, originVertex, endVertex, edge_id, duplicate_pos)){
 							GeodeticSolid.NumCell1Ds++;
 							GeodeticSolid.Cell1DsId.push_back(edge_id);
 							GeodeticSolid.Cell1DsExtrema(0, edge_id) = originVertex;
@@ -310,6 +307,8 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 							GeodeticSolid.Cell2DsEdges[face_id][k] = edge_id;
 							edge_id++;
 						}
+						else
+							GeodeticSolid.Cell2DsEdges[face_id][k] = GeodeticSolid.Cell1DsId[duplicate_pos];
 					}
 					face_id++;
 				}
@@ -333,14 +332,16 @@ bool CheckDuplicatesVertex(const MatrixXd& mat, const Vector3d& vec, int& matSiz
 
 /************************************/
 
-bool CheckDuplicatesEdge(const MatrixXi& mat, const int& v1, const int& v2, int& matSize)
+bool CheckDuplicatesEdge(const MatrixXi& mat, const int& v1, const int& v2, int& matSize, int& duplicate_pos)
 {
 	for (int i = 0; i < matSize; i++){
 		int w1 = mat(0, i);
 		int w2 = mat(1, i);
 		
-		if( (v1 == w1 && v2 == w2) || (v1 == w2 && v2 == w1) )
+		if( (v1 == w1 && v2 == w2) || (v1 == w2 && v2 == w1) ){
+			duplicate_pos = i;
 			return true;
+		}
 		
 	}
 	return false;

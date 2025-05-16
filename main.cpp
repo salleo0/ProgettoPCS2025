@@ -68,12 +68,18 @@ int main(int argc, char *argv[])
 	
 	// COSTRUZIONE DELLA MESH DEL POLIEDRO GEODETICO
 	PolyhedronMesh GeodeticPolyhedron;
-	if ( b > 0 && q == 0)
+	if ( b > 0 && c == 0)
 		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, b);
-	else if ( b == 0 && q > 0)
-		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, q);
+	else if ( b == 0 && c > 0)
+		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, c);
 	
 	
-	
+	for(int i =0; i<GeodeticPolyhedron.NumCell1Ds;i++)
+		cout<<"edge id: "<<GeodeticPolyhedron.Cell1DsId[i]<<" Origin and end: "<<GeodeticPolyhedron.Cell1DsExtrema(0,GeodeticPolyhedron.Cell1DsId[i])<<" "<<GeodeticPolyhedron.Cell1DsExtrema(1,GeodeticPolyhedron.Cell1DsId[i])<<endl;
+	for(int i = 0; i<GeodeticPolyhedron.NumCell2Ds;i++){
+		cout<<"Face id: "<<i<<endl;
+		cout<<"Vertices: "<<GeodeticPolyhedron.Cell2DsVertices[i][0]<<" "<<GeodeticPolyhedron.Cell2DsVertices[i][1]<<" "<<GeodeticPolyhedron.Cell2DsVertices[i][2]<<endl;
+		cout<<"Edges: "<<GeodeticPolyhedron.Cell2DsEdges[i][0]<<" "<<GeodeticPolyhedron.Cell2DsEdges[i][1]<<" "<<GeodeticPolyhedron.Cell2DsEdges[i][2]<<endl;
+		}
 	return 0;
 }
