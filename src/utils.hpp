@@ -41,18 +41,26 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 // mat: matrice di dim 3xmatSize in cui sono salvate le coordinate
 // vec: vettore di cui controllare se ci sono duplicati
 // matSize: numero di colonne della matrice mat
-// duplicate_pos: posizione di un eventuale duplicato del vettore vec
+// duplicate_id: posizione di un eventuale duplicato del vettore vec
 // ritorna vero se un duplicato è stato trovato, falso altrimenti
-bool CheckDuplicatesVertex(const MatrixXd& mat, const Vector3d& vec, int& matSize, int& duplicate_pos);
+bool CheckDuplicatesVertex(const MatrixXd& mat, const Vector3d& vec, int& matSize, int& duplicate_id);
 
 // Controlla se ci sono dei duplicati di un segmento che connette due vertici v1 e v2
 // mat: matrice di dimensione 2xmatSize in cui sono salvati i vertici agli estremi di un segmento 
 // v1 e v2: id di vertici
 // matSize: numero di colonne della matrice mat
-// duplicate_pos: posizione di un eventuale duplicato dell'edge di estremi v1 e v2
+// duplicate_id: posizione di un eventuale duplicato dell'edge di estremi v1 e v2
 // ritorna vero se un duplicato è stato trovato, falso altrimenti
-bool CheckDuplicatesEdge(const MatrixXi& mat, const int& v1, const int& v2, int& matSize, int& duplicate_pos);
+bool CheckDuplicatesEdge(const MatrixXi& mat, const int& v1, const int& v2, int& matSize, int& duplicate_id);
 
 // Proietta sulla sfera di raggio 1 e centro l'origine le coordinate dei vertici della mesh
 // mesh: struct del tipo PolyhedronMesh
 void ProjectionOnSphere(PolyhedronMesh& mesh);
+
+//Costruisce il poliedro duale DualPolyhedron a partire dal generico poliedro iniziale StartPolyhedron
+void CreateDual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron);
+
+//Usata nella costruzione dei poliedri: dato un vettore di facce unordered_faces, tutte aventi come vertice comune il vertice denotato da
+//vertex_id, la funzione ordina tale vettore di facce in modo che ciascuna faccia sia seguita da quella adiacente a essa, per costruire correttamente 
+//gli edges
+void order_faces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedronMesh& Polyhedron, const int& vertex_id);

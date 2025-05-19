@@ -69,10 +69,16 @@ int main(int argc, char *argv[])
 	
 	// COSTRUZIONE DELLA MESH DEL POLIEDRO GEODETICO
 	PolyhedronMesh GeodeticPolyhedron;
-	if ( b > 0 && c == 0)
+	//COSTRUZIONE DEL DUALE DEL POLIEDRO GEODETICO
+	PolyhedronMesh DualPolyhedron;
+	if ( b > 0 && c == 0){
 		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, b);
-	else if ( b == 0 && c > 0)
+		CreateDual(GeodeticPolyhedron, DualPolyhedron);
+	}
+	else if ( b == 0 && c > 0){
 		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, c);
+		CreateDual(GeodeticPolyhedron, DualPolyhedron);
+	}
 	
 	// proiezione del poliedro geodetico sulla sfera di raggio 1
 	
@@ -85,7 +91,8 @@ int main(int argc, char *argv[])
 		cout<<"Vertices: "<<GeodeticPolyhedron.Cell2DsVertices[i][0]<<" "<<GeodeticPolyhedron.Cell2DsVertices[i][1]<<" "<<GeodeticPolyhedron.Cell2DsVertices[i][2]<<endl;
 		cout<<"Edges: "<<GeodeticPolyhedron.Cell2DsEdges[i][0]<<" "<<GeodeticPolyhedron.Cell2DsEdges[i][1]<<" "<<GeodeticPolyhedron.Cell2DsEdges[i][2]<<endl;
 		}*/
-		
+	
+	//Per ora, serve esportare su più files...
 	Gedim::UCDUtilities utilities;	
     utilities.ExportPoints("./Cell0Ds.inp",
                            GeodeticPolyhedron.Cell0DsCoordinates);
@@ -93,5 +100,12 @@ int main(int argc, char *argv[])
     utilities.ExportSegments("./Cell1Ds.inp",
                              GeodeticPolyhedron.Cell0DsCoordinates,
                              GeodeticPolyhedron.Cell1DsExtrema); 
+
+    utilities.ExportPoints("./Cell0DsDual.inp",
+                           DualPolyhedron.Cell0DsCoordinates);
+
+    utilities.ExportSegments("./Cell1DsDual.inp",
+                             DualPolyhedron.Cell0DsCoordinates,
+                             DualPolyhedron.Cell1DsExtrema); 
 	return 0;
 }
