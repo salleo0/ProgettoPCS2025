@@ -175,18 +175,19 @@ bool ImportCell2Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, const int& num_segments)
 {
 	int points_id = 0;		// id dei vertici del poliedro geodetico che andremo a generare
-	int duplicate_id = 0;	// id che servirà per controllare se esiste un duplicato di un vertice
+	int duplicate_id = 0;	// id che servirà per controllare se esiste un duplicato
 	int edge_id = 0;		// id degli spigoli del poliedro geodetico che andremo a generare
 	int face_id = 0;		// id delle facce del poliedro geodetico che andremo a generare
-	int duplicate_pos = 0;
 	int total_points = (PlatonicPolyhedron.NumCell2Ds)*((num_segments + 1) * (num_segments + 2) / 2);	// numero totale MASSIMO di vertici
 	int total_edges = 30*(num_segments*num_segments);													// numero totale MASSIMO di spigoli
 	int total_faces = 20*(num_segments*num_segments);													// numero totale MASSIMO di facce
 	
 	
 	// usiamo i total points per allocare memoria
+	// alcune strutture sono inizializzate a più memoria di quanto sarebbe sufficiente
+	// a fine funzione si fa un conservative resize per ridimensionare correttamente
 	GeodeticSolid.Cell0DsId.reserve(total_points);
-	GeodeticSolid.Cell0DsCoordinates = MatrixXd::Zero(3,total_points);
+	GeodeticSolid.Cell0DsCoordinates = MatrixXd::Zero(3,total_points);	
 	
 	GeodeticSolid.Cell1DsExtrema = MatrixXi::Zero(2, total_edges);
 	GeodeticSolid.Cell1DsId.reserve(total_edges);
@@ -197,10 +198,12 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 	GeodeticSolid.Cell2DsVertices.resize(total_faces);
 	GeodeticSolid.Cell2DsNumVertices.resize(total_faces);
 	
-	// 
+	// point_coefficients contiene in chiave 4 valori: {a, b, c, id} dove a, b, c sono 3 valori che individuano i vertici 
+	// su una faccia mentre id è l'identificativo della faccia. Il valore è l'id del vertice
+	// questa struttura serve per identificare tutti i vertici che una faccia contiene, tenendo conto anche di eventuali duplicati 
+	// che si trovano su più facce
 	map<array<int, 4>, int> point_coefficients;
 	
-	// scorro le facce del solido platonico
 	for (const auto& id : PlatonicPolyhedron.Cell2DsId) {
 		
 		// salvo in 3 vettori le coordinate dei vertici della faccia corrente del solido platonico
@@ -217,7 +220,7 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 				int b = i - j;
 				int c = j;
 				
-				// coordinate dei punti del poliedro geodetico
+				// coordinate dei vertici del poliedro geodetico
 				Vector3d PointCoordinates = double(a)/num_segments*Vertex1 + double(b)/num_segments*Vertex2 + double(c)/num_segments*Vertex3;
 				// aggiungo al dizionario chiave = [a,b,c] e valore = id
 				array<int, 4> coefficients;
@@ -225,7 +228,6 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 				coefficients[1] = b;
 				coefficients[2] = c;
 				coefficients[3] = id;
-					
 					
 				// se il punto PointCoordinates è gia presente in GeodeticSolid.Cell0DsCoordinates non lo aggiungo nuovamente
 				if (!CheckDuplicatesVertex(GeodeticSolid.Cell0DsCoordinates, PointCoordinates, points_id, duplicate_id)){
@@ -243,19 +245,20 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 		}
 	}
 	
-	for(int i = 0; i <GeodeticSolid.NumCell0Ds;i++){
-		double Norm_factor = (GeodeticSolid.Cell0DsCoordinates.col(i)).norm();
-		GeodeticSolid.Cell0DsCoordinates(0,i) = GeodeticSolid.Cell0DsCoordinates(0,i)/Norm_factor;
-		GeodeticSolid.Cell0DsCoordinates(1,i) = GeodeticSolid.Cell0DsCoordinates(1,i)/Norm_factor;
-		GeodeticSolid.Cell0DsCoordinates(2,i) = GeodeticSolid.Cell0DsCoordinates(2,i)/Norm_factor;
-	}
+	// conservativeResize della matrice secondo il numero effettivo di vertici che abbiamo creato
+	// l'inizializzazione ha "generato" degli zeri che andiamo a eliminare
+	GeodeticSolid.Cell0DsCoordinates.conservativeResize(3, GeodeticSolid.NumCell0Ds);
+	ProjectionOnSphere(GeodeticSolid);
 	
+	// GENERAZIONE SPIGOLI E FACCE
 	for  (const auto& id : PlatonicPolyhedron.Cell2DsId){
 		for (int i = 0; i < num_segments; i++){
 			for (int j = 0; j < num_segments - i; j++){
+				
 				int Vertex1 = point_coefficients[{i,num_segments-i-j,j,id}];
 				int Vertex2 = point_coefficients[{i,num_segments-i-(j+1),j+1,id}];
 				int Vertex3 = point_coefficients[{i+1,num_segments-(i+1)-j,j,id}];
+				
 				// generazione triangolo "a punta in su"
 				// face
 				GeodeticSolid.NumCell2Ds++;
@@ -274,7 +277,8 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 						endVertex = GeodeticSolid.Cell2DsVertices[face_id][0];
 					else
 						endVertex = GeodeticSolid.Cell2DsVertices[face_id][k+1];
-					if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, originVertex, endVertex, edge_id, duplicate_pos)){
+					
+					if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, originVertex, endVertex, edge_id, duplicate_id)){
 						GeodeticSolid.NumCell1Ds++;
 						GeodeticSolid.Cell1DsId.push_back(edge_id);
 						GeodeticSolid.Cell1DsExtrema(0, edge_id) = originVertex;
@@ -283,13 +287,15 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 						edge_id++;
 					}
 					else
-						GeodeticSolid.Cell2DsEdges[face_id][k] = GeodeticSolid.Cell1DsId[duplicate_pos];
+						GeodeticSolid.Cell2DsEdges[face_id][k] = GeodeticSolid.Cell1DsId[duplicate_id];
 				}
 				face_id++;
+				
 				// generazione triangolo "a punta in giù"
 				if(i>0){
 					
 					int Vertex4 = point_coefficients[{i-1,num_segments-(i-1)-(j+1),(j+1),id}];
+					
 					GeodeticSolid.NumCell2Ds++;
 					GeodeticSolid.Cell2DsId.push_back(face_id);
 					GeodeticSolid.Cell2DsNumVertices[face_id] = 3;
@@ -297,6 +303,7 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 					VerticesVector[2] = Vertex4;
 					GeodeticSolid.Cell2DsVertices[face_id] = VerticesVector;
 					GeodeticSolid.Cell2DsEdges[face_id].resize(3);
+					
 					for (int k = 0; k < 3; k++) {
 						int originVertex = GeodeticSolid.Cell2DsVertices[face_id][k];
 						int endVertex;
@@ -304,7 +311,8 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 							endVertex = GeodeticSolid.Cell2DsVertices[face_id][0];
 						else
 							endVertex = GeodeticSolid.Cell2DsVertices[face_id][k+1];
-						if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, originVertex, endVertex, edge_id, duplicate_pos)){
+						
+						if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, originVertex, endVertex, edge_id, duplicate_id)){
 							GeodeticSolid.NumCell1Ds++;
 							GeodeticSolid.Cell1DsId.push_back(edge_id);
 							GeodeticSolid.Cell1DsExtrema(0, edge_id) = originVertex;
@@ -313,22 +321,29 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 							edge_id++;
 						}
 						else
-							GeodeticSolid.Cell2DsEdges[face_id][k] = GeodeticSolid.Cell1DsId[duplicate_pos];
+							GeodeticSolid.Cell2DsEdges[face_id][k] = GeodeticSolid.Cell1DsId[duplicate_id];
 					}
 					face_id++;
 				}
+				
 			}
 		}
 	}
+	GeodeticSolid.Cell1DsExtrema.conservativeResize(2, GeodeticSolid.NumCell1Ds);
+	GeodeticSolid.Cell2DsNumVertices.resize(GeodeticSolid.NumCell2Ds);
+	GeodeticSolid.Cell2DsNumEdges.resize(GeodeticSolid.NumCell2Ds);
+	GeodeticSolid.Cell2DsVertices.resize(GeodeticSolid.NumCell2Ds);
+	GeodeticSolid.Cell2DsEdges.resize(GeodeticSolid.NumCell2Ds);
+	
 }
 
 /************************************/
 
-bool CheckDuplicatesVertex(const MatrixXd& mat, const Vector3d& vec, int& matSize, int& duplicate_pos)
+bool CheckDuplicatesVertex(const MatrixXd& mat, const Vector3d& vec, int& matSize, int& duplicate_id)
 {
 	for(int i = 0; i < matSize; i++){
 		if( (mat.col(i) - vec).norm() < 1e-8 ){
-			duplicate_pos = i;
+			duplicate_id = i;
 			return true;
 		}
 	}
@@ -337,17 +352,30 @@ bool CheckDuplicatesVertex(const MatrixXd& mat, const Vector3d& vec, int& matSiz
 
 /************************************/
 
-bool CheckDuplicatesEdge(const MatrixXi& mat, const int& v1, const int& v2, int& matSize, int& duplicate_pos)
+bool CheckDuplicatesEdge(const MatrixXi& mat, const int& v1, const int& v2, int& matSize, int& duplicate_id)
 {
 	for (int i = 0; i < matSize; i++){
 		int w1 = mat(0, i);
 		int w2 = mat(1, i);
 		
 		if( (v1 == w1 && v2 == w2) || (v1 == w2 && v2 == w1) ){
-			duplicate_pos = i;
+			duplicate_id = i;
 			return true;
 		}
 		
 	}
 	return false;
 }
+
+/************************************/
+
+void ProjectionOnSphere(PolyhedronMesh& mesh) {
+	for(int i = 0; i < mesh.NumCell0Ds; i++){
+		double Norm_factor = (mesh.Cell0DsCoordinates.col(i)).norm();
+		mesh.Cell0DsCoordinates(0,i) = mesh.Cell0DsCoordinates(0,i)/Norm_factor;
+		mesh.Cell0DsCoordinates(1,i) = mesh.Cell0DsCoordinates(1,i)/Norm_factor;
+		mesh.Cell0DsCoordinates(2,i) = mesh.Cell0DsCoordinates(2,i)/Norm_factor;
+	}
+}
+
+/************************************/

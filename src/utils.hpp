@@ -49,7 +49,10 @@ bool CheckDuplicatesVertex(const MatrixXd& mat, const Vector3d& vec, int& matSiz
 // mat: matrice di dimensione 2xmatSize in cui sono salvati i vertici agli estremi di un segmento 
 // v1 e v2: id di vertici
 // matSize: numero di colonne della matrice mat
+// duplicate_pos: posizione di un eventuale duplicato dell'edge di estremi v1 e v2
 // ritorna vero se un duplicato è stato trovato, falso altrimenti
 bool CheckDuplicatesEdge(const MatrixXi& mat, const int& v1, const int& v2, int& matSize, int& duplicate_pos);
 
-
+// Proietta sulla sfera di raggio 1 e centro l'origine le coordinate dei vertici della mesh
+// mesh: struct del tipo PolyhedronMesh
+void ProjectionOnSphere(PolyhedronMesh& mesh);

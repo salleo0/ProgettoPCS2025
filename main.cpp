@@ -74,6 +74,9 @@ int main(int argc, char *argv[])
 	else if ( b == 0 && c > 0)
 		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, c);
 	
+	// proiezione del poliedro geodetico sulla sfera di raggio 1
+	
+	
 	
 	/*for(int i =0; i<GeodeticPolyhedron.NumCell1Ds;i++)
 		cout<<"edge id: "<<GeodeticPolyhedron.Cell1DsId[i]<<" Origin and end: "<<GeodeticPolyhedron.Cell1DsExtrema(0,GeodeticPolyhedron.Cell1DsId[i])<<" "<<GeodeticPolyhedron.Cell1DsExtrema(1,GeodeticPolyhedron.Cell1DsId[i])<<endl;
