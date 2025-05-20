@@ -146,6 +146,8 @@ bool ImportCell2Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 	polyhedron.Cell2DsId.reserve(polyhedron.NumCell2Ds);
 	polyhedron.Cell2DsVertices.reserve(polyhedron.NumCell2Ds);
 	polyhedron.Cell2DsEdges.reserve(polyhedron.NumCell2Ds);
+	polyhedron.Cell2DsNumVertices.assign(polyhedron.NumCell2Ds, 3);
+	polyhedron.Cell2DsNumEdges.assign(polyhedron.NumCell2Ds, 3);
 	
 	for (string& line : listLines){
 		replace(line.begin(), line.end(), ';', ' ');
@@ -334,11 +336,21 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 	GeodeticSolid.Cell2DsNumEdges.resize(GeodeticSolid.NumCell2Ds);
 	GeodeticSolid.Cell2DsVertices.resize(GeodeticSolid.NumCell2Ds);
 	GeodeticSolid.Cell2DsEdges.resize(GeodeticSolid.NumCell2Ds);
+	
+	// GENERAZIONE POLIEDRO
+	GeodeticSolid.NumCell3Ds++;
+	GeodeticSolid.Cell3DsId.push_back(0);
+	GeodeticSolid.Cell3DsNumVertices.push_back(GeodeticSolid.NumCell0Ds);
+	GeodeticSolid.Cell3DsNumEdges.push_back(GeodeticSolid.NumCell1Ds);
+	GeodeticSolid.Cell3DsNumFaces.push_back(GeodeticSolid.NumCell2Ds);
+	GeodeticSolid.Cell3DsVertices.push_back(GeodeticSolid.Cell0DsId);
+	GeodeticSolid.Cell3DsEdges.push_back(GeodeticSolid.Cell1DsId);
+	GeodeticSolid.Cell3DsFaces.push_back(GeodeticSolid.Cell2DsId);
 }
 
 /************************************/
 
-void CreateDual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron)
+void CreateDual(PolyhedronMesh& Polyhedron)
 {
 	//In teoria basta cambiare qui per generalizzare 
 	int baricenter_id = 0;
@@ -481,9 +493,11 @@ void order_faces(const vector<int>& unordered_faces, vector<int>& ordered_faces,
                         break;
                     }
                 }
-                if (found) break;
+                if (found) 
+					break;
             }
-            if (found) break;
+            if (found) 
+				break;
         }
 
         if (found) {
