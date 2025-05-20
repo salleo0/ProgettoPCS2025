@@ -146,6 +146,8 @@ bool ImportCell2Ds(PolyhedronMesh& polyhedron, const string& InputFile)
 	polyhedron.Cell2DsId.reserve(polyhedron.NumCell2Ds);
 	polyhedron.Cell2DsVertices.reserve(polyhedron.NumCell2Ds);
 	polyhedron.Cell2DsEdges.reserve(polyhedron.NumCell2Ds);
+	polyhedron.Cell2DsNumVertices.assign(polyhedron.NumCell2Ds, 3);
+	polyhedron.Cell2DsNumEdges.assign(polyhedron.NumCell2Ds, 3);
 	
 	for (string& line : listLines){
 		replace(line.begin(), line.end(), ';', ' ');

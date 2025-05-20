@@ -30,6 +30,7 @@ struct PolyhedronMesh
 	vector<vector<int>> Cell2DsEdges = {};		// l'i-esimo vettore memorizza gli id degli spigoli della faccia di id i
 };
 
+/* 
 class PolyhedraMesh 
 {
 	// Cell0D
@@ -117,9 +118,17 @@ public:
 				id++;
 			}
 		}
+		Cell1DsExtrema.conservativeResize(2, NumCell1Ds);
 		
 		// Cell2D
-		
-			
-					
-	
+		Cell2DsId.reserve(NumCell2Ds + Polyhedron.NumCell2Ds);
+		Cell2DsNumVertices.reserve(NumCell2Ds + Polyhedron.NumCell2Ds);
+		Cell2DsNumEdges.reserve(NumCell2Ds + Polyhedron.NumCell2Ds);
+		Cell2DsVertices.reserve(NumCell2Ds + Polyhedron.NumCell2Ds);
+		Cell2DsEdges.reserve(NumCell2Ds + Polyhedron.NumCell2Ds);
+		if (NumCell2Ds == 0)
+			id = 0;
+		else
+			id = Cell2DsId.back() + 1;
+		for (int i = 0; i < Polyhedron.NumCell2Ds; i++) {
+*/		
