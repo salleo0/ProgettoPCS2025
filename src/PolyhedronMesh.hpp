@@ -27,5 +27,5 @@ struct PolyhedronMesh
 	vector<int> Cell2DsNumVertices = {};		// l'i-esima entrata memorizza il numero di vertici della faccia di id i
 	vector<int> Cell2DsNumEdges = {};			// l'i-esima entrata memorizza il numero di spigoli della faccia di id i
 	vector<vector<int>>  Cell2DsVertices = {};	// l'i-esimo vettore memorizza gli id dei vertici della faccia di id i
-	vector<vector<int>> Cell2DsEdges = {};		// l'i-esimo vettore memorizza gli id degli spigoli della faccia di id i	
+	vector<vector<int>> Cell2DsEdges = {};		// l'i-esimo vettore memorizza gli id degli spigoli della faccia di id i
 };

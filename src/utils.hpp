@@ -4,8 +4,6 @@
 
 using namespace std;
 
-
-
 // Importa il solido platonico di partenza e testa che sia importato correttamente
 // polyhedron: una struct di tipo PolyhedronMesh
 // InputFileDirectory: la directory in cui sono salvati i file .csv con i dati del solido
@@ -63,4 +61,4 @@ void CreateDual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron)
 //Usata nella costruzione dei poliedri: dato un vettore di facce unordered_faces, tutte aventi come vertice comune il vertice denotato da
 //vertex_id, la funzione ordina tale vettore di facce in modo che ciascuna faccia sia seguita da quella adiacente a essa, per costruire correttamente 
 //gli edges
-void order_faces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedronMesh& Polyhedron, const int& vertex_id);
+void order_faces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedronMesh& Polyhedron);

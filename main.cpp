@@ -67,9 +67,8 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	
-	// COSTRUZIONE DELLA MESH DEL POLIEDRO GEODETICO
+	// COSTRUZIONE DELLA MESH DEL POLIEDRO GEODETICO E DEL SUO DUALE
 	PolyhedronMesh GeodeticPolyhedron;
-	//COSTRUZIONE DEL DUALE DEL POLIEDRO GEODETICO
 	PolyhedronMesh DualPolyhedron;
 	if ( b > 0 && c == 0){
 		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, b);
@@ -79,9 +78,6 @@ int main(int argc, char *argv[])
 		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, c);
 		CreateDual(GeodeticPolyhedron, DualPolyhedron);
 	}
-	
-	// proiezione del poliedro geodetico sulla sfera di raggio 1
-	
 	
 	
 	/*for(int i =0; i<GeodeticPolyhedron.NumCell1Ds;i++)
@@ -98,14 +94,14 @@ int main(int argc, char *argv[])
                            GeodeticPolyhedron.Cell0DsCoordinates);
 
     utilities.ExportSegments("./Cell1Ds.inp",
-                             GeodeticPolyhedron.Cell0DsCoordinates,
-                             GeodeticPolyhedron.Cell1DsExtrema); 
+								GeodeticPolyhedron.Cell0DsCoordinates,
+								GeodeticPolyhedron.Cell1DsExtrema); 
 
     utilities.ExportPoints("./Cell0DsDual.inp",
                            DualPolyhedron.Cell0DsCoordinates);
 
     utilities.ExportSegments("./Cell1DsDual.inp",
-                             DualPolyhedron.Cell0DsCoordinates,
-                             DualPolyhedron.Cell1DsExtrema); 
+								DualPolyhedron.Cell0DsCoordinates,
+								DualPolyhedron.Cell1DsExtrema); 
 	return 0;
 }

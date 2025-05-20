@@ -334,11 +334,12 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 	GeodeticSolid.Cell2DsNumEdges.resize(GeodeticSolid.NumCell2Ds);
 	GeodeticSolid.Cell2DsVertices.resize(GeodeticSolid.NumCell2Ds);
 	GeodeticSolid.Cell2DsEdges.resize(GeodeticSolid.NumCell2Ds);
-	
 }
 
-void CreateDual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron){
-	
+/************************************/
+
+void CreateDual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron)
+{
 	//In teoria basta cambiare qui per generalizzare 
 	int baricenter_id = 0;
 	int face_id = 0;
@@ -406,7 +407,7 @@ void CreateDual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron)
 		//ovvero quella che ha l'edge in comune con la faccia corrente, per ordinare questo vettore chiamo la funzione order_faces
 		//il vettore ordered_Faces è passato per riferimento, in modo che venga aggiornato dalla funzione order_Faces.
 		vector<int> ordered_faces;
-		order_faces(VertexFaces, ordered_faces, StartPolyhedron, vertex_id);
+		order_faces(VertexFaces, ordered_faces, StartPolyhedron);
 		
 		//la valenza del vertice è pari alla lunghezza del vettore di facce che condividono il vertice dato 
 		//ATTENZIONE: Questa parte non è superflua, perché le valenze NON SONO sempre 3 per il generico solido geodetico!!!
@@ -447,8 +448,10 @@ void CreateDual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron)
 	ProjectionOnSphere(DualPolyhedron);
 }
 
-void order_faces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedronMesh& Polyhedron, const int& vertex_id) {
-	
+/************************************/
+
+void order_faces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedronMesh& Polyhedron)
+{	
 	//Il vettore di facce rimanenti contiene le facce ancora da ordinare, esso è all'inizio uguale a tutto il vettore.
     vector<int> remaining_faces = unordered_faces;
 
@@ -466,7 +469,7 @@ void order_faces(const vector<int>& unordered_faces, vector<int>& ordered_faces,
         int found_index;
 
         // Cerco tra le facce da ordinare quella che ha un edge in comune con la corrente
-        for (int i = 0; i < remaining_faces.size(); i++) {
+        for (size_t i = 0; i < remaining_faces.size(); i++) {
             vector<int> candidate_edges = Polyhedron.Cell2DsEdges[remaining_faces[i]];
 
             // Verifico la presenza dell' edge in comune
