@@ -38,4 +38,5 @@ struct PolyhedronMesh
 	vector<vector<int>> Cell3DsVertices = {};	
 	vector<vector<int>> Cell3DsEdges = {};
 	vector<vector<int>> Cell3DsFaces = {};
+	
 };
