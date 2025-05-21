@@ -617,7 +617,8 @@ bool CheckDuplicatesEdge(const MatrixXi& mat, const int& v1, const int& v2, int&
 
 /************************************/
 
-void ProjectionOnSphere(PolyhedronMesh& mesh) {
+void ProjectionOnSphere(PolyhedronMesh& mesh) 
+{
 	for(int i = 0; i < mesh.NumCell0Ds; i++){
 		double Norm_factor = (mesh.Cell0DsCoordinates.col(i)).norm();
 		mesh.Cell0DsCoordinates(0,i) = mesh.Cell0DsCoordinates(0,i)/Norm_factor;
@@ -628,8 +629,8 @@ void ProjectionOnSphere(PolyhedronMesh& mesh) {
 
 /************************************/
 
-bool GenerateOutputFiles(const PolyhedronMesh& GeodeticSolid){
-
+bool GenerateOutputFiles(const PolyhedronMesh& mesh)
+{
 	{
 		ofstream fileout("Cell0Ds.txt");
 		if (!fileout.is_open())
@@ -637,12 +638,11 @@ bool GenerateOutputFiles(const PolyhedronMesh& GeodeticSolid){
 
 		fileout << "ID;X;Y;Z;" << endl;
 		
-		for(int i=0; i<GeodeticSolid.NumCell0Ds; i++){
-			fileout<<GeodeticSolid.Cell0DsId[i]<<";"
-				<<GeodeticSolid.Cell0DsCoordinates(0,i)<<";"
-				<<GeodeticSolid.Cell0DsCoordinates(1,i)<<";"
-				<<GeodeticSolid.Cell0DsCoordinates(2,i)<<endl;
-		}
+		for (int i = 0; i < mesh.NumCell0Ds; i++)
+			fileout << mesh.Cell0DsId[i] << ";"
+				<< mesh.Cell0DsCoordinates(0,i) << ";"
+				<< mesh.Cell0DsCoordinates(1,i) << ";"
+				<< mesh.Cell0DsCoordinates(2,i) << endl;
 	}
 
 	{
@@ -652,11 +652,10 @@ bool GenerateOutputFiles(const PolyhedronMesh& GeodeticSolid){
 		
 		fileout << "ID;Origin;End" << endl;
 		
-		for(int i=0; i<GeodeticSolid.NumCell1Ds; i++){
-			fileout<<GeodeticSolid.Cell1DsId[i]<<";"
-				<<GeodeticSolid.Cell1DsExtrema(0,i)<<";"
-				<<GeodeticSolid.Cell1DsExtrema(1,i)<<endl;
-		}
+		for (int i = 0; i < mesh.NumCell1Ds; i++)
+			fileout << mesh.Cell1DsId[i] << ";"
+				<< mesh.Cell1DsExtrema(0,i) << ";"
+				<< mesh.Cell1DsExtrema(1,i) << endl;
 	}
 	
 	{
@@ -664,21 +663,50 @@ bool GenerateOutputFiles(const PolyhedronMesh& GeodeticSolid){
 		if (!fileout.is_open())
 			return false;
 
-		fileout << "ID;NumVertices;Vertices;NumEdges;Edges"<< endl;
+		fileout << "ID;NumVertices;VerticesID;NumEdges;EdgesID" << endl;
 		
-		for(int i=0; i<GeodeticSolid.NumCell2Ds; i++){
-			fileout << GeodeticSolid.Cell2DsId[i]<<";"
-				<< GeodeticSolid.Cell2DsNumVertices[i]<<";";
+		for (int i = 0; i < mesh.NumCell2Ds; i++) {
+			fileout << mesh.Cell2DsId[i] << ";"
+				<< mesh.Cell2DsNumVertices[i];
 			
-			for(int j=0; j<GeodeticSolid.Cell2DsNumVertices[i]; j++){
-				fileout << GeodeticSolid.Cell2DsVertices[i][j] << ";";
-			}
+			for(int j = 0; j < mesh.Cell2DsNumVertices[i]; j++)
+				fileout << ";" << mesh.Cell2DsVertices[i][j];
 			
-			for(int j=0; j<GeodeticSolid.Cell2DsNumEdges[i]; j++){
-				fileout << GeodeticSolid.Cell2DsEdges[i][j] << ";";
-			}
+			fileout << ";" << mesh.Cell2DsNumEdges[i];
+			
+			for(int j = 0; j < mesh.Cell2DsNumEdges[i]; j++)
+				fileout << ";" << mesh.Cell2DsEdges[i][j];
+			
 			fileout << endl;
 		}
 	}
-		return true;
+	
+	{
+		ofstream fileout("Cell3Ds.txt");
+		if (!fileout.is_open())
+			return false;
+		
+		fileout << "ID;NumVertices;VerticesID;NumEdges;EdgesID;NumFaces;FacesID" << endl;
+		
+		for (int i = 0; i < mesh.NumCell3Ds; i++) {
+			fileout << mesh.Cell3DsId[i] << ";"
+				<< mesh.Cell3DsNumVertices[i];
+			
+			for (int j = 0; j < mesh.Cell2DsNumVertices[i]; j++)
+				fileout << ";" << mesh.Cell3DsVertices[i][j];
+			
+			fileout << ";" << mesh.Cell3DsNumEdges[i];
+			
+			for (int j = 0; j < mesh.Cell3DsNumEdges[i]; j++)
+				fileout << ";" << mesh.Cell3DsEdges[i][j];
+			
+			fileout << ";" << mesh.Cell3DsNumFaces[i];
+			
+			for (int j = 0; j < mesh.Cell3DsNumFaces[i]; j++)
+				fileout << ";" << mesh.Cell3DsFaces[i][j];
+			
+			fileout << endl;
+		}
+	}
+	return true;
 }
