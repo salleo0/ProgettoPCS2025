@@ -66,4 +66,6 @@ void CreateDual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron)
 // Polyhedron: la mesh per avere accesso agli edges delle facce nel vettore unordered_faces
 void order_faces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedronMesh& Polyhedron);
 
+// La funzione genera il grafo associato al poliedro.
+// StarVertex ed EndVertex sono i nodi di inizio e fine del cammino minimo da ricercare
 void generate_graph(PolyhedronMesh& Polyhedron, int StartVertex, int EndVertex);
