@@ -76,6 +76,16 @@ int main(int argc, char *argv[])
 		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, c);
 	
 	// GENERAZIONE DUALE SE q = 3, ALTRIMENTI SOLO ESPORTAZIONE GEODETICO
+
+	//generazione file di output
+	if(!GenerateOutputFiles(GeodeticPolyhedron)){
+		cerr<<"Errore nella cxreazione dei file txt di output"<<endl;
+	}
+	else{
+		cout<<"File di output creati correttamente"<<endl;
+	}
+
+	
 	Gedim::UCDUtilities utilities;	
 	if ( q == 3 ){
 		cout << "Generation of a generalized Goldberg polyhedron with Schlafli symbol {3+, 3}_(" << b << ", " << c << ")" << endl;
