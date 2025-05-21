@@ -65,3 +65,5 @@ void CreateDual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron)
 // ordered_faces: il vettore ordinato in cui vengono aggiunte uno a uno le facce da unordered_faces
 // Polyhedron: la mesh per avere accesso agli edges delle facce nel vettore unordered_faces
 void order_faces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedronMesh& Polyhedron);
+
+void generate_graph(PolyhedronMesh& Polyhedron, int StartVertex, int EndVertex);

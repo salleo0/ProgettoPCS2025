@@ -4,6 +4,7 @@
 #include <sstream>
 #include "Eigen/Eigen"
 #include"utils.hpp"
+#include <queue>
 using namespace Eigen;
 using namespace std;
 
@@ -519,6 +520,70 @@ void order_faces(const vector<int>& unordered_faces, vector<int>& ordered_faces,
     }
 }
 
+
+void generate_graph(PolyhedronMesh& Polyhedron, int StartVertex, int EndVertex){
+	
+	// generazione della lista di adiacenza, poiché è tutto indicizzato sequenzialmente, 
+	// conviene usare un vector di vector anziché un vector di liste
+	vector<vector<int>> adjacency_list;
+	for(int i = 0; i <Polyhedron.NumCell0Ds; i++){
+		vector<int> neighbors;
+		for(const auto& edge:Polyhedron.Cell1DsId){
+			int Origin = Polyhedron.Cell1DsExtrema(0,edge);
+			int End = Polyhedron.Cell1DsExtrema(1,edge);
+			if (Origin == i)
+				neighbors.push_back(End);
+			else if(End == i)
+				neighbors.push_back(Origin);
+		}
+		adjacency_list.push_back(neighbors);
+	}
+	
+	for(int i = 0; i<adjacency_list.size();i++){
+		cout<<"Vicini del nodo "<<i<<endl;
+		for(int j = 0; j<adjacency_list[i].size();j++){
+			cout<<adjacency_list[i][j]<<" ";
+		}
+		cout<<endl;
+	}
+	
+	// algoritmo BFS per esplorare il grafo, pred è un vettore
+	// ausiliario usato per ricostruire il percorso
+	vector<bool> reached(Polyhedron.NumCell0Ds, false);
+	vector<int>  pred(Polyhedron.NumCell0Ds, -1);
+	queue<int> q;
+	
+	q.push(StartVertex);
+	reached[StartVertex] = true;
+	while(!q.empty()){
+		int u = q.front();
+		q.pop();
+		if(u==EndVertex)
+			break;
+		for(const auto& w: adjacency_list[u]){
+			if(!reached[w]){
+				pred[w] = u;
+				reached[w] = true;
+				q.push(w);
+				
+			}
+		}
+	}
+	
+	// path contiene gli id dei vertici che compongono il cammino minimo 
+	// al contrario, perché sono id provenienti dal vettore pred
+	vector<int> path;
+	int v = EndVertex;
+	while(v != -1) {
+		path.push_back(v);
+		v = pred[v];
+	}
+	
+	reverse(path.begin(), path.end());
+
+	for(int i = 0; i<path.size(); i++)
+		cout<<path[i]<<" -> ";
+}
 
 /************************************/
 

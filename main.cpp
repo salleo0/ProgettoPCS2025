@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 	// GENERAZIONE DUALE SE q = 3, ALTRIMENTI SOLO ESPORTAZIONE GEODETICO
 	Gedim::UCDUtilities utilities;	
 	if ( q == 3 ){
-		cout << "Generation of a generalized Goldberg polyhedron with Schlafli symbol {3+, 3}_(" << b << ", " << c << ")" endl;
+		cout << "Generation of a generalized Goldberg polyhedron with Schlafli symbol {3+, 3}_(" << b << ", " << c << ")" << endl;
 		CreateDual(GeodeticPolyhedron, DualPolyhedron);
 		utilities.ExportPoints("./Cell0Ds.inp",
 								DualPolyhedron.Cell0DsCoordinates);
@@ -94,6 +94,10 @@ int main(int argc, char *argv[])
 								GeodeticPolyhedron.Cell0DsCoordinates,
 								GeodeticPolyhedron.Cell1DsExtrema);
 	}
+	
+	// Occorre controllare che i vertici di inizio e fine esistano quando viene chiamata questa funzione nel main, 
+	// altrimenti non ha senso cercare il cammino minimo
+	generate_graph(GeodeticPolyhedron, 1, 10);
 	
 	return 0;
 }
