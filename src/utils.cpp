@@ -627,3 +627,58 @@ void ProjectionOnSphere(PolyhedronMesh& mesh) {
 }
 
 /************************************/
+
+bool GenerateOutputFiles(const PolyhedronMesh& GeodeticSolid){
+
+	{
+		ofstream fileout("Cell0Ds.txt");
+		if (!fileout.is_open())
+			return false;
+
+		fileout << "ID;X;Y;Z;" << endl;
+		
+		for(int i=0; i<GeodeticSolid.NumCell0Ds; i++){
+			fileout<<GeodeticSolid.Cell0DsId[i]<<";"
+				<<GeodeticSolid.Cell0DsCoordinates(0,i)<<";"
+				<<GeodeticSolid.Cell0DsCoordinates(1,i)<<";"
+				<<GeodeticSolid.Cell0DsCoordinates(2,i)<<endl;
+		}
+	}
+
+	{
+		ofstream fileout("Cell1Ds.txt");
+		if (!fileout.is_open())
+			return false;
+		
+		fileout << "ID;Origin;End" << endl;
+		
+		for(int i=0; i<GeodeticSolid.NumCell1Ds; i++){
+			fileout<<GeodeticSolid.Cell1DsId[i]<<";"
+				<<GeodeticSolid.Cell1DsExtrema(0,i)<<";"
+				<<GeodeticSolid.Cell1DsExtrema(1,i)<<endl;
+		}
+	}
+	
+	{
+		ofstream fileout("Cell2Ds.txt");
+		if (!fileout.is_open())
+			return false;
+
+		fileout << "ID;NumVertices;Vertices;NumEdges;Edges"<< endl;
+		
+		for(int i=0; i<GeodeticSolid.NumCell2Ds; i++){
+			fileout << GeodeticSolid.Cell2DsId[i]<<";"
+				<< GeodeticSolid.Cell2DsNumVertices[i]<<";";
+			
+			for(int j=0; j<GeodeticSolid.Cell2DsNumVertices[i]; j++){
+				fileout << GeodeticSolid.Cell2DsVertices[i][j] << ";";
+			}
+			
+			for(int j=0; j<GeodeticSolid.Cell2DsNumEdges[i]; j++){
+				fileout << GeodeticSolid.Cell2DsEdges[i][j] << ";";
+			}
+			fileout << endl;
+		}
+	}
+		return true;
+}
