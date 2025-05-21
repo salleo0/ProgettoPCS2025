@@ -350,129 +350,122 @@ void GenerateGeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, Polyhe
 
 /************************************/
 
-void CreateDual(PolyhedronMesh& Polyhedron)
+void CreateDual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron)
 {
-	//In teoria basta cambiare qui per generalizzare 
-	int baricenter_id = Polyhedron.Cell0DsId.back()+1;
-	int dual_face_id = Polyhedron.Cell2DsId.back()+1;
-	int dual_edge_id = Polyhedron.Cell1DsId.back()+1;
-	int StartNumCells0Ds = Polyhedron.NumCell0Ds;
-	int StartNumCells1Ds = Polyhedron.NumCell1Ds;
-	int StartNumCells2Ds = Polyhedron.NumCell2Ds;
-	int DualNumCell0Ds = Polyhedron.NumCell2Ds;
-	int DualNumCell1Ds = Polyhedron.NumCell1Ds;
-	int DualNumCell2Ds = Polyhedron.NumCell0Ds;
+	int baricenter_id = 0;
+	int face_id = 0;
+	int edge_id = 0;
+	
+	//Il Duale ha un numero di facce uguale al numero di vertici del poliedro di partenza
+	DualPolyhedron.NumCell0Ds = StartPolyhedron.NumCell2Ds;
+	DualPolyhedron.Cell0DsId.resize(DualPolyhedron.NumCell0Ds);
+	DualPolyhedron.Cell0DsCoordinates = MatrixXd::Zero(3,DualPolyhedron.NumCell0Ds);
+	
+	//Il Duale ha lo stesso numero di edges del poliedro di partenza, grazie alla formula di Eulero, qualunque sia la varietà su cui si fa la mesh :)
+	DualPolyhedron.NumCell1Ds = StartPolyhedron.NumCell1Ds;
+	
+	//Il Duale ha un numero di facce uguale al numero di vertici del poliedro di partenza
+	DualPolyhedron.NumCell2Ds = StartPolyhedron.NumCell0Ds;
+	DualPolyhedron.Cell1DsId.resize(DualPolyhedron.NumCell1Ds);
+	DualPolyhedron.Cell1DsExtrema = MatrixXi::Zero(2, DualPolyhedron.NumCell1Ds);
+	DualPolyhedron.Cell2DsId.resize(DualPolyhedron.NumCell2Ds);
+	DualPolyhedron.Cell2DsEdges.resize(DualPolyhedron.NumCell2Ds);
+	DualPolyhedron.Cell2DsVertices.resize(DualPolyhedron.NumCell2Ds);
 	int duplicate_id = 0;
 	
-	Polyhedron.Cell2DsVertices.resize(Polyhedron.NumCell2Ds + DualNumCell2Ds-1);
-	Polyhedron.Cell2DsEdges.resize(Polyhedron.NumCell1Ds + DualNumCell1Ds-1);
-	
-	Polyhedron.Cell0DsCoordinates.conservativeResize(3, Polyhedron.NumCell0Ds + DualNumCell0Ds);
-	Polyhedron.Cell1DsExtrema.conservativeResize(2, Polyhedron.NumCell1Ds + DualNumCell1Ds);
-	
-	vector<int> DualVertices;
-	vector<int> DualEdges;
-	vector<int> DualFaces;
+	//Mappa che associa all'id della faccia l'id del baricentro corrispondente, da usare se cambiassimo gli id dopo, per ora sono uguali
 	map<int, int> Faces_bar;
-	
-	//Generazione vertici del duale
-	for(int i = 0; i <DualNumCell0Ds; i++){
-		Vector3d baricenter_coordinates;
+	for (const auto& id : StartPolyhedron.Cell2DsId) {
+		Vector3d baricenter;
 		
-		Vector3d Vertex1 = Polyhedron.Cell0DsCoordinates.col(Polyhedron.Cell2DsVertices[i][0]);
-		Vector3d Vertex2 = Polyhedron.Cell0DsCoordinates.col(Polyhedron.Cell2DsVertices[i][1]);
-		Vector3d Vertex3 = Polyhedron.Cell0DsCoordinates.col(Polyhedron.Cell2DsVertices[i][2]);
+		// salvo in 3 vettori le coordinate dei vertici della faccia corrente del solido platonico
+		Vector3d Vertex1 = StartPolyhedron.Cell0DsCoordinates.col(StartPolyhedron.Cell2DsVertices[id][0]);
+		Vector3d Vertex2 = StartPolyhedron.Cell0DsCoordinates.col(StartPolyhedron.Cell2DsVertices[id][1]);
+		Vector3d Vertex3 = StartPolyhedron.Cell0DsCoordinates.col(StartPolyhedron.Cell2DsVertices[id][2]);
 		
-		baricenter_coordinates = (1.0/3.0)*Vertex1 + (1.0/3.0)*Vertex2 + (1.0/3.0)*Vertex3;
-		Polyhedron.Cell0DsId.push_back(baricenter_id);
+		// salvo le coordinate del baricentro
+		baricenter = (1.0/3.0)*Vertex1 + (1.0/3.0)*Vertex2 + (1.0/3.0)*Vertex3;
+		DualPolyhedron.Cell0DsId.push_back(baricenter_id);
 		
-		DualVertices.push_back(baricenter_id);
+		// salvo le coordinate dentro alle Cell0DsCoordinates del poliedro Duale
+		DualPolyhedron.Cell0DsCoordinates(0, id) = baricenter(0);
+		DualPolyhedron.Cell0DsCoordinates(1,id) = baricenter(1);
+		DualPolyhedron.Cell0DsCoordinates(2, id) = baricenter(2);
 		
-		
-		Polyhedron.Cell0DsCoordinates(0, baricenter_id) = baricenter_coordinates(0);
-		Polyhedron.Cell0DsCoordinates(1,baricenter_id) = baricenter_coordinates(1);
-		Polyhedron.Cell0DsCoordinates(2, baricenter_id) = baricenter_coordinates(2);
-		
-		Faces_bar[i] = baricenter_id;
+		//Associo all'id della faccia l'id del baricentro nella mappa, per ora ridondante ma poi sarà meglio
+		Faces_bar[id] = baricenter_id;
 		baricenter_id ++;
-		Polyhedron.NumCell0Ds++;
 	}
 	
-	
-	for(int i = 0; i < StartNumCells0Ds; i++){
+	for(const auto& vertex_id: StartPolyhedron.Cell0DsId){
+		
+		//Vettore che contiene le facce che hanno il vertice in comune
 		vector<int> VertexFaces;
-		for(int j = 0; j < StartNumCells2Ds; j++){
-			for(int k = 0; k<3; k++){
-				if (Polyhedron.Cell2DsVertices[j][k] == Polyhedron.Cell0DsId[i]){
-
+		for(const auto& face_id: StartPolyhedron.Cell2DsId){
+			for(int j = 0; j < 3; j++){
+				if (StartPolyhedron.Cell2DsVertices[face_id][j] == vertex_id){
+					
 					//Se la faccia a cui sono arrivato contiene il vertice, allora la aggiungo al vettore 
 					//delle facce avente quel vertice in comune
-					VertexFaces.push_back(j);
+					VertexFaces.push_back(face_id);
 					break;
 				}
 			}
 		}
 		
+		//PROBLEMA: il vettore VertexFaces contiene tutte le facce adiacenti a un vertice ma NON è ordinato in modo sensato, 
+		//per costruire gli edges devo ordinarlo in modo che ogni faccia nel vettore abbia come successiva la faccia adiacente, 
+		//ovvero quella che ha l'edge in comune con la faccia corrente, per ordinare questo vettore chiamo la funzione order_faces
+		//il vettore ordered_Faces è passato per riferimento, in modo che venga aggiornato dalla funzione order_Faces.
 		vector<int> ordered_faces;
-		order_faces(VertexFaces, ordered_faces, Polyhedron);
-
-		int valence = ordered_faces.size();
+		order_faces(VertexFaces, ordered_faces, StartPolyhedron);
 		
+		//la valenza del vertice è pari alla lunghezza del vettore di facce che condividono il vertice dato 
+		//ATTENZIONE: Questa parte non è superflua, perché le valenze NON SONO sempre 3 per il generico solido geodetico!!!
+		int valence = ordered_faces.size();
 		vector<int> New_vertices;
+		
+		//qui associo a ogni faccia del poliedro di partenza l'id del vertice nel duale corrispondente
 		for(const auto& VertexFace: ordered_faces)
 			New_vertices.push_back(Faces_bar[VertexFace]);
+		DualPolyhedron.Cell2DsId.push_back(face_id);
+		DualPolyhedron.Cell2DsVertices[face_id] = New_vertices;
+		DualPolyhedron.Cell2DsEdges[face_id].resize(valence);
 		
-		//Generazione facce e vertici del duale (come nel geodetico ma con k punti per faccia anzichè 3)
-		Polyhedron.Cell2DsId.push_back(dual_face_id);
-		Polyhedron.Cell2DsVertices[dual_face_id] = New_vertices;
-		Polyhedron.Cell2DsEdges[dual_face_id].resize(valence);
-		
-		
+		//Questa è la creazione degli edges, praticamente identica a quella per il solido geodetico, 
+		//con la differenza che il vettore di vertici della faccia ha tanti elementi quanti la valenza del 
+		//vertice, e a parte questo dettaglio è tutto uguale!
 		for (int k = 0; k < valence; k++) {
-			int originVertex = Polyhedron.Cell2DsVertices[dual_face_id][k];
+			int originVertex = DualPolyhedron.Cell2DsVertices[face_id][k];
 			int endVertex;
 			if ( k == valence-1 )
-				endVertex = Polyhedron.Cell2DsVertices[dual_face_id][0];
+				endVertex = DualPolyhedron.Cell2DsVertices[face_id][0];
 			else
-				endVertex = Polyhedron.Cell2DsVertices[dual_face_id][k+1];
-			if(!CheckDuplicatesEdge(Polyhedron.Cell1DsExtrema, originVertex, endVertex, dual_edge_id, duplicate_id)){
-				Polyhedron.Cell1DsId.push_back(dual_edge_id);
-				Polyhedron.Cell1DsExtrema(0, dual_edge_id) = originVertex;
-				Polyhedron.Cell1DsExtrema(1, dual_edge_id) = endVertex;
-				Polyhedron.Cell2DsEdges[dual_face_id][k] = dual_edge_id;
-				
-				DualEdges.push_back(dual_edge_id);
-				
-				dual_edge_id++;
-				Polyhedron.NumCell1Ds++;
+				endVertex = DualPolyhedron.Cell2DsVertices[face_id][k+1];
+			if(!CheckDuplicatesEdge(DualPolyhedron.Cell1DsExtrema, originVertex, endVertex, edge_id, duplicate_id)){
+				DualPolyhedron.Cell1DsId.push_back(edge_id);
+				DualPolyhedron.Cell1DsExtrema(0, edge_id) = originVertex;
+				DualPolyhedron.Cell1DsExtrema(1, edge_id) = endVertex;
+				DualPolyhedron.Cell2DsEdges[face_id][k] = edge_id;
+				edge_id++;
 			}
 			else
-				Polyhedron.Cell2DsEdges[dual_face_id][k] = Polyhedron.Cell1DsId[duplicate_id];
+				DualPolyhedron.Cell2DsEdges[face_id][k] = DualPolyhedron.Cell1DsId[duplicate_id];
 		}
-		
-		Polyhedron.NumCell2Ds++;
-		DualFaces.push_back(dual_face_id);
-		dual_face_id++;
+		face_id++;
 	}
-	
-	Polyhedron.Cell3DsId.push_back(1);
-	
-	Polyhedron.Cell2DsVertices.resize(dual_face_id);
-	Polyhedron.Cell2DsEdges.resize(dual_edge_id);
-	Polyhedron.Cell0DsCoordinates.conservativeResize(3, baricenter_id);
-	Polyhedron.Cell1DsExtrema.conservativeResize(2, dual_edge_id);
-	
-	Polyhedron.Cell3DsNumVertices.push_back(DualNumCell0Ds);
-	Polyhedron.Cell3DsNumEdges.push_back(DualNumCell1Ds);
-	Polyhedron.Cell3DsNumFaces.push_back(DualNumCell2Ds);
-	
-	Polyhedron.Cell3DsVertices.push_back(DualVertices);
-	Polyhedron.Cell3DsEdges.push_back(DualEdges);
-	Polyhedron.Cell3DsFaces.push_back(DualFaces);
-	
-	ProjectionOnSphere(Polyhedron);
-	Polyhedron.NumCell3Ds++;
 
+	ProjectionOnSphere(DualPolyhedron);
+	
+	// GENERAZIONE POLIEDRO
+	DualPolyhedron.NumCell3Ds++;
+	DualPolyhedron.Cell3DsId.push_back(0);
+	DualPolyhedron.Cell3DsNumVertices.push_back(DualPolyhedron.NumCell0Ds);
+	DualPolyhedron.Cell3DsNumEdges.push_back(DualPolyhedron.NumCell1Ds);
+	DualPolyhedron.Cell3DsNumFaces.push_back(DualPolyhedron.NumCell2Ds);
+	DualPolyhedron.Cell3DsVertices.push_back(DualPolyhedron.Cell0DsId);
+	DualPolyhedron.Cell3DsEdges.push_back(DualPolyhedron.Cell1DsId);
+	DualPolyhedron.Cell3DsFaces.push_back(DualPolyhedron.Cell2DsId);
 }
 
 /************************************/
@@ -516,7 +509,6 @@ void order_faces(const vector<int>& unordered_faces, vector<int>& ordered_faces,
         }
 
         if (found) {
-			
 			//Se ho trovato l'edge comune, allora metto la faccia con l'edge comune dentro a ordered_faces
 			//e aggiorno current, in modo da ripartire con il while cercando la faccia che ha un edge in comune con
 			//quella appena trovata

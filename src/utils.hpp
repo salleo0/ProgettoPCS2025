@@ -55,13 +55,13 @@ bool CheckDuplicatesEdge(const MatrixXi& mat, const int& v1, const int& v2, int&
 // mesh: struct del tipo PolyhedronMesh
 void ProjectionOnSphere(PolyhedronMesh& mesh);
 
-//Costruisce il poliedro duale DualPolyhedron a partire dal generico poliedro iniziale StartPolyhedron
-void CreateDual(PolyhedronMesh& Polyhedron);
+// Costruisce il poliedro duale DualPolyhedron a partire dal generico poliedro iniziale StartPolyhedron
+void CreateDual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron);
 
-//Usata nella costruzione dei poliedri: dato un vettore di facce unordered_faces, tutte aventi un vertice comune,
+// Usata nella costruzione dei poliedri: dato un vettore di facce unordered_faces, tutte aventi un vertice comune,
 // la funzione ordina tale vettore in modo che ciascuna faccia sia seguita da quella adiacente a essa, per costruire correttamente 
-//gli edges.
-//unordered_faces: il vettore di facce da ordinare
-//ordered_faces: il vettore ordinato in cui vengono aggiunte uno a uno le facce da unordered_faces
-//Polyhedron: la mesh per avere accesso agli edges delle facce nel vettore unordered_faces
+// gli edges.
+// unordered_faces: il vettore di facce da ordinare
+// ordered_faces: il vettore ordinato in cui vengono aggiunte uno a uno le facce da unordered_faces
+// Polyhedron: la mesh per avere accesso agli edges delle facce nel vettore unordered_faces
 void order_faces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedronMesh& Polyhedron);

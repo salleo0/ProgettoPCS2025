@@ -69,71 +69,31 @@ int main(int argc, char *argv[])
 	
 	// COSTRUZIONE DELLA MESH DEL POLIEDRO GEODETICO E DEL SUO DUALE
 	PolyhedronMesh GeodeticPolyhedron;
-	if ( b > 0 && c == 0){
+	PolyhedronMesh DualPolyhedron;
+	if ( b > 0 && c == 0)
 		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, b);
-		CreateDual(GeodeticPolyhedron);
-	}
-	else if ( b == 0 && c > 0){
+	else if ( b == 0 && c > 0)
 		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, c);
-		CreateDual(GeodeticPolyhedron);
-	}
 	
-	//STAMPA SU TERMINALE SOLO PER CONFERMA, ELIMINARE A TEMPO DEBITO
-	cout<<"Id dei vertici: "<<endl;
-	for(int i = 0; i < GeodeticPolyhedron.NumCell0Ds; i++)
-		cout<<GeodeticPolyhedron.Cell0DsId[i]<<endl;
-	
-	cout<<"Coordinate dei vertici: "<<endl;
-	for(int i = 0; i< GeodeticPolyhedron.NumCell0Ds; i++)
-		cout<<GeodeticPolyhedron.Cell0DsCoordinates(0,i)<<" "<<GeodeticPolyhedron.Cell0DsCoordinates(1,i)<<" "<<GeodeticPolyhedron.Cell0DsCoordinates(2,i)<<endl;
-	
-	cout<<"Id degli edges: "<<endl;
-	for(int i = 0; i < GeodeticPolyhedron.NumCell1Ds; i++)
-		cout<<GeodeticPolyhedron.Cell1DsId[i]<<endl;
-	
-	cout<<"Origin e End degli edges: "<<endl;
-	for(int i = 0; i < GeodeticPolyhedron.NumCell1Ds; i++)
-		cout<<GeodeticPolyhedron.Cell1DsExtrema(0,i)<<" "<<GeodeticPolyhedron.Cell1DsExtrema(1,i)<<endl;
-	
-	cout<<"Facce e informazioni "<<endl;
-	for(int i = 0; i < GeodeticPolyhedron.NumCell2Ds; i++){
-		cout<<"id faccia: "<<GeodeticPolyhedron.Cell2DsId[i]<<endl;
-		cout<<"Vertici della faccia: ";
-		for(const auto& vertex:GeodeticPolyhedron.Cell2DsVertices[i])
-			cout<<vertex<<" ";
-		cout<<"Edges della faccia: ";
-		for(const auto& edge:GeodeticPolyhedron.Cell2DsEdges[i])
-			cout<<edge<<" ";
-		cout<<endl;
-	}
-	
-	for(const auto& id:GeodeticPolyhedron.Cell3DsId){
-		cout<<"Id del poliedro: "<<id<<endl;
-		cout<<"Numero vertici: "<<GeodeticPolyhedron.Cell3DsNumVertices[id]<<endl;
-		cout<<"Numero edges: "<<GeodeticPolyhedron.Cell3DsNumEdges[id]<<endl;
-		cout<<"Numero facce: "<<GeodeticPolyhedron.Cell3DsNumFaces[id]<<endl;
-		cout<<"Vertici del Poliedro"<<endl;
-		for(const auto & vertex: GeodeticPolyhedron.Cell3DsVertices[id])
-			cout<<vertex<<endl;
-		cout<<"Edges del Poliedro"<<endl;
-		for(const auto & edge: GeodeticPolyhedron.Cell3DsEdges[id])
-			cout<<edge<<endl;
-		cout<<"Facce del Poliedro"<<endl;
-		for(const auto & face: GeodeticPolyhedron.Cell3DsFaces[id])
-			cout<<face<<endl;
-	}
-		
-	
-	//EXPORT SU PARAVIEW
+	// GENERAZIONE DUALE SE q = 3, ALTRIMENTI SOLO ESPORTAZIONE GEODETICO
 	Gedim::UCDUtilities utilities;	
-	
-	utilities.ExportPoints("./Cell0Ds.inp",
-                           GeodeticPolyhedron.Cell0DsCoordinates);
-
-    utilities.ExportSegments("./Cell1Ds.inp",
+	if ( q == 3 ){
+		cout << "Generation of a generalized Goldberg polyhedron with Schlafli symbol {3+, 3}_(" << b << ", " << c << ")" endl;
+		CreateDual(GeodeticPolyhedron, DualPolyhedron);
+		utilities.ExportPoints("./Cell0Ds.inp",
+								DualPolyhedron.Cell0DsCoordinates);
+		utilities.ExportSegments("./Cell1Ds.inp",
+								DualPolyhedron.Cell0DsCoordinates,
+								DualPolyhedron.Cell1DsExtrema);
+	}
+	else {
+		cout << "Generation of a geodetic polyhedron with Schlafli symbol {3, " << q << "+}_(" << b << ", " << c << ")" << endl;
+		utilities.ExportPoints("./Cell0Ds.inp",
+								GeodeticPolyhedron.Cell0DsCoordinates);
+		utilities.ExportSegments("./Cell1Ds.inp",
 								GeodeticPolyhedron.Cell0DsCoordinates,
-								GeodeticPolyhedron.Cell1DsExtrema); 
-
+								GeodeticPolyhedron.Cell1DsExtrema);
+	}
 	
 	return 0;
 }
