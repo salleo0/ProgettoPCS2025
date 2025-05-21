@@ -24,7 +24,6 @@ TEST(TestGeodeticPolyhedron, TestTetrahedronType1)
 	EXPECT_EQ(GeodeticPolyhedron.NumCell0Ds, ExpectedVertices);
 	EXPECT_EQ(GeodeticPolyhedron.NumCell1Ds, ExpectedEdges);
 	EXPECT_EQ(GeodeticPolyhedron.NumCell2Ds, ExpectedFaces);
-	
 }
 
 TEST(TestGeodeticPolyhedron, TestOctahedronType1)

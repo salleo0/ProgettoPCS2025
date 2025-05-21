@@ -5,6 +5,7 @@
 #include "Eigen/Eigen"
 #include"utils.hpp"
 #include <queue>
+
 using namespace Eigen;
 using namespace std;
 
@@ -399,13 +400,11 @@ void CreateDual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron)
 	}
 	
 	for(const auto& vertex_id: StartPolyhedron.Cell0DsId){
-		
 		//Vettore che contiene le facce che hanno il vertice in comune
 		vector<int> VertexFaces;
 		for(const auto& face_id: StartPolyhedron.Cell2DsId){
 			for(int j = 0; j < 3; j++){
 				if (StartPolyhedron.Cell2DsVertices[face_id][j] == vertex_id){
-					
 					//Se la faccia a cui sono arrivato contiene il vertice, allora la aggiungo al vettore 
 					//delle facce avente quel vertice in comune
 					VertexFaces.push_back(face_id);
@@ -416,10 +415,10 @@ void CreateDual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron)
 		
 		//PROBLEMA: il vettore VertexFaces contiene tutte le facce adiacenti a un vertice ma NON è ordinato in modo sensato, 
 		//per costruire gli edges devo ordinarlo in modo che ogni faccia nel vettore abbia come successiva la faccia adiacente, 
-		//ovvero quella che ha l'edge in comune con la faccia corrente, per ordinare questo vettore chiamo la funzione order_faces
+		//ovvero quella che ha l'edge in comune con la faccia corrente, per ordinare questo vettore chiamo la funzione OrderFaces
 		//il vettore ordered_Faces è passato per riferimento, in modo che venga aggiornato dalla funzione order_Faces.
 		vector<int> ordered_faces;
-		order_faces(VertexFaces, ordered_faces, StartPolyhedron);
+		OrderFaces(VertexFaces, ordered_faces, StartPolyhedron);
 		
 		//la valenza del vertice è pari alla lunghezza del vettore di facce che condividono il vertice dato 
 		//ATTENZIONE: Questa parte non è superflua, perché le valenze NON SONO sempre 3 per il generico solido geodetico!!!
@@ -471,7 +470,7 @@ void CreateDual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron)
 
 /************************************/
 
-void order_faces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedronMesh& Polyhedron)
+void OrderFaces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedronMesh& Polyhedron)
 {	
 	//Il vettore di facce rimanenti contiene le facce ancora da ordinare, esso è all'inizio uguale a tutto il vettore.
     vector<int> remaining_faces = unordered_faces;
@@ -520,8 +519,9 @@ void order_faces(const vector<int>& unordered_faces, vector<int>& ordered_faces,
     }
 }
 
+/************************************/
 
-void generate_graph(PolyhedronMesh& Polyhedron, int StartVertex, int EndVertex){
+void GenerateGraph(PolyhedronMesh& Polyhedron, int StartVertex, int EndVertex){
 	
 	// generazione della lista di adiacenza, poiché è tutto indicizzato sequenzialmente, 
 	// conviene usare un vector di vector anziché un vector di liste
