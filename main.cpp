@@ -4,6 +4,7 @@
 #include "UCDUtilities.hpp"
 
 using namespace std;
+using namespace TriangulationLibrary;
 
 int main(int argc, char *argv[])
 {
@@ -62,7 +63,7 @@ int main(int argc, char *argv[])
 			break;
 	}
 	
-	if(!ImportPolyhedronMesh(PlatonicPolyhedron, InputFile)){
+	if(!Import::ImportPolyhedronMesh(PlatonicPolyhedron, InputFile)){
 		cerr << "Something went wrong during the creation of the platonic polyhedron mesh" << endl;
 		return 1;
 	}
@@ -71,21 +72,21 @@ int main(int argc, char *argv[])
 	PolyhedronMesh GeodeticPolyhedron;
 	PolyhedronMesh DualPolyhedron;
 	if ( b > 0 && c == 0)
-		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, b);
+		Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, b);
 	else if ( b == 0 && c > 0)
-		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, c);
+		Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, c);
 	
 	// GENERAZIONE DUALE SE q = 3, ALTRIMENTI SOLO ESPORTAZIONE GEODETICO
 	Gedim::UCDUtilities utilities;	
 	if ( q == 3 ){
 		cout << "Generation of a generalized Goldberg polyhedron with Schlafli symbol {3+, 3}_(" << b << ", " << c << ")" << endl;
-		CreateDual(GeodeticPolyhedron, DualPolyhedron);
+		Generation::Dual(GeodeticPolyhedron, DualPolyhedron);
 		utilities.ExportPoints("./Cell0Ds.inp",
-								DualPolyhedron.Cell0DsCoordinates);
+								DualPolyhedron.Cell0DsCoordinates);				
 		utilities.ExportSegments("./Cell1Ds.inp",
 								DualPolyhedron.Cell0DsCoordinates,
 								DualPolyhedron.Cell1DsExtrema);
-		if (!GenerateOutputFiles(DualPolyhedron)){
+		if (!ExportOutputFiles(DualPolyhedron)){
 			cerr << "Error during the export of .txt files" << endl;
 			return 1;
 		}
@@ -97,7 +98,7 @@ int main(int argc, char *argv[])
 		utilities.ExportSegments("./Cell1Ds.inp",
 								GeodeticPolyhedron.Cell0DsCoordinates,
 								GeodeticPolyhedron.Cell1DsExtrema);
-		if (!GenerateOutputFiles(GeodeticPolyhedron)){
+		if (!ExportOutputFiles(GeodeticPolyhedron)){
 			cerr << "Error during the export of .txt files" << endl;
 			return 1;
 		}
