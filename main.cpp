@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
 
 	// Occorre controllare che i vertici di inizio e fine esistano quando viene chiamata questa funzione nel main, 
 	// altrimenti non ha senso cercare il cammino minimo
-	// generate_graph(GeodeticPolyhedron, 1, 10);
+	//ShortestPath(GeodeticPolyhedron, 1, 10);
 	
 	return 0;
 }

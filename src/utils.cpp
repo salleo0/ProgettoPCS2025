@@ -5,6 +5,7 @@
 #include <queue>
 #include "Eigen/Eigen"
 #include"utils.hpp"
+#include "UCDUtilities.hpp"
 
 using namespace Eigen;
 using namespace std;
@@ -604,10 +605,32 @@ namespace TriangulationLibrary {
 			v = pred[v];
 		}
 		
-		reverse(path.begin(), path.end());
+	vector<double> PathPointsProperties(Polyhedron.NumCell0Ds, 0.0);
+	for (const auto& point : path)
+		PathPointsProperties[point] = 1.0;
 
-		for(int i = 0; i<path.size(); i++)
-			cout<<path[i]<<" -> ";
+
+	Gedim::UCDProperty<double> ShortPathProperty;
+	ShortPathProperty.Label = "shortest path";
+	ShortPathProperty.UnitLabel = "";
+	ShortPathProperty.Size = PathPointsProperties.size();
+	ShortPathProperty.NumComponents = 1;
+	ShortPathProperty.Data = PathPointsProperties.data();  
+
+
+	vector<Gedim::UCDProperty<double>> PointsProperties;
+	PointsProperties.push_back(ShortPathProperty);
+
+
+	Gedim::UCDUtilities utilities;
+	utilities.ExportPoints("./Cell0DsShortPath.inp",
+                       Polyhedron.Cell0DsCoordinates,
+                       PointsProperties);
+
+	utilities.ExportSegments("./Cell1DsShortPath.inp",
+                         Polyhedron.Cell0DsCoordinates,
+                         Polyhedron.Cell1DsExtrema);
+		
 	}
 
 	/************************************/
