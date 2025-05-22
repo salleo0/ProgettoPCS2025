@@ -374,19 +374,25 @@ namespace TriangulationLibrary {
 			
 			//Il Duale ha un numero di facce uguale al numero di vertici del poliedro di partenza
 			DualPolyhedron.NumCell0Ds = StartPolyhedron.NumCell2Ds;
-			DualPolyhedron.Cell0DsId.resize(DualPolyhedron.NumCell0Ds);
-			DualPolyhedron.Cell0DsCoordinates = MatrixXd::Zero(3,DualPolyhedron.NumCell0Ds);
+			//DualPolyhedron.Cell0DsId.resize(DualPolyhedron.NumCell0Ds);
+			//DualPolyhedron.Cell0DsCoordinates = MatrixXd::Zero(3,DualPolyhedron.NumCell0Ds);
 			
 			//Il Duale ha lo stesso numero di edges del poliedro di partenza, grazie alla formula di Eulero, qualunque sia la varietà su cui si fa la mesh :)
 			DualPolyhedron.NumCell1Ds = StartPolyhedron.NumCell1Ds;
 			
 			//Il Duale ha un numero di facce uguale al numero di vertici del poliedro di partenza
 			DualPolyhedron.NumCell2Ds = StartPolyhedron.NumCell0Ds;
-			DualPolyhedron.Cell1DsId.resize(DualPolyhedron.NumCell1Ds);
+			DualPolyhedron.Cell0DsId.reserve(DualPolyhedron.NumCell0Ds);
+			DualPolyhedron.Cell0DsCoordinates = MatrixXd::Zero(3,DualPolyhedron.NumCell0Ds);	
+			
 			DualPolyhedron.Cell1DsExtrema = MatrixXi::Zero(2, DualPolyhedron.NumCell1Ds);
-			DualPolyhedron.Cell2DsId.resize(DualPolyhedron.NumCell2Ds);
+			DualPolyhedron.Cell1DsId.reserve(DualPolyhedron.NumCell1Ds);
+			
+			DualPolyhedron.Cell2DsId.reserve(DualPolyhedron.NumCell2Ds);
 			DualPolyhedron.Cell2DsEdges.resize(DualPolyhedron.NumCell2Ds);
+			DualPolyhedron.Cell2DsNumEdges.resize(DualPolyhedron.NumCell2Ds);
 			DualPolyhedron.Cell2DsVertices.resize(DualPolyhedron.NumCell2Ds);
+			DualPolyhedron.Cell2DsNumVertices.resize(DualPolyhedron.NumCell2Ds);
 			int duplicate_id = 0;
 			
 			//Mappa che associa all'id della faccia l'id del baricentro corrispondente, da usare se cambiassimo gli id dopo, per ora sono uguali
@@ -442,9 +448,13 @@ namespace TriangulationLibrary {
 				//qui associo a ogni faccia del poliedro di partenza l'id del vertice nel duale corrispondente
 				for(const auto& VertexFace: ordered_faces)
 					New_vertices.push_back(Faces_bar[VertexFace]);
+				
 				DualPolyhedron.Cell2DsId.push_back(face_id);
 				DualPolyhedron.Cell2DsVertices[face_id] = New_vertices;
 				DualPolyhedron.Cell2DsEdges[face_id].resize(valence);
+				
+				DualPolyhedron.Cell2DsNumVertices[face_id] = valence;
+				DualPolyhedron.Cell2DsNumEdges[face_id] = valence;
 				
 				//Questa è la creazione degli edges, praticamente identica a quella per il solido geodetico, 
 				//con la differenza che il vettore di vertici della faccia ha tanti elementi quanti la valenza del 
@@ -470,6 +480,12 @@ namespace TriangulationLibrary {
 			}
 
 			ProjectionOnSphere(DualPolyhedron);
+			
+			DualPolyhedron.Cell1DsExtrema.conservativeResize(2, DualPolyhedron.NumCell1Ds);
+			DualPolyhedron.Cell2DsNumVertices.resize(DualPolyhedron.NumCell2Ds);
+			DualPolyhedron.Cell2DsNumEdges.resize(DualPolyhedron.NumCell2Ds);
+			DualPolyhedron.Cell2DsVertices.resize(DualPolyhedron.NumCell2Ds);
+			DualPolyhedron.Cell2DsEdges.resize(DualPolyhedron.NumCell2Ds);
 			
 			// GENERAZIONE POLIEDRO
 			DualPolyhedron.NumCell3Ds++;
@@ -701,7 +717,7 @@ namespace TriangulationLibrary {
 				fileout << mesh.Cell3DsId[i] << ";"
 					<< mesh.Cell3DsNumVertices[i];
 				
-				for (int j = 0; j < mesh.Cell2DsNumVertices[i]; j++)
+				for (int j = 0; j < mesh.Cell3DsNumVertices[i]; j++)
 					fileout << ";" << mesh.Cell3DsVertices[i][j];
 				
 				fileout << ";" << mesh.Cell3DsNumEdges[i];
