@@ -377,14 +377,16 @@ namespace TriangulationLibrary {
 			GeodeticSolid.Cell1DsExtrema = MatrixXi::Zero(2, total_edges);
 			
 			GeodeticSolid.Cell2DsId.reserve(total_faces);
-			
+
+			// tutti i vertici del type 1 sono anche in comune con il type2, quindi li inseriamo nella matrice delle coordinate conservando anche l'id
 			for (const auto& id : tempMesh.Cell0DsId) {
 				GeodeticSolid.Cell0DsId.push_back(id);
 				GeodeticSolid.Cell0DsCoordinates.col(id) = tempMesh.Cell0DsCoordinates.col(id);
 			}
-			
+
 			int point_id = tempMesh.Cell0DsId.back() + 1;
-			
+
+			// generazione dei baricentri 
 			for (const auto& VertexVector : tempMesh.Cell2DsVertices) {
 				Vector3d Vertex1Coord = tempMesh.Cell0DsCoordinates.col(VertexVector[0]);
 				Vector3d Vertex2Coord = tempMesh.Cell0DsCoordinates.col(VertexVector[1]);
@@ -396,7 +398,8 @@ namespace TriangulationLibrary {
 				GeodeticSolid.NumCell0Ds++;
 				point_id++;
 			}
-			
+
+			// ATTENZIONE: IL PROBLEMA è ALLA FINE DELLA GENERAZIONE DEI BARICENTRI, ci potrebbero essere più punti del previsto
 			for (int j = 0; j < PlatonicPolyhedron.Cell1DsExtrema.cols(); j++) {
 				const auto& VertexIdVector = PlatonicPolyhedron.Cell1DsExtrema.col(j);
 				Vector3d Vertex1Coord = PlatonicPolyhedron.Cell0DsCoordinates.col(VertexIdVector[0]);
