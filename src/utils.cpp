@@ -605,32 +605,55 @@ namespace TriangulationLibrary {
 			v = pred[v];
 		}
 		
-	vector<double> PathPointsProperties(Polyhedron.NumCell0Ds, 0.0);
-	for (const auto& point : path)
-		PathPointsProperties[point] = 1.0;
+		vector<double> PathPointsProperties(Polyhedron.NumCell0Ds, 0.0);
+		for (const auto& point : path)
+			PathPointsProperties[point] = 1.0;
 
 
-	Gedim::UCDProperty<double> ShortPathProperty;
-	ShortPathProperty.Label = "shortest path";
-	ShortPathProperty.UnitLabel = "";
-	ShortPathProperty.Size = PathPointsProperties.size();
-	ShortPathProperty.NumComponents = 1;
-	ShortPathProperty.Data = PathPointsProperties.data();  
+		Gedim::UCDProperty<double> ShortPathProperty;
+		ShortPathProperty.Label = "shortest path";
+		ShortPathProperty.UnitLabel = "";
+		ShortPathProperty.Size = PathPointsProperties.size();
+		ShortPathProperty.NumComponents = 1;
+		ShortPathProperty.Data = PathPointsProperties.data();  
 
 
-	vector<Gedim::UCDProperty<double>> PointsProperties;
-	PointsProperties.push_back(ShortPathProperty);
+		vector<Gedim::UCDProperty<double>> PointsProperties;
+		PointsProperties.push_back(ShortPathProperty);
+	
+		Gedim::UCDUtilities utilities;
+		utilities.ExportPoints("./Cell0DsShortPath.inp",
+								Polyhedron.Cell0DsCoordinates,
+								PointsProperties);
+	
+		vector<int> pathEdges; 
+		vector<double> PathEdgesProperties(Polyhedron.NumCell1Ds, 0.0);
 
-
-	Gedim::UCDUtilities utilities;
-	utilities.ExportPoints("./Cell0DsShortPath.inp",
-                       Polyhedron.Cell0DsCoordinates,
-                       PointsProperties);
-
-	utilities.ExportSegments("./Cell1DsShortPath.inp",
-                         Polyhedron.Cell0DsCoordinates,
-                         Polyhedron.Cell1DsExtrema);
+		for (int i = 0; i < path.size()-1; i++){
+			int v1 = path[i];
+			int v2 = path[i+1];
+			for(const auto& edge: Polyhedron.Cell1DsId){
+				if ((Polyhedron.Cell1DsExtrema(0, edge) == v1 && Polyhedron.Cell1DsExtrema(1, edge) == v2) || 
+					(Polyhedron.Cell1DsExtrema(0, edge) == v2 && Polyhedron.Cell1DsExtrema(1,edge) == v1)){
+						pathEdges.push_back(edge);
+						PathEdgesProperties[edge] = 1.0;
+					}
+			}	
+		}
 		
+		ShortPathProperty.Label = "shortest path";
+		ShortPathProperty.UnitLabel = "";
+		ShortPathProperty.Size = PathEdgesProperties.size();
+		ShortPathProperty.NumComponents = 1;
+		ShortPathProperty.Data = PathEdgesProperties.data();  
+	
+		vector<Gedim::UCDProperty<double>> EdgesProperties;
+		EdgesProperties.push_back(ShortPathProperty);
+		utilities.ExportSegments("./Cell1DsShortPath.inp",
+								Polyhedron.Cell0DsCoordinates,
+								Polyhedron.Cell1DsExtrema,
+								PointsProperties,
+								EdgesProperties);
 	}
 
 	/************************************/
