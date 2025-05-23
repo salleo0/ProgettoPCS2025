@@ -99,8 +99,8 @@ int main(int argc, char *argv[])
 	}
 	else {
 		cout << "Generation of a geodetic polyhedron with Schlafli symbol {3, " << q << "+}_(" << b << ", " << c << ")" << endl;
-		utilities.ExportPoints("./Cell0Ds.inp",
-								GeodeticPolyhedron.Cell0DsCoordinates);
+		/*utilities.ExportPoints("./Cell0Ds.inp",
+								GeodeticPolyhedron.Cell0DsCoordinates);*/
 		/*
 		utilities.ExportSegments("./Cell1Ds.inp",
 								GeodeticPolyhedron.Cell0DsCoordinates,
@@ -116,6 +116,9 @@ int main(int argc, char *argv[])
 	// Occorre controllare che i vertici di inizio e fine esistano quando viene chiamata questa funzione nel main, 
 	// altrimenti non ha senso cercare il cammino minimo
 	// ShortestPath(GeodeticPolyhedron, 1, 10);
+
+
+
 	
 	return 0;
 }

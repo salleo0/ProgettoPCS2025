@@ -372,7 +372,6 @@ namespace TriangulationLibrary {
 			
 			GeodeticSolid.Cell0DsId.reserve(total_points);
 			GeodeticSolid.Cell0DsCoordinates = MatrixXd::Zero(3, total_points);
-			
 			GeodeticSolid.Cell1DsId.reserve(total_edges);
 			GeodeticSolid.Cell1DsExtrema = MatrixXi::Zero(2, total_edges);
 			
@@ -383,9 +382,7 @@ namespace TriangulationLibrary {
 				GeodeticSolid.Cell0DsId.push_back(id);
 				GeodeticSolid.Cell0DsCoordinates.col(id) = tempMesh.Cell0DsCoordinates.col(id);
 			}
-
 			int point_id = tempMesh.Cell0DsId.back() + 1;
-
 			// generazione dei baricentri 
 			for (const auto& VertexVector : tempMesh.Cell2DsVertices) {
 				Vector3d Vertex1Coord = tempMesh.Cell0DsCoordinates.col(VertexVector[0]);
@@ -398,26 +395,30 @@ namespace TriangulationLibrary {
 				GeodeticSolid.NumCell0Ds++;
 				point_id++;
 			}
-
+			
 			// ATTENZIONE: IL PROBLEMA è ALLA FINE DELLA GENERAZIONE DEI BARICENTRI, ci potrebbero essere più punti del previsto
 			for (int j = 0; j < PlatonicPolyhedron.Cell1DsExtrema.cols(); j++) {
 				const auto& VertexIdVector = PlatonicPolyhedron.Cell1DsExtrema.col(j);
 				Vector3d Vertex1Coord = PlatonicPolyhedron.Cell0DsCoordinates.col(VertexIdVector[0]);
 				Vector3d Vertex2Coord = PlatonicPolyhedron.Cell0DsCoordinates.col(VertexIdVector[1]);
 				Vector3d Direction = Vertex2Coord - Vertex1Coord;
-				
 				double factor = (Direction.norm())/(2*TriangulationParameter);
 				for (int i = 1; i <= 2*TriangulationParameter - 1; i++) {
 					Vector3d PointOnSegmentCoord = Vertex1Coord + i*factor*Direction;
 					PointOnSegmentCoord = PointOnSegmentCoord/(PointOnSegmentCoord.norm());
-					
 					int tmp;
 					if (!CheckDuplicatesVertex(GeodeticSolid.Cell0DsCoordinates, PointOnSegmentCoord, GeodeticSolid.NumCell0Ds, tmp)) {
 						GeodeticSolid.Cell0DsId.push_back(point_id);
 						GeodeticSolid.Cell0DsCoordinates.col(point_id) = PointOnSegmentCoord;
 						point_id++;
+						GeodeticSolid.NumCell0Ds++;
 					}
 				}
+			}
+			
+			for(const auto& Id: GeodeticSolid.Cell0DsId){
+				cout<<Id<<endl;
+				cout<<GeodeticSolid.Cell0DsCoordinates(0,Id)<<" "<<GeodeticSolid.Cell0DsCoordinates(1,Id)<<GeodeticSolid.Cell0DsCoordinates(2,Id)<<endl;
 			}
 			
 			
@@ -617,8 +618,10 @@ namespace TriangulationLibrary {
 	{	
 		// generazione della lista di adiacenza, poiché è tutto indicizzato sequenzialmente, 
 		// conviene usare un vector di vector anziché un vector di liste
-		vector<vector<int>> adjacency_list;
+		/*vector<vector<int>> adjacency_list;
 		adjacency_list.reserve(Polyhedron.NumCell0Ds);
+		MatrixXd W = MatrixXd::Zero(Polyhedron.NumCell0Ds, Polyhedron.NumCell0Ds);
+		
 		for(int i = 0; i < Polyhedron.NumCell0Ds; i++){
 			vector<int> neighbors;
 			for(const auto& edge : Polyhedron.Cell1DsId){
@@ -632,44 +635,57 @@ namespace TriangulationLibrary {
 			adjacency_list.push_back(neighbors);
 		}
 		
-		// algoritmo BFS per esplorare il grafo, pred è un vettore
-		// ausiliario usato per ricostruire il percorso
-		vector<bool> reached(Polyhedron.NumCell0Ds, false);
-		vector<int>  pred(Polyhedron.NumCell0Ds, -1);
-		queue<int> q;
+		for(int i = 0; i<adjacency_list.size();i++){
+			for(const auto& neighbor: adjacency_list[i]){
+				W(i,neighbor) = (Polyhedron.Cell0DsCoordinates.col(neighbor)-Polyhedron.Cell0DsCoordinates.col(i)).norm();
+			}
+		}
 		
-		q.push(StartVertex);
-		reached[StartVertex] = true;
-		while(!q.empty()){
-			int u = q.front();
-			q.pop();
-			if(u==EndVertex)
-				break;
-			for(const auto& w: adjacency_list[u]){
-				if(!reached[w]){
+		// algoritmo di Dijkstra per esplorare il grafo, pred è un vettore
+		// ausiliario usato per ricostruire il percorso
+
+		/*vector<int> pred(Polyhedron.NumCell0Ds, -1);
+		vector<double> dist(Polyhedron.NumCell0Ds, 1000.0);
+		priority_queue<pair<int,double>> PQ;
+		
+		pred[StartVertex] = StartVertex;
+		dist[StartVertex] = 0;
+		
+		for(int i = 0; i < Polyhedron.NumCell0Ds; i++)
+			PQ.push({i, dist[i]});
+		while(!PQ.empty()){
+			int u = PQ.top().first;
+			int p = PQ.top().second;
+			PQ.pop();
+			
+			for(const auto& w : adjacency_list[u]){
+				if( dist[w] > dist[u] + W(u,w) ) {
+					dist[w] = dist[u] + W(u,w);
 					pred[w] = u;
-					reached[w] = true;
-					q.push(w);
-					
+					PQ.push({w, dist[w]});
 				}
 			}
 		}
 		
 		// path contiene gli id dei vertici che compongono il cammino minimo 
 		// al contrario, perché sono id provenienti dal vettore pred
-		vector<int> path;
+		/*vector<int> path;
 		int v = EndVertex;
 		while(v != -1) {
 			path.push_back(v);
 			v = pred[v];
-		}
+		} */
 		
-		vector<double> PathPointsProperties(Polyhedron.NumCell0Ds, 0.0);
+		/*for(const auto& node: pred)
+			cout<<node<<"-> ",
+		cout<<endl;*/
+		
+		/*vector<double> PathPointsProperties(Polyhedron.NumCell0Ds, 0.0);
 		for (const auto& point : path)
 			PathPointsProperties[point] = 1.0;
 
 
-		Gedim::UCDProperty<double> ShortPathProperty;
+		/*Gedim::UCDProperty<double> ShortPathProperty;
 		ShortPathProperty.Label = "shortest path";
 		ShortPathProperty.UnitLabel = "";
 		ShortPathProperty.Size = PathPointsProperties.size();
@@ -712,7 +728,7 @@ namespace TriangulationLibrary {
 								Polyhedron.Cell0DsCoordinates,
 								Polyhedron.Cell1DsExtrema,
 								PointsProperties,
-								EdgesProperties);
+								EdgesProperties);*/
 	}
 
 	/************************************/
