@@ -618,7 +618,7 @@ namespace TriangulationLibrary {
 	{	
 		// generazione della lista di adiacenza, poiché è tutto indicizzato sequenzialmente, 
 		// conviene usare un vector di vector anziché un vector di liste
-		/*vector<vector<int>> adjacency_list;
+		vector<vector<int>> adjacency_list;
 		adjacency_list.reserve(Polyhedron.NumCell0Ds);
 		MatrixXd W = MatrixXd::Zero(Polyhedron.NumCell0Ds, Polyhedron.NumCell0Ds);
 		
@@ -644,9 +644,9 @@ namespace TriangulationLibrary {
 		// algoritmo di Dijkstra per esplorare il grafo, pred è un vettore
 		// ausiliario usato per ricostruire il percorso
 
-		/*vector<int> pred(Polyhedron.NumCell0Ds, -1);
+		vector<int> pred(Polyhedron.NumCell0Ds, -1);
 		vector<double> dist(Polyhedron.NumCell0Ds, 1000.0);
-		priority_queue<pair<int,double>> PQ;
+		priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> PQ;
 		
 		pred[StartVertex] = StartVertex;
 		dist[StartVertex] = 0;
@@ -657,7 +657,6 @@ namespace TriangulationLibrary {
 			int u = PQ.top().first;
 			int p = PQ.top().second;
 			PQ.pop();
-			
 			for(const auto& w : adjacency_list[u]){
 				if( dist[w] > dist[u] + W(u,w) ) {
 					dist[w] = dist[u] + W(u,w);
@@ -669,23 +668,21 @@ namespace TriangulationLibrary {
 		
 		// path contiene gli id dei vertici che compongono il cammino minimo 
 		// al contrario, perché sono id provenienti dal vettore pred
-		/*vector<int> path;
+		
+		vector<int> path;
 		int v = EndVertex;
-		while(v != -1) {
+		while(v != StartVertex) {
 			path.push_back(v);
 			v = pred[v];
-		} */
+		} 
+		path.push_back(StartVertex);
 		
-		/*for(const auto& node: pred)
-			cout<<node<<"-> ",
-		cout<<endl;*/
-		
-		/*vector<double> PathPointsProperties(Polyhedron.NumCell0Ds, 0.0);
+		vector<double> PathPointsProperties(Polyhedron.NumCell0Ds, 0.0);
 		for (const auto& point : path)
 			PathPointsProperties[point] = 1.0;
 
 
-		/*Gedim::UCDProperty<double> ShortPathProperty;
+		Gedim::UCDProperty<double> ShortPathProperty;
 		ShortPathProperty.Label = "shortest path";
 		ShortPathProperty.UnitLabel = "";
 		ShortPathProperty.Size = PathPointsProperties.size();
@@ -716,6 +713,12 @@ namespace TriangulationLibrary {
 			}	
 		}
 		
+		double Totdist = 0.0;
+		for(int i = 0; i<path.size()-1;i++)
+			Totdist += W(path[i],path[i+1]);
+		
+		cout<<"La lunghezza totale del cammino minimo è: "<<Totdist<<", il numero di nodi è "<<pathEdges.size()<<endl;
+		
 		ShortPathProperty.Label = "shortest path";
 		ShortPathProperty.UnitLabel = "";
 		ShortPathProperty.Size = PathEdgesProperties.size();
@@ -728,7 +731,7 @@ namespace TriangulationLibrary {
 								Polyhedron.Cell0DsCoordinates,
 								Polyhedron.Cell1DsExtrema,
 								PointsProperties,
-								EdgesProperties);*/
+								EdgesProperties);
 	}
 
 	/************************************/
