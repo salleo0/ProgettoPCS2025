@@ -75,6 +75,12 @@ int main(int argc, char *argv[])
 		Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, b);
 	else if ( b == 0 && c > 0)
 		Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, c);
+	else if (b == c)
+		Generation::GeodeticSolidType2(PlatonicPolyhedron, GeodeticPolyhedron, b);
+	else {
+		cerr << "The case b not equal to c with both b and c greater than 0 is not supported " << endl;
+		return 1;
+	}
 	
 	// GENERAZIONE DUALE SE q = 3, ALTRIMENTI SOLO ESPORTAZIONE GEODETICO
 	Gedim::UCDUtilities utilities;	
@@ -82,7 +88,7 @@ int main(int argc, char *argv[])
 		cout << "Generation of a generalized Goldberg polyhedron with Schlafli symbol {3+, 3}_(" << b << ", " << c << ")" << endl;
 		Generation::Dual(GeodeticPolyhedron, DualPolyhedron);
 		utilities.ExportPoints("./Cell0Ds.inp",
-								DualPolyhedron.Cell0DsCoordinates);				
+								DualPolyhedron.Cell0DsCoordinates);		
 		utilities.ExportSegments("./Cell1Ds.inp",
 								DualPolyhedron.Cell0DsCoordinates,
 								DualPolyhedron.Cell1DsExtrema);
@@ -95,18 +101,21 @@ int main(int argc, char *argv[])
 		cout << "Generation of a geodetic polyhedron with Schlafli symbol {3, " << q << "+}_(" << b << ", " << c << ")" << endl;
 		utilities.ExportPoints("./Cell0Ds.inp",
 								GeodeticPolyhedron.Cell0DsCoordinates);
+		/*
 		utilities.ExportSegments("./Cell1Ds.inp",
 								GeodeticPolyhedron.Cell0DsCoordinates,
 								GeodeticPolyhedron.Cell1DsExtrema);
 		if (!ExportOutputFiles(GeodeticPolyhedron)){
 			cerr << "Error during the export of .txt files" << endl;
 			return 1;
+			
 		}
+		*/
 	}
 
 	// Occorre controllare che i vertici di inizio e fine esistano quando viene chiamata questa funzione nel main, 
 	// altrimenti non ha senso cercare il cammino minimo
-	ShortestPath(GeodeticPolyhedron, 1, 10);
+	// ShortestPath(GeodeticPolyhedron, 1, 10);
 	
 	return 0;
 }

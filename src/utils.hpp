@@ -41,6 +41,8 @@ namespace TriangulationLibrary {
 		// ritorna il risultato della generazione della triangolazione, vero se è andato a buon fine, falso altrimenti
 		void GeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, const int& num_segments);
 
+		void GeodeticSolidType2(PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, int TriangulationParameter);
+		
 		// Costruisce il poliedro duale DualPolyhedron a partire dal generico poliedro iniziale StartPolyhedron
 		void Dual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron);
 		

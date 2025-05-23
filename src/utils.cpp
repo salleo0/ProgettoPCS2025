@@ -357,13 +357,69 @@ namespace TriangulationLibrary {
 
 		/************************************/
 
-		/*
-		void GeodeticSolidType2(PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, TriangulationParameter)
+		
+		void GeodeticSolidType2(PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, int TriangulationParameter)
 		{
 			PolyhedronMesh tempMesh;
-			GeodeticSolidType1(PlatonicPolyhedron, tempMesh);
-		}	
-		*/
+			GeodeticSolidType1(PlatonicPolyhedron, tempMesh, TriangulationParameter);
+			
+			int T = 3*TriangulationParameter*TriangulationParameter;
+			int total_points = 10*T + 2;
+			int total_edges = 30*T;
+			int total_faces = 20*T;
+			
+			GeodeticSolid.NumCell0Ds = tempMesh.NumCell0Ds;
+			
+			GeodeticSolid.Cell0DsId.reserve(total_points);
+			GeodeticSolid.Cell0DsCoordinates = MatrixXd::Zero(3, total_points);
+			
+			GeodeticSolid.Cell1DsId.reserve(total_edges);
+			GeodeticSolid.Cell1DsExtrema = MatrixXi::Zero(2, total_edges);
+			
+			GeodeticSolid.Cell2DsId.reserve(total_faces);
+			
+			for (const auto& id : tempMesh.Cell0DsId) {
+				GeodeticSolid.Cell0DsId.push_back(id);
+				GeodeticSolid.Cell0DsCoordinates.col(id) = tempMesh.Cell0DsCoordinates.col(id);
+			}
+			
+			int point_id = tempMesh.Cell0DsId.back() + 1;
+			
+			for (const auto& VertexVector : tempMesh.Cell2DsVertices) {
+				Vector3d Vertex1Coord = tempMesh.Cell0DsCoordinates.col(VertexVector[0]);
+				Vector3d Vertex2Coord = tempMesh.Cell0DsCoordinates.col(VertexVector[1]);
+				Vector3d Vertex3Coord = tempMesh.Cell0DsCoordinates.col(VertexVector[2]);
+				
+				Vector3d MidpointCoord = (Vertex1Coord + Vertex2Coord + Vertex3Coord)/3;
+				GeodeticSolid.Cell0DsId.push_back(point_id);
+				GeodeticSolid.Cell0DsCoordinates.col(point_id) = MidpointCoord/(MidpointCoord.norm());
+				GeodeticSolid.NumCell0Ds++;
+				point_id++;
+			}
+			
+			for (int j = 0; j < PlatonicPolyhedron.Cell1DsExtrema.cols(); j++) {
+				const auto& VertexIdVector = PlatonicPolyhedron.Cell1DsExtrema.col(j);
+				Vector3d Vertex1Coord = PlatonicPolyhedron.Cell0DsCoordinates.col(VertexIdVector[0]);
+				Vector3d Vertex2Coord = PlatonicPolyhedron.Cell0DsCoordinates.col(VertexIdVector[1]);
+				Vector3d Direction = Vertex2Coord - Vertex1Coord;
+				
+				double factor = (Direction.norm())/(2*TriangulationParameter);
+				for (int i = 1; i <= 2*TriangulationParameter - 1; i++) {
+					Vector3d PointOnSegmentCoord = Vertex1Coord + i*factor*Direction;
+					PointOnSegmentCoord = PointOnSegmentCoord/(PointOnSegmentCoord.norm());
+					
+					int tmp;
+					if (!CheckDuplicatesVertex(GeodeticSolid.Cell0DsCoordinates, PointOnSegmentCoord, GeodeticSolid.NumCell0Ds, tmp)) {
+						GeodeticSolid.Cell0DsId.push_back(point_id);
+						GeodeticSolid.Cell0DsCoordinates.col(point_id) = PointOnSegmentCoord;
+						point_id++;
+					}
+				}
+			}
+			
+			
+		}
+		
 		
 		/************************************/
 
