@@ -430,6 +430,9 @@ namespace TriangulationLibrary {
 			
 		}*/
 		
+/*******************************************************/
+
+		
 		void GeodeticSolidType2(PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, int num_segments)
 
 			int points_id = 0;		// id dei vertici del poliedro geodetico che andremo a generare
@@ -510,6 +513,7 @@ namespace TriangulationLibrary {
 			//fino a qui ho in GeodeticSolid.Cell0DsCoordinates una matrice contenente le coordinate dei punti dei triangoli, e il vettore dei loro id
 			
 			
+			// assicurati che points_id parta da dove era rimasto nel ciclo precedente!!!!!!
 			
 			
 			// GENERAZIONE SPIGOLI E FACCE E ALTRI PUNTI
@@ -518,92 +522,250 @@ namespace TriangulationLibrary {
 				for (int i = 0; i < num_segments; i++){
 					for (int j = 0; j < num_segments - i; j++){
 						
-						int Vertex1 = point_coefficients[{i,num_segments-i-j,j,id}];
-						int Vertex2 = point_coefficients[{i,num_segments-i-(j+1),j+1,id}];
-						int Vertex3 = point_coefficients[{i+1,num_segments-(i+1)-j,j,id}];
+						// questa antiestetica sezione definisce gli interi che diventeranno gli identificatvi dei punti e degli edges che formeranno la mesh di tipo 2
+						// per tutte le facce del poliedro platonico
+						// point 1 è il punto tra vertice 1 e vertice 2
+						// point 2 è il punto tra vertice 2 e vertice 3
+						// point 3 è il punto tra vertice 3 e vertice 1
 						
+						unsigned int baricentro_id;
+						unsigned int Vertex1 = point_coefficients[{i,num_segments-i-j,j,id}];
+						unsigned int Vertex2 = point_coefficients[{i,num_segments-i-(j+1),j+1,id}];
+						unsigned int Vertex3 = point_coefficients[{i+1,num_segments-(i+1)-j,j,id}];
+						
+						unsigned int point1_id;
+						unsigned int point2_id;
+						unsigned int point3_id;
+						
+						unsigned int edgeV1P1_id;
+						unsigned int edgeV1B_id;
+						unsigned int edgeV1P3_id;
+						
+						unsigned int edgeV2P1_id;
+						unsigned int edgeV2B_id;
+						unsigned int edgeV2P2_id;
+						
+						unsigned int edgeV3P2_id;
+						unsigned int edgeV3P3_id;
+						unsigned int edgeV3B_id;
+						
+						unsigned int edgeP1B_id;
+						unsigned int edgeP2B_id;
+						unsigned int edgeP3B_id;
+						
+											
 						Vector3d Baricentro = (GeodeticSolid.Cell0DsCoordinates.col(Vertex1) + GeodeticSolid.Cell0DsCoordinates.col(Vertex2) + GeodeticSolid.Cell0DsCoordinates.col(Vertex3))/3;
 						
 						GeodeticSolid.NumCell0Ds++;
 						GeodeticSolid.Cell0DsCoordinates.col(points_id) = Baricentro;
-						int baricentro_id = points_id;
+						baricentro_id = points_id;
 						points_id++;
 						
+						Vector3d point1 = (GeodeticSolid.Cell0DsCoordinates.col(Vertex1) + GeodeticSolid.Cell0DsCoordinates.col(Vertex2))/2;
+						Vector3d point2 = (GeodeticSolid.Cell0DsCoordinates.col(Vertex2) + GeodeticSolid.Cell0DsCoordinates.col(Vertex3))/2;
+						Vector3d point3 = (GeodeticSolid.Cell0DsCoordinates.col(Vertex3) + GeodeticSolid.Cell0DsCoordinates.col(Vertex1))/2;
 						
-						Vector3d punto12 = (GeodeticSolid.Cell0DsCoordinates.col(Vertex1) + GeodeticSolid.Cell0DsCoordinates.col(Vertex2))/2;
-						Vector3d punto23 = (GeodeticSolid.Cell0DsCoordinates.col(Vertex2) + GeodeticSolid.Cell0DsCoordinates.col(Vertex3))/2;
-						Vector3d punto31 = (GeodeticSolid.Cell0DsCoordinates.col(Vertex3) + GeodeticSolid.Cell0DsCoordinates.col(Vertex1))/2;
 						
-						// generazione triangolo "a punta in su"
-						// face
+						// Ragionando a facce con la punta in su
+						
+						// quando siamo nel bordo inferiore della faccia del Platonico devo fare le giuste osservazioni, 
+						// i punti di bordo possonbo essere gia stati creati, e in tal caso con checkduplicatevertex mi salvo l'id che già è stato associato
+						// e provvedo (nella costruzione degli edges che inbcludono tal punto) a utilizzare il corretto id.
+						// Stesso discordo per gli edges che uniscono i punti di bordo ai vertici: possono essere gia stati creati, dunque nella costruzione
+						// delle facce che hanno questi edges devo identificare gli edges coll corretto id.
+						// I tre if che seguono fanno queste verifiche. 
+						
 						
 						if(i==0){
-							int point12_id;
-							if(!CheckDuplicatesVertex(GeodeticSolid.Cell0DsCoordinates, punto12, GeodeticSolid.NumCell0Ds, duplicate_id)){
+							
+							if(!CheckDuplicatesVertex(GeodeticSolid.Cell0DsCoordinates, point1, GeodeticSolid.NumCell0Ds, duplicate_id)){
 								GeodeticSolid.NumCell0Ds++;
-								GeodeticSolid.Cell0DsCoordinates.col(points_id) = punto12;
-								point12_id = point_id;
+								GeodeticSolid.Cell0DsCoordinates.col(points_id) = point1;
+								point1_id = point_id;
 								points_id++;
-								GeodeticSolid.NumCell1Ds++;
-								GeodeticSolid.Cell1DsId.push_back(edge_id);
-								GeodeticSolid.Cell1DsExtrema(0,edge_id) = points_id;
-								GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
-								edge_id++;
 							}
 							else {
-								GeodeticSolid.Cell1DsId.push_back(edge_id);
-								GeodeticSolid.Cell1DsExtrema(0,edge_id) = duplicate_id;
-								GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;7
-								point12_id = duplicate_id
-								edge_id++;
+								point1_id = duplicate_id;
 							}
 							
-							if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, Vertex1, point12_id, GeodeticSolid.NumCell1Ds, duplicate_id) {
-								GeodeticSolid.Cell1DsId.push_back(edge_id);
-								GeodeticSolid.Cell1DsExtrema(0, edge_id) = Vertex1;
-								GeodeticSolid.Cell1DsExtrema(0, edge_id) = point12_id;
+							// edge tra point 1 e baricentro
+							edgeP1B_id = edge_id;
+							GeodeticSolid.Cell1DsExtrema(0,edge_id) = point1_id;
+							GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
+							GeodeticSolid.Cell1DsId.push_back(edgeP1B_id);
+							edge_id++;
+							GeodeticSolid.NumCell1Ds++;
+							
+							// edge tra point1 e vertex1: se questo edge non è stato fatto prima lo costruisco,
+							// se fosse stato gia creato, salvo il suo id.
+							if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, Vertex1, point1_id, GeodeticSolid.NumCell1Ds, duplicate_id) {
+								edgeV1P1_id = edge_id;
+								GeodeticSolid.Cell1DsId.push_back(edgeV1P1_id);
+								GeodeticSolid.Cell1DsExtrema(0, edgeV1P1_id) = Vertex1;
+								GeodeticSolid.Cell1DsExtrema(1, edgeV1P1_id) = point1_id;
+								
+								GeodeticSolid.Cell1DsId.push_back(edgeV1P1_id);
 								edge_id++;
 								GeodeticSolid.NumCell1Ds++;
+							}
+							else {
+								edgeV1P1_id = duplicate_id;
+							}
+							
+							// edge tra point1 e vertex2: se questo edge non è stato fatto prima lo costruisco,
+							// se fosse stato gia creato, salvo il suo id.
+							if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, Vertex2, point1_id, GeodeticSolid.NumCell1Ds, duplicate_id) {
+								edgeV2P1_id = edge_id;
+								GeodeticSolid.Cell1DsId.push_back(edgeV2P1_id);
+								GeodeticSolid.Cell1DsExtrema(0, edgeV2P1_id) = Vertex2;
+								GeodeticSolid.Cell1DsExtrema(1, edgeV2P1_id) = point1_id;
+								
+								GeodeticSolid.Cell1DsId.push_back(edgeV2P1_id);
+								edge_id++;
+								GeodeticSolid.NumCell1Ds++;
+							}
+							else {
+								edgeV2P1_id = duplicate_id;
 							}
 						}
 						
+						// giunto a questo punto per i triangoli della mesh 1 che stanno sul bordo inferiore ho creato edgeP1B edgeV2P1 e edgeV1P1.
+						
+						
+						
+						
+						// ora mi concentro sul bordo sinistro della faccai del poliedro platonico. I punti a cui devo stare attento riguardo i doppioni sono
+						// i point3, e gli edges edgeV1P3 e edgeV3P3
+						
 						if(j==0){
-							if(!CheckDuplicatesVertex(GeodeticSolid.Cell0DsCoordinates, punto31, GeodeticSolid.NumCell0Ds, duplicate_id)){
+							if(!CheckDuplicatesVertex(GeodeticSolid.Cell0DsCoordinates, point3, GeodeticSolid.NumCell0Ds, duplicate_id)){
 								GeodeticSolid.NumCell0Ds++;
-								GeodeticSolid.Cell0DsCoordinates.col(points_id) = punto31;
-								points_id++;
-								GeodeticSolid.NumCell1Ds++;
-								GeodeticSolid.Cell1DsId.push_back(edge_id);
-								GeodeticSolid.Cell1DsExtrema(0,edge_id) = points_id;
-								GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
-								edge_id++;
+								GeodeticSolid.Cell0DsCoordinates.col(points_id) = point3;
+								point3_id = points_id;
+								points_id++;	
 							}
 							else {
-								GeodeticSolid.Cell1DsId.push_back(edge_id);
-								GeodeticSolid.Cell1DsExtrema(0,edge_id) = duplicate_id;
-								GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
+								point3_id = duplicate_id;
+							}
+							
+							// edge tra point 3 e baricentro
+							GeodeticSolid.Cell1DsExtrema(0,edge_id) = point3_id;
+							GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
+							edgeP3B_id = edge_id;
+							GeodeticSolid.Cell1DsId.push_back(edgeP3B_id);
+							edge_id++;
+							GeodeticSolid.NumCell1Ds++;
+							
+							
+							// edge tra point3 e vertex1: se questo edge non è stato fatto prima lo costruisco,
+							// se fosse stato gia creato, salvo il suo id.
+							
+							if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, Vertex1, point3_id, GeodeticSolid.NumCell1Ds, duplicate_id) {
+								edgeV1P3_id = edge_id;
+								GeodeticSolid.Cell1DsId.push_back(edgeV1P3_id);
+								GeodeticSolid.Cell1DsExtrema(0, edgeV1P3_id) = Vertex1;
+								GeodeticSolid.Cell1DsExtrema(1, edgeV1P3_id) = point3_id;
+								
+								GeodeticSolid.Cell1DsId.push_back(edgeV1P3_id);
 								edge_id++;
+								GeodeticSolid.NumCell1Ds++;
+							}
+							else {
+								edgeV1P3 = duplicate_id;
+							}
+							
+							// edge tra point3 e vertex3: se questo edge non è stato fatto prima lo costruisco,
+							// se fosse stato gia creato, salvo il suo id.
+							if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, Vertex3, point3_id, GeodeticSolid.NumCell1Ds, duplicate_id) {
+								edgeV3P3_id = edge_id;
+								GeodeticSolid.Cell1DsId.push_back(edgeV3P3_id);
+								GeodeticSolid.Cell1DsExtrema(0, edgeV3P3_id) = Vertex3;
+								GeodeticSolid.Cell1DsExtrema(1, edgeV3P3_id) = point3_id;
+								
+								GeodeticSolid.Cell1DsId.push_back(edgeV3P3_id);
+								edge_id++;
+								GeodeticSolid.NumCell1Ds++;
+							}
+							else {
+								edgeV3P3_id = duplicate_id;
 							}
 						}
+							
+						// giunti qui per i triangoli della mesh 1 che stanno a contatto con il bordo sinistro abbiamo creato edgeP3B, edgeV1P3 ed edgeV3P3 	
+							
+						
+						
+						
+						
+						
+
 							 
 						if(j == num_segments - i - 1){
-							if(!CheckDuplicatesVertex(GeodeticSolid.Cell0DsCoordinates, punto23, GeodeticSolid.NumCell0Ds, duplicate_id)){
+							if(!CheckDuplicatesVertex(GeodeticSolid.Cell0DsCoordinates, point2, GeodeticSolid.NumCell0Ds, duplicate_id)){
 								GeodeticSolid.NumCell0Ds++;
-								GeodeticSolid.Cell0DsCoordinates.col(points_id) = punto23;
+								GeodeticSolid.Cell0DsCoordinates.col(points_id) = point2;
+								point2_id = points_id;
 								points_id++;
-								GeodeticSolid.NumCell1Ds++;
-								GeodeticSolid.Cell1DsId.push_back(edge_id);
-								GeodeticSolid.Cell1DsExtrema(0,edge_id) = points_id;
-								GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
-								edge_id++;
 							}
 							else {
-								GeodeticSolid.Cell1DsId.push_back(edge_id);
-								GeodeticSolid.Cell1DsExtrema(0,edge_id) = duplicate_id;
-								GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
-								edge_id++;
+								point2_id = duplicate_id;
 							}
+							
+							// edge tra point 2 e baricentro
+							GeodeticSolid.Cell1DsExtrema(0,edge_id) = point2_id;
+							GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
+							edgeP2B_id = edge_id;
+							GeodeticSolid.Cell1DsId.push_back(edgeP2B_id);
+							edge_id++;
+							GeodeticSolid.NumCell1Ds++;
+							
+							
+							// edge tra point 2 e vertex2: se questo edge non è stato già fatto lo costruisco,
+							// altrimenti salvo il suo id.
+							
+							if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, Vertex2, point2_id, GeodeticSolid.NumCell1Ds, duplicate_id) {
+								edgeV2P2_id = edge_id;
+								GeodeticSolid.Cell1DsId.push_back(edgeV2P2_id);
+								GeodeticSolid.Cell1DsExtrema(0, edgeV2P2_id) = Vertex2;
+								GeodeticSolid.Cell1DsExtrema(1, edgeV2P2_id) = point2_id;
+								
+								GeodeticSolid.Cell1DsId.push_back(edgeV2P2_id);
+								edge_id++;
+								GeodeticSolid.NumCell1Ds++;
+							}
+							else {
+								edgeV2P2_id = duplicate_id;
+							}
+							
+							// edge tra point2 e vertex3: se questo edge non è stato fatto prima lo costruisco,
+							// se fosse stato gia creato, salvo il suo id.
+							if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, Vertex3, point2_id, GeodeticSolid.NumCell1Ds, duplicate_id) {
+								edgeV3P2_id = edge_id;
+								GeodeticSolid.Cell1DsId.push_back(edgeV3P2_id);
+								GeodeticSolid.Cell1DsExtrema(0, edgeV3P2_id) = Vertex1;
+								GeodeticSolid.Cell1DsExtrema(1, edgeV3P2_id) = point2_id;
+								
+								GeodeticSolid.Cell1DsId.push_back(edgeV3P2_id);
+								edge_id++;
+								GeodeticSolid.NumCell1Ds++;
+							}
+							else {
+								edgeV3P2_id = duplicate_id;
+							}
+
 						}
+						
+						// ho finalmente trattato tutti i triangoli della mesh che stanno a contatto con gli spigoli del platonico. eviotando i doppioni
+						
+						
+						// Leo guardalo fino a qui, da qui in poi è da fare!!!!!!!!!!!!!!!!!!!!!!!!!
+						
+						// adesso mancano tre cose: 
+						// 1) da collegare i vertici con il baricentro, manovra che deve essere fatta per TUTTI i triangoli della mesh1, anche quelli a testa in giù
+						// 2) collegare tra di loro i baricentri dei triangoli adiacenti.
+						// 3) fare tutte le facce!!
+						
+						
 						
 						GeodeticSolid.NumCell1Ds++;
 						GeodeticSolid.Cell1DsId.push_back(edge_id);
