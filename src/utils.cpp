@@ -237,6 +237,7 @@ namespace TriangulationLibrary {
 						coefficients[1] = b;
 						coefficients[2] = c;
 						coefficients[3] = id;
+						
 							
 						// se il punto PointCoordinates è gia presente in GeodeticSolid.Cell0DsCoordinates non lo aggiungo nuovamente
 						if (!CheckDuplicatesVertex(GeodeticSolid.Cell0DsCoordinates, PointCoordinates, points_id, duplicate_id)){
@@ -358,7 +359,7 @@ namespace TriangulationLibrary {
 		/************************************/
 
 		
-		void GeodeticSolidType2(PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, int TriangulationParameter)
+		/*void GeodeticSolidType2(PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, int TriangulationParameter)
 		{
 			PolyhedronMesh tempMesh;
 			GeodeticSolidType1(PlatonicPolyhedron, tempMesh, TriangulationParameter);
@@ -422,7 +423,238 @@ namespace TriangulationLibrary {
 			}
 			
 			
-		}
+		}*/
+		
+		void GeodeticSolidType2(PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, int num_segments)
+
+			int points_id = 0;		// id dei vertici del poliedro geodetico che andremo a generare
+			int duplicate_id = 0;	// id che servirà per controllare se esiste un duplicato
+			int edge_id = 0;		// id degli spigoli del poliedro geodetico che andremo a generare
+			int face_id = 0;		// id delle facce del poliedro geodetico che andremo a generare
+			int T = 3*num_segments*num_segments;
+			int total_points = 10*T + 2;
+			int total_edges = 30*T;
+			int total_faces = 20*T;
+															
+			
+			// usiamo i total points per allocare memoria
+			// alcune strutture sono inizializzate a più memoria di quanto sarebbe sufficiente
+			// a fine funzione si fa un conservative resize per ridimensionare correttamente
+			GeodeticSolid.Cell0DsId.reserve(total_points);
+			GeodeticSolid.Cell0DsCoordinates = MatrixXd::Zero(3,total_points);	
+			
+			GeodeticSolid.Cell1DsExtrema = MatrixXi::Zero(2, total_edges);
+			GeodeticSolid.Cell1DsId.reserve(total_edges);
+			
+			GeodeticSolid.Cell2DsId.reserve(total_faces);
+			GeodeticSolid.Cell2DsEdges.resize(total_faces);
+			GeodeticSolid.Cell2DsNumEdges.resize(total_faces);
+			GeodeticSolid.Cell2DsVertices.resize(total_faces);
+			GeodeticSolid.Cell2DsNumVertices.resize(total_faces);
+			
+			// point_coefficients contiene in chiave 4 valori: {a, b, c, id} dove a, b, c sono 3 valori che individuano i vertici 
+			// su una faccia mentre id è l'identificativo della faccia. Il valore è l'id del vertice
+			// questa struttura serve per identificare tutti i vertici che una faccia contiene, tenendo conto anche di eventuali duplicati 
+			// che si trovano su più facce
+			map<array<int, 4>, int> point_coefficients;
+			
+			for (const auto& id : PlatonicPolyhedron.Cell2DsId) {
+				
+				// salvo in 3 vettori le coordinate dei vertici della faccia corrente del solido platonico
+				Vector3d Vertex1 = PlatonicPolyhedron.Cell0DsCoordinates.col(PlatonicPolyhedron.Cell2DsVertices[id][0]);
+				Vector3d Vertex2 = PlatonicPolyhedron.Cell0DsCoordinates.col(PlatonicPolyhedron.Cell2DsVertices[id][1]);
+				Vector3d Vertex3 = PlatonicPolyhedron.Cell0DsCoordinates.col(PlatonicPolyhedron.Cell2DsVertices[id][2]);
+				
+				// GENERAZIONE DEI VERTICI DEL POLIEDRO GEODETICO
+				for (int i = 0; i <= num_segments; i++) {
+					for (int j = 0; j <= i; j++) {
+						
+						// pesi dei punti
+						int a = num_segments - i;
+						int b = i - j;
+						int c = j;
+						
+						// coordinate dei vertici del poliedro geodetico
+						Vector3d PointCoordinates = double(a)/num_segments*Vertex1 + double(b)/num_segments*Vertex2 + double(c)/num_segments*Vertex3;
+						// aggiungo al dizionario chiave = [a,b,c] e valore = id
+						array<int, 4> coefficients;
+						coefficients[0] = a;
+						coefficients[1] = b;
+						coefficients[2] = c;
+						coefficients[3] = id;
+						
+							
+						// se il punto PointCoordinates è gia presente in GeodeticSolid.Cell0DsCoordinates non lo aggiungo nuovamente
+						if (!CheckDuplicatesVertex(GeodeticSolid.Cell0DsCoordinates, PointCoordinates, points_id, duplicate_id)){
+							point_coefficients[coefficients] = points_id;
+							GeodeticSolid.Cell0DsId.push_back(points_id);
+							GeodeticSolid.Cell0DsCoordinates(0,points_id) = PointCoordinates[0];
+							GeodeticSolid.Cell0DsCoordinates(1,points_id) = PointCoordinates[1];
+							GeodeticSolid.Cell0DsCoordinates(2,points_id) = PointCoordinates[2];
+							points_id++;
+							GeodeticSolid.NumCell0Ds++;
+						}
+						else
+							point_coefficients[coefficients] = duplicate_id;
+					}
+				}
+			}
+
+			GeodeticSolid.Cell0DsCoordinates.conservativeResize(3, GeodeticSolid.NumCell0Ds);
+			
+			//fino a qui ho in GeodeticSolid.Cell0DsCoordinates una matrice contenente le coordinate dei punti dei triangoli, e il vettore dei loro id
+			
+			
+			
+			
+// GENERAZIONE SPIGOLI E FACCE E ALTRI PUNTI
+
+			for  (const auto& id : PlatonicPolyhedron.Cell2DsId){
+				for (int i = 0; i < num_segments; i++){
+					for (int j = 0; j < num_segments - i; j++){
+						
+						int Vertex1 = point_coefficients[{i,num_segments-i-j,j,id}];
+						int Vertex2 = point_coefficients[{i,num_segments-i-(j+1),j+1,id}];
+						int Vertex3 = point_coefficients[{i+1,num_segments-(i+1)-j,j,id}];
+						
+						Vector3d Baricentro = (GeodeticSolid.Cell0DsCoordinates.col(Vertex1) + GeodeticSolid.Cell0DsCoordinates.col(Vertex2) + GeodeticSolid.Cell0DsCoordinates.col(Vertex3))/3;
+						
+						GeodeticSolid.NumCell0Ds++;
+						GeodeticSolid.Cell0DsCoordinates.col(points_id) = Baricentro;
+						int baricentro_id = points_id;
+						points_id++;
+						
+						
+						Vector3d punto12 = (GeodeticSolid.Cell0DsCoordinates.col(Vertex1) + GeodeticSolid.Cell0DsCoordinates.col(Vertex2))/2;
+						Vector3d punto23 = (GeodeticSolid.Cell0DsCoordinates.col(Vertex2) + GeodeticSolid.Cell0DsCoordinates.col(Vertex3))/2;
+						Vector3d punto31 = (GeodeticSolid.Cell0DsCoordinates.col(Vertex3) + GeodeticSolid.Cell0DsCoordinates.col(Vertex1))/2;
+						
+						
+
+						// generazione triangolo "a punta in su"
+						// face
+						
+						if(i==0){
+							GeodeticSolid.NumCell0Ds++;
+							GeodeticSolid.Cell0DsCoordinates.col(points_id) = punto12;
+							
+							
+							GeodeticSolid.NumCell1Ds++;
+							GeodeticSolid.Cell1DsId.push_back(edge_id);
+							GeodeticSolid.Cell1DsExtrema(0,edge_id) = points_id;
+							GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
+							points_id++;
+							edge_id++;
+							
+						}
+						
+						
+						GeodeticSolid.NumCell1Ds++;
+						GeodeticSolid.Cell1DsId.push_back(edge_id);
+						GeodeticSolid.Cell1DsExtrema(0,edge_id) = vertex1;
+						GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
+						edge_id++;
+						
+						GeodeticSolid.NumCell1Ds++;
+						GeodeticSolid.Cell1DsId.push_back(edge_id);
+						GeodeticSolid.Cell1DsExtrema(0,edge_id) = vertex2;
+						GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
+						edge_id++;
+						
+						GeodeticSolid.NumCell1Ds++;
+						GeodeticSolid.Cell1DsId.push_back(edge_id);
+						GeodeticSolid.Cell1DsExtrema(0,edge_id) = vertex3;
+						GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
+						edge_id++;
+						
+							
+						
+						if(j==0){
+							GeodeticSolid.NumCell0Ds++;
+							GeodeticSolid.Cell0DsCoordinates.col(points_id) = punto31;
+							points_id++;
+						}
+							 
+						if(j==num_segments - i - 1){
+							GeodeticSolid.NumCell0Ds++;
+							GeodeticSolid.Cell0DsCoordinates.col(points_id) = punto23;
+							points_id++;
+						}
+						
+						
+						
+						
+						GeodeticSolid.NumCell2Ds++;
+						GeodeticSolid.Cell2DsId.push_back(face_id);
+						GeodeticSolid.Cell2DsNumVertices[face_id] = 3;
+						GeodeticSolid.Cell2DsNumEdges[face_id] = 3;
+						vector<int> VerticesVector = {Vertex1, Vertex2, Vertex3};
+						GeodeticSolid.Cell2DsVertices[face_id] = VerticesVector;
+						GeodeticSolid.Cell2DsEdges[face_id].resize(3);
+						
+						// edges
+						for (int k = 0; k < 3; k++) {
+							int originVertex = GeodeticSolid.Cell2DsVertices[face_id][k];
+							int endVertex;
+							if ( k == 2 )
+								endVertex = GeodeticSolid.Cell2DsVertices[face_id][0];
+							else
+								endVertex = GeodeticSolid.Cell2DsVertices[face_id][k+1];
+							
+							if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, originVertex, endVertex, edge_id, duplicate_id)){
+								GeodeticSolid.NumCell1Ds++;
+								GeodeticSolid.Cell1DsId.push_back(edge_id);
+								GeodeticSolid.Cell1DsExtrema(0, edge_id) = originVertex;
+								GeodeticSolid.Cell1DsExtrema(1, edge_id) = endVertex;
+								GeodeticSolid.Cell2DsEdges[face_id][k] = edge_id;
+								edge_id++;
+							}
+							else
+								GeodeticSolid.Cell2DsEdges[face_id][k] = GeodeticSolid.Cell1DsId[duplicate_id];
+								
+							
+						}
+						face_id++;
+						
+						// generazione triangolo "a punta in giù"
+						if(i > 0){
+							
+							int Vertex4 = point_coefficients[{i-1,num_segments-(i-1)-(j+1),(j+1),id}];
+							
+							GeodeticSolid.NumCell2Ds++;
+							GeodeticSolid.Cell2DsId.push_back(face_id);
+							GeodeticSolid.Cell2DsNumVertices[face_id] = 3;
+							GeodeticSolid.Cell2DsNumEdges[face_id] = 3;
+							VerticesVector[2] = Vertex4;
+							GeodeticSolid.Cell2DsVertices[face_id] = VerticesVector;
+							GeodeticSolid.Cell2DsEdges[face_id].resize(3);
+							
+							for (int k = 0; k < 3; k++) {
+								int originVertex = GeodeticSolid.Cell2DsVertices[face_id][k];
+								int endVertex;
+								if ( k == 2 )
+									endVertex = GeodeticSolid.Cell2DsVertices[face_id][0];
+								else
+									endVertex = GeodeticSolid.Cell2DsVertices[face_id][k+1];
+								
+								if (!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, originVertex, endVertex, edge_id, duplicate_id)){
+									GeodeticSolid.NumCell1Ds++;
+									GeodeticSolid.Cell1DsId.push_back(edge_id);
+									GeodeticSolid.Cell1DsExtrema(0, edge_id) = originVertex;
+									GeodeticSolid.Cell1DsExtrema(1, edge_id) = endVertex;
+									GeodeticSolid.Cell2DsEdges[face_id][k] = edge_id;
+									edge_id++;
+								}
+								else
+									GeodeticSolid.Cell2DsEdges[face_id][k] = GeodeticSolid.Cell1DsId[duplicate_id];
+							}
+							face_id++;
+						}
+						
+					}
+				}
+			}
+
 		
 		
 		/************************************/
@@ -621,6 +853,11 @@ namespace TriangulationLibrary {
 		vector<vector<int>> adjacency_list;
 		adjacency_list.reserve(Polyhedron.NumCell0Ds);
 		MatrixXd W = MatrixXd::Zero(Polyhedron.NumCell0Ds, Polyhedron.NumCell0Ds);
+		
+		
+		// iterando su tutti gli id dei punti, 
+		// per ciascun punto itero in tutti gli id dei segmenti (origin,end) e guardo quali hanno per estremo quel punto.
+		// L'estremo che è diverso dal punto in questione lo appendo alla "lista" di adiacenza.
 		
 		for(int i = 0; i < Polyhedron.NumCell0Ds; i++){
 			vector<int> neighbors;
