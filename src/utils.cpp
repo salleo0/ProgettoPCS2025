@@ -384,7 +384,9 @@ namespace TriangulationLibrary {
 				GeodeticSolid.Cell0DsCoordinates.col(id) = tempMesh.Cell0DsCoordinates.col(id);
 			}
 			int point_id = tempMesh.Cell0DsId.back() + 1;
-			// generazione dei baricentri 
+			// generazione dei baricentri
+		
+			int point_id = GeodeticSolid.NumCell0Ds;
 			for (const auto& VertexVector : tempMesh.Cell2DsVertices) {
 				Vector3d Vertex1Coord = tempMesh.Cell0DsCoordinates.col(VertexVector[0]);
 				Vector3d Vertex2Coord = tempMesh.Cell0DsCoordinates.col(VertexVector[1]);
@@ -395,9 +397,12 @@ namespace TriangulationLibrary {
 				GeodeticSolid.Cell0DsCoordinates.col(point_id) = MidpointCoord/(MidpointCoord.norm());
 				GeodeticSolid.NumCell0Ds++;
 				point_id++;
+				cout << point_id << endl;
 			}
 			
 			// ATTENZIONE: IL PROBLEMA è ALLA FINE DELLA GENERAZIONE DEI BARICENTRI, ci potrebbero essere più punti del previsto
+			cout << "ok" << endl;
+
 			for (int j = 0; j < PlatonicPolyhedron.Cell1DsExtrema.cols(); j++) {
 				const auto& VertexIdVector = PlatonicPolyhedron.Cell1DsExtrema.col(j);
 				Vector3d Vertex1Coord = PlatonicPolyhedron.Cell0DsCoordinates.col(VertexIdVector[0]);
@@ -507,7 +512,7 @@ namespace TriangulationLibrary {
 			
 			
 			
-// GENERAZIONE SPIGOLI E FACCE E ALTRI PUNTI
+			// GENERAZIONE SPIGOLI E FACCE E ALTRI PUNTI
 
 			for  (const auto& id : PlatonicPolyhedron.Cell2DsId){
 				for (int i = 0; i < num_segments; i++){
@@ -529,25 +534,76 @@ namespace TriangulationLibrary {
 						Vector3d punto23 = (GeodeticSolid.Cell0DsCoordinates.col(Vertex2) + GeodeticSolid.Cell0DsCoordinates.col(Vertex3))/2;
 						Vector3d punto31 = (GeodeticSolid.Cell0DsCoordinates.col(Vertex3) + GeodeticSolid.Cell0DsCoordinates.col(Vertex1))/2;
 						
-						
-
 						// generazione triangolo "a punta in su"
 						// face
 						
 						if(i==0){
-							GeodeticSolid.NumCell0Ds++;
-							GeodeticSolid.Cell0DsCoordinates.col(points_id) = punto12;
+							int point12_id;
+							if(!CheckDuplicatesVertex(GeodeticSolid.Cell0DsCoordinates, punto12, GeodeticSolid.NumCell0Ds, duplicate_id)){
+								GeodeticSolid.NumCell0Ds++;
+								GeodeticSolid.Cell0DsCoordinates.col(points_id) = punto12;
+								point12_id = point_id;
+								points_id++;
+								GeodeticSolid.NumCell1Ds++;
+								GeodeticSolid.Cell1DsId.push_back(edge_id);
+								GeodeticSolid.Cell1DsExtrema(0,edge_id) = points_id;
+								GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
+								edge_id++;
+							}
+							else {
+								GeodeticSolid.Cell1DsId.push_back(edge_id);
+								GeodeticSolid.Cell1DsExtrema(0,edge_id) = duplicate_id;
+								GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;7
+								point12_id = duplicate_id
+								edge_id++;
+							}
 							
-							
-							GeodeticSolid.NumCell1Ds++;
-							GeodeticSolid.Cell1DsId.push_back(edge_id);
-							GeodeticSolid.Cell1DsExtrema(0,edge_id) = points_id;
-							GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
-							points_id++;
-							edge_id++;
-							
+							if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, Vertex1, point12_id, GeodeticSolid.NumCell1Ds, duplicate_id) {
+								GeodeticSolid.Cell1DsId.push_back(edge_id);
+								GeodeticSolid.Cell1DsExtrema(0, edge_id) = Vertex1;
+								GeodeticSolid.Cell1DsExtrema(0, edge_id) = point12_id;
+								edge_id++;
+								GeodeticSolid.NumCell1Ds++;
+							}
 						}
 						
+						if(j==0){
+							if(!CheckDuplicatesVertex(GeodeticSolid.Cell0DsCoordinates, punto31, GeodeticSolid.NumCell0Ds, duplicate_id)){
+								GeodeticSolid.NumCell0Ds++;
+								GeodeticSolid.Cell0DsCoordinates.col(points_id) = punto31;
+								points_id++;
+								GeodeticSolid.NumCell1Ds++;
+								GeodeticSolid.Cell1DsId.push_back(edge_id);
+								GeodeticSolid.Cell1DsExtrema(0,edge_id) = points_id;
+								GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
+								edge_id++;
+							}
+							else {
+								GeodeticSolid.Cell1DsId.push_back(edge_id);
+								GeodeticSolid.Cell1DsExtrema(0,edge_id) = duplicate_id;
+								GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
+								edge_id++;
+							}
+						}
+							 
+						if(j == num_segments - i - 1){
+							if(!CheckDuplicatesVertex(GeodeticSolid.Cell0DsCoordinates, punto23, GeodeticSolid.NumCell0Ds, duplicate_id)){
+								GeodeticSolid.NumCell0Ds++;
+								GeodeticSolid.Cell0DsCoordinates.col(points_id) = punto23;
+								points_id++;
+								GeodeticSolid.NumCell1Ds++;
+								GeodeticSolid.Cell1DsId.push_back(edge_id);
+								GeodeticSolid.Cell1DsExtrema(0,edge_id) = points_id;
+								GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
+								edge_id++;
+							}
+							else {
+								GeodeticSolid.Cell1DsId.push_back(edge_id);
+								GeodeticSolid.Cell1DsExtrema(0,edge_id) = duplicate_id;
+								GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
+								edge_id++;
+							}
+						}
 						
 						GeodeticSolid.NumCell1Ds++;
 						GeodeticSolid.Cell1DsId.push_back(edge_id);
@@ -567,19 +623,7 @@ namespace TriangulationLibrary {
 						GeodeticSolid.Cell1DsExtrema(1,edge_id) = baricentro_id;
 						edge_id++;
 						
-							
 						
-						if(j==0){
-							GeodeticSolid.NumCell0Ds++;
-							GeodeticSolid.Cell0DsCoordinates.col(points_id) = punto31;
-							points_id++;
-						}
-							 
-						if(j==num_segments - i - 1){
-							GeodeticSolid.NumCell0Ds++;
-							GeodeticSolid.Cell0DsCoordinates.col(points_id) = punto23;
-							points_id++;
-						}
 						
 						
 						
@@ -655,7 +699,6 @@ namespace TriangulationLibrary {
 				}
 			}
 
-		
 		
 		/************************************/
 
