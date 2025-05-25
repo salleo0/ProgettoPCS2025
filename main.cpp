@@ -115,7 +115,14 @@ int main(int argc, char *argv[])
 
 	// Occorre controllare che i vertici di inizio e fine esistano quando viene chiamata questa funzione nel main, 
 	// altrimenti non ha senso cercare il cammino minimo
+<<<<<<< HEAD
 	// ShortestPath(GeodeticPolyhedron, 1, 3);
+=======
+	//ShortestPath(GeodeticPolyhedron, 41, 172);
+
+
+
+>>>>>>> 2081e04e732bc61a14b35a5170110360002a220c
 	
 	return 0;
 }

@@ -832,7 +832,7 @@ namespace TriangulationLibrary {
 
 		vector<int> pred(Polyhedron.NumCell0Ds, -1);
 		vector<double> dist(Polyhedron.NumCell0Ds, 1000.0);
-		priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> PQ;
+		priority_queue<pair<int, double>, vector<pair<int, double>>, greater<pair<int, double>>> PQ;
 		
 		pred[StartVertex] = StartVertex;
 		dist[StartVertex] = 0;
