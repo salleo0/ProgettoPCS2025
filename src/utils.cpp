@@ -795,8 +795,14 @@ namespace TriangulationLibrary {
 
 	/************************************/
 
-	void ShortestPath(PolyhedronMesh& Polyhedron, int StartVertex, int EndVertex)
+	bool ShortestPath(PolyhedronMesh& Polyhedron, int StartVertex, int EndVertex)
 	{	
+	
+	
+		if (StartVertex>Polyhedron.NumCell0Ds+1 || EndVertex>Polyhedron.NumCell0Ds+1 || StartVertex < 0 || EndVertex < 0){
+			cerr<<"Invalid Vertices"<< endl;
+			return false;
+		}
 		// generazione della lista di adiacenza, poiché è tutto indicizzato sequenzialmente, 
 		// conviene usare un vector di vector anziché un vector di liste
 		vector<vector<int>> adjacency_list;
@@ -903,7 +909,7 @@ namespace TriangulationLibrary {
 		for(int i = 0; i<path.size()-1;i++)
 			Totdist += W(path[i],path[i+1]);
 		
-		cout<<"La lunghezza totale del cammino minimo è: "<<Totdist<<", il numero di nodi è "<<pathEdges.size()<<endl;
+		cout<<"Total length of the walk: "<<Totdist<<", number of edges between nodes "<<pathEdges.size()<<endl;
 		
 		ShortPathProperty.Label = "shortest path";
 		ShortPathProperty.UnitLabel = "";
@@ -918,6 +924,8 @@ namespace TriangulationLibrary {
 								Polyhedron.Cell1DsExtrema,
 								PointsProperties,
 								EdgesProperties);
+								
+		return true;
 	}
 
 	/************************************/

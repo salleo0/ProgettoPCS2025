@@ -27,8 +27,6 @@ int main(int argc, char *argv[])
 		convert << argv[i] << " ";
 	
 	convert >> p >> q >> b >> c;
-	if (argc == 7)
-		convert >> id_vertex_1 >> id_vertex_2;
 	
 	// COSTRUZIONE DELLA MESH DEL POLIEDRO PLATONICO
 	// richiediamo che il poliedro platonico abbia facce di 3 vertici (<=> p = 3)
@@ -109,20 +107,15 @@ int main(int argc, char *argv[])
 			cerr << "Error during the export of .txt files" << endl;
 			return 1;
 			
-		}
-		
+		}	
 	}
 
-	// Occorre controllare che i vertici di inizio e fine esistano quando viene chiamata questa funzione nel main, 
-	// altrimenti non ha senso cercare il cammino minimo
-<<<<<<< HEAD
-	// ShortestPath(GeodeticPolyhedron, 1, 3);
-=======
-	//ShortestPath(GeodeticPolyhedron, 41, 172);
-
-
-
->>>>>>> 2081e04e732bc61a14b35a5170110360002a220c
+	if (argc == 7){
+		convert >> id_vertex_1 >> id_vertex_2;
+		if (ShortestPath(GeodeticPolyhedron, id_vertex_1, id_vertex_2)){
+			cout<<"minimum path found correctly!"<<endl;
+		}
+	}
 	
 	return 0;
 }

@@ -79,7 +79,7 @@ namespace TriangulationLibrary {
 
 	// La funzione genera il grafo associato al poliedro.
 	// StarVertex ed EndVertex sono i nodi di inizio e fine del cammino minimo da ricercare
-	void ShortestPath(PolyhedronMesh& Polyhedron, int StartVertex, int EndVertex);
+	bool ShortestPath(PolyhedronMesh& Polyhedron, int StartVertex, int EndVertex);
 
 	bool ExportOutputFiles(const PolyhedronMesh& mesh);
 }
