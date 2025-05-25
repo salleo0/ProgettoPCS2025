@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <queue>
+#include <set>
 #include "Eigen/Eigen"
 #include"utils.hpp"
 #include "UCDUtilities.hpp"
@@ -474,40 +475,45 @@ namespace TriangulationLibrary {
 								GeodeticSolid.Cell1DsExtrema.col(EdgeFromCentroidToMidpoint_id) = EdgeFromCentroidToMidpoint;
 								
 								// prima faccia
-								GeodeticSolid.NumCell2Ds++;
-								GeodeticSolid.Cell2DsId.push_back(face_id);
-								GeodeticSolid.Cell2DsNumVertices[face_id] = 3;
-								GeodeticSolid.Cell2DsNumEdges[face_id] = 3;
-								GeodeticSolid.Cell2DsVertices[face_id] = {VerticesId[k], MidpointId, CentroidId};
+								if(!CheckDuplicateFaces(GeodeticSolid, {VerticesId[k], MidpointId, CentroidId})){
+									GeodeticSolid.NumCell2Ds++;
+									GeodeticSolid.Cell2DsId.push_back(face_id);
+									GeodeticSolid.Cell2DsNumVertices[face_id] = 3;
+									GeodeticSolid.Cell2DsNumEdges[face_id] = 3;
+									GeodeticSolid.Cell2DsVertices[face_id] = {VerticesId[k], MidpointId, CentroidId};
 								
-								if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, VerticesId[k], MidpointId, GeodeticSolid.NumCell1Ds, duplicate_id)){
-									GeodeticSolid.NumCell1Ds++;
-									GeodeticSolid.Cell1DsId.push_back(edge_id);
-									GeodeticSolid.Cell1DsExtrema.col(edge_id) << VerticesId[k], MidpointId;
-									GeodeticSolid.Cell2DsEdges[face_id] = {edge_id, EdgeFromCentroidToMidpoint_id, EdgesFromCentroidToVertex_id[k]};
-									edge_id++;
-								}
-								else
+									if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, VerticesId[k], MidpointId, GeodeticSolid.NumCell1Ds, duplicate_id)){
+										GeodeticSolid.NumCell1Ds++;
+										GeodeticSolid.Cell1DsId.push_back(edge_id);
+										GeodeticSolid.Cell1DsExtrema.col(edge_id) << VerticesId[k], MidpointId;
+										GeodeticSolid.Cell2DsEdges[face_id] = {edge_id, EdgeFromCentroidToMidpoint_id, EdgesFromCentroidToVertex_id[k]};
+										edge_id++;
+									}
+									else
 									GeodeticSolid.Cell2DsEdges[face_id] = {duplicate_id, EdgeFromCentroidToMidpoint_id, EdgesFromCentroidToVertex_id[k]};
-								face_id++;
+									face_id++;
+								}
+								
 								
 								// seconda faccia
-								GeodeticSolid.NumCell2Ds++;
-								GeodeticSolid.Cell2DsId.push_back(face_id);
-								GeodeticSolid.Cell2DsNumVertices[face_id] = 3;
-								GeodeticSolid.Cell2DsNumEdges[face_id] = 3;
-								GeodeticSolid.Cell2DsVertices[face_id] = {VerticesId[index], MidpointId, CentroidId};
+								if(!CheckDuplicateFaces(GeodeticSolid, {VerticesId[index], MidpointId, CentroidId})){
+									GeodeticSolid.NumCell2Ds++;
+									GeodeticSolid.Cell2DsId.push_back(face_id);
+									GeodeticSolid.Cell2DsNumVertices[face_id] = 3;
+									GeodeticSolid.Cell2DsNumEdges[face_id] = 3;
+									GeodeticSolid.Cell2DsVertices[face_id] = {VerticesId[index], MidpointId, CentroidId};
 								
-								if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, VerticesId[index], MidpointId, GeodeticSolid.NumCell1Ds, duplicate_id)){
-									GeodeticSolid.NumCell1Ds++;
-									GeodeticSolid.Cell1DsId.push_back(edge_id);
-									GeodeticSolid.Cell1DsExtrema.col(edge_id) << VerticesId[index], MidpointId;
-									GeodeticSolid.Cell2DsEdges[face_id] = {edge_id, EdgeFromCentroidToMidpoint_id, EdgesFromCentroidToVertex_id[index]};
-									edge_id++;
+									if(!CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, VerticesId[index], MidpointId, GeodeticSolid.NumCell1Ds, duplicate_id)){
+										GeodeticSolid.NumCell1Ds++;
+										GeodeticSolid.Cell1DsId.push_back(edge_id);
+										GeodeticSolid.Cell1DsExtrema.col(edge_id) << VerticesId[index], MidpointId;
+										GeodeticSolid.Cell2DsEdges[face_id] = {edge_id, EdgeFromCentroidToMidpoint_id, EdgesFromCentroidToVertex_id[index]};
+										edge_id++;
+									}
+									else
+										GeodeticSolid.Cell2DsEdges[face_id] = {duplicate_id, EdgeFromCentroidToMidpoint_id, EdgesFromCentroidToVertex_id[index]};
+									face_id++;
 								}
-								else
-									GeodeticSolid.Cell2DsEdges[face_id] = {duplicate_id, EdgeFromCentroidToMidpoint_id, EdgesFromCentroidToVertex_id[index]};
-								face_id++;
 							}
 						}
 						
@@ -562,26 +568,30 @@ namespace TriangulationLibrary {
 									index = 0;
 								
 								// primo triangolo
-								GeodeticSolid.NumCell2Ds++;
-								GeodeticSolid.Cell2DsId.push_back(face_id);
-								GeodeticSolid.Cell2DsNumVertices[face_id] = 3;
-								GeodeticSolid.Cell2DsNumEdges[face_id] = 3;
-								GeodeticSolid.Cell2DsVertices[face_id] = {CentroidId, VerticesId[k], CentroidsLinkedToCentroid[k]};
+								if(!CheckDuplicateFaces(GeodeticSolid, {CentroidId, VerticesId[k], CentroidsLinkedToCentroid[k]})){
+									GeodeticSolid.NumCell2Ds++;
+									GeodeticSolid.Cell2DsId.push_back(face_id);
+									GeodeticSolid.Cell2DsNumVertices[face_id] = 3;
+									GeodeticSolid.Cell2DsNumEdges[face_id] = 3;
+									GeodeticSolid.Cell2DsVertices[face_id] = {CentroidId, VerticesId[k], CentroidsLinkedToCentroid[k]};
 								
-								bool tmp = CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, VerticesId[k], CentroidsLinkedToCentroid[k], GeodeticSolid.NumCell1Ds, duplicate_id);
-								GeodeticSolid.Cell2DsEdges[face_id] = {EdgesFromCentroidToVertex_id[k], duplicate_id, EdgesFromCentroidToCentroid_id[k]};
-								face_id++;
+									bool tmp = CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, VerticesId[k], CentroidsLinkedToCentroid[k], GeodeticSolid.NumCell1Ds, duplicate_id);
+									GeodeticSolid.Cell2DsEdges[face_id] = {EdgesFromCentroidToVertex_id[k], duplicate_id, EdgesFromCentroidToCentroid_id[k]};
+									face_id++;
+								}
 								
 								// secondo triangolo
-								GeodeticSolid.NumCell2Ds++;
-								GeodeticSolid.Cell2DsId.push_back(face_id);
-								GeodeticSolid.Cell2DsNumVertices[face_id] = 3;
-								GeodeticSolid.Cell2DsNumEdges[face_id] = 3;
-								GeodeticSolid.Cell2DsVertices[face_id] = {CentroidId, VerticesId[index], CentroidsLinkedToCentroid[index]};
+								if(!CheckDuplicateFaces(GeodeticSolid, {CentroidId, VerticesId[index], CentroidsLinkedToCentroid[index]})){
+									GeodeticSolid.NumCell2Ds++;
+									GeodeticSolid.Cell2DsId.push_back(face_id);
+									GeodeticSolid.Cell2DsNumVertices[face_id] = 3;
+									GeodeticSolid.Cell2DsNumEdges[face_id] = 3;
+									GeodeticSolid.Cell2DsVertices[face_id] = {CentroidId, VerticesId[index], CentroidsLinkedToCentroid[index]};
 								
-								tmp = CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, VerticesId[index], CentroidsLinkedToCentroid[index], GeodeticSolid.NumCell1Ds, duplicate_id);
-								GeodeticSolid.Cell2DsEdges[face_id] = {EdgesFromCentroidToVertex_id[index], duplicate_id, EdgesFromCentroidToCentroid_id[index]};
-								face_id++;
+									bool tmp = CheckDuplicatesEdge(GeodeticSolid.Cell1DsExtrema, VerticesId[index], CentroidsLinkedToCentroid[index], GeodeticSolid.NumCell1Ds, duplicate_id);
+									GeodeticSolid.Cell2DsEdges[face_id] = {EdgesFromCentroidToVertex_id[index], duplicate_id, EdgesFromCentroidToCentroid_id[index]};
+									face_id++;
+								}
 							}
 						}
 					}
@@ -617,8 +627,6 @@ namespace TriangulationLibrary {
 			
 			//Il Duale ha un numero di facce uguale al numero di vertici del poliedro di partenza
 			DualPolyhedron.NumCell0Ds = StartPolyhedron.NumCell2Ds;
-			//DualPolyhedron.Cell0DsId.resize(DualPolyhedron.NumCell0Ds);
-			//DualPolyhedron.Cell0DsCoordinates = MatrixXd::Zero(3,DualPolyhedron.NumCell0Ds);
 			
 			//Il Duale ha lo stesso numero di edges del poliedro di partenza, grazie alla formula di Eulero, qualunque sia la varietà su cui si fa la mesh :)
 			DualPolyhedron.NumCell1Ds = StartPolyhedron.NumCell1Ds;
@@ -637,7 +645,6 @@ namespace TriangulationLibrary {
 			DualPolyhedron.Cell2DsVertices.resize(DualPolyhedron.NumCell2Ds);
 			DualPolyhedron.Cell2DsNumVertices.resize(DualPolyhedron.NumCell2Ds);
 			int duplicate_id = 0;
-			
 			//Mappa che associa all'id della faccia l'id del baricentro corrispondente, da usare se cambiassimo gli id dopo, per ora sono uguali
 			map<int, int> Faces_bar;
 			for (const auto& id : StartPolyhedron.Cell2DsId) {
@@ -651,7 +658,6 @@ namespace TriangulationLibrary {
 				// salvo le coordinate del baricentro
 				baricenter = (1.0/3.0)*Vertex1 + (1.0/3.0)*Vertex2 + (1.0/3.0)*Vertex3;
 				DualPolyhedron.Cell0DsId.push_back(baricenter_id);
-				
 				// salvo le coordinate dentro alle Cell0DsCoordinates del poliedro Duale
 				DualPolyhedron.Cell0DsCoordinates(0, id) = baricenter(0);
 				DualPolyhedron.Cell0DsCoordinates(1,id) = baricenter(1);
@@ -661,8 +667,9 @@ namespace TriangulationLibrary {
 				Faces_bar[id] = baricenter_id;
 				baricenter_id ++;
 			}
-			
+
 			for(const auto& vertex_id: StartPolyhedron.Cell0DsId){
+				
 				//Vettore che contiene le facce che hanno il vertice in comune
 				vector<int> VertexFaces;
 				for(const auto& face_id: StartPolyhedron.Cell2DsId){
@@ -675,6 +682,10 @@ namespace TriangulationLibrary {
 						}
 					}
 				}
+				
+				for(const auto& vertex_face: VertexFaces)
+					cout<<vertex_face<<" ";
+				cout<<endl;
 				
 				//PROBLEMA: il vettore VertexFaces contiene tutte le facce adiacenti a un vertice ma NON è ordinato in modo sensato, 
 				//per costruire gli edges devo ordinarlo in modo che ogni faccia nel vettore abbia come successiva la faccia adiacente, 
@@ -691,6 +702,7 @@ namespace TriangulationLibrary {
 				//qui associo a ogni faccia del poliedro di partenza l'id del vertice nel duale corrispondente
 				for(const auto& VertexFace: ordered_faces)
 					New_vertices.push_back(Faces_bar[VertexFace]);
+				
 				
 				DualPolyhedron.Cell2DsId.push_back(face_id);
 				DualPolyhedron.Cell2DsVertices[face_id] = New_vertices;
@@ -756,7 +768,6 @@ namespace TriangulationLibrary {
 
 		//Fino a quando ho facce da ordinare
 		while (!remaining_faces.empty()) {
-			
 			//Prendo gli edge della faccia corrente
 			vector<int> current_edges = Polyhedron.Cell2DsEdges[current];
 			bool found = false;
@@ -959,6 +970,18 @@ namespace TriangulationLibrary {
 	}
 
 	/************************************/
+	
+	bool CheckDuplicateFaces(const PolyhedronMesh& Polyhedron, vector<int> Current_vertices){
+		set<int> Current_vertices_set(Current_vertices.begin(),Current_vertices.end());
+		for(int i = 0; i < Polyhedron.NumCell2Ds; i++){
+			set<int>Face_vertices(Polyhedron.Cell2DsVertices[i].begin(), Polyhedron.Cell2DsVertices[i].end());
+			if(Face_vertices == Current_vertices_set)
+				return true;
+		}
+		return false;
+	}
+	
+	/***********************************/
 
 	void ProjectionOnSphere(PolyhedronMesh& mesh) 
 	{

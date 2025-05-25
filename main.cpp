@@ -112,9 +112,12 @@ int main(int argc, char *argv[])
 
 	if (argc == 7){
 		convert >> id_vertex_1 >> id_vertex_2;
-		if (ShortestPath(GeodeticPolyhedron, id_vertex_1, id_vertex_2)){
-			cout<<"minimum path found correctly!"<<endl;
-		}
+		if(q == 3)
+			if (ShortestPath(DualPolyhedron, id_vertex_1, id_vertex_2))
+				cout<<"minimum path found correctly!"<<endl;
+		else
+			if (ShortestPath(GeodeticPolyhedron, id_vertex_1, id_vertex_2))
+				cout<<"minimum path found correctly!"<<endl;	
 	}
 	
 	return 0;
