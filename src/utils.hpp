@@ -1,6 +1,7 @@
 #pragma once
 #include <sstream>
 #include "PolyhedronMesh.hpp"
+#include "UCDUtilities.hpp"
 
 using namespace std;
 
@@ -78,7 +79,7 @@ namespace TriangulationLibrary {
 
 	// La funzione genera il grafo associato al poliedro.
 	// StarVertex ed EndVertex sono i nodi di inizio e fine del cammino minimo da ricercare
-	bool ShortestPath(PolyhedronMesh& Polyhedron, int StartVertex, int EndVertex);
+	bool ShortestPath(const PolyhedronMesh& Polyhedron, const int& StartVertex, const int& EndVertex);
 
 	bool ExportOutputFiles(const PolyhedronMesh& mesh);
 }

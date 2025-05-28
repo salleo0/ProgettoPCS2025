@@ -797,11 +797,11 @@ namespace TriangulationLibrary {
 
 	/************************************/
 
-	bool ShortestPath(PolyhedronMesh& Polyhedron, int StartVertex, int EndVertex)
+	bool ShortestPath(const PolyhedronMesh& Polyhedron, const int& StartVertex, const int& EndVertex)
 	{	
 	
 	
-		if (StartVertex>Polyhedron.NumCell0Ds+1 || EndVertex>Polyhedron.NumCell0Ds+1 || StartVertex < 0 || EndVertex < 0){
+		if (StartVertex>=Polyhedron.NumCell0Ds || EndVertex>=Polyhedron.NumCell0Ds || StartVertex < 0 || EndVertex < 0){
 			cerr<<"Invalid Vertices"<< endl;
 			return false;
 		}
@@ -891,7 +891,7 @@ namespace TriangulationLibrary {
 		PointsProperties.push_back(ShortPathProperty);
 	
 		Gedim::UCDUtilities utilities;
-		utilities.ExportPoints("./Cell0DsShortPath.inp",
+		utilities.ExportPoints("./Cell0Ds.inp",
 								Polyhedron.Cell0DsCoordinates,
 								PointsProperties);
 	
@@ -924,10 +924,10 @@ namespace TriangulationLibrary {
 	
 		vector<Gedim::UCDProperty<double>> EdgesProperties;
 		EdgesProperties.push_back(ShortPathProperty);
-		utilities.ExportSegments("./Cell1DsShortPath.inp",
+		utilities.ExportSegments("./Cell1Ds.inp",
 								Polyhedron.Cell0DsCoordinates,
 								Polyhedron.Cell1DsExtrema,
-								PointsProperties,
+								{},
 								EdgesProperties);
 								
 		return true;

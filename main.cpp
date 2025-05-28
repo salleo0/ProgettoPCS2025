@@ -21,6 +21,11 @@ int main(int argc, char *argv[])
 	int id_vertex_1;
 	int id_vertex_2;
 	
+	if (argc != 5 && argc != 7) {
+		cerr << "Input arguments not valid. The number of input arguments must be equal to 4 (no short path) or to 6 (calculate the short path between two vertices)" << endl;
+		return 1;
+	}
+	
 	stringstream convert;
 	
 	for (int i = 1; i < argc; i++)
@@ -66,9 +71,8 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	
-	// COSTRUZIONE DELLA MESH DEL POLIEDRO GEODETICO E DEL SUO DUALE
+	// COSTRUZIONE DELLA MESH DEL POLIEDRO GEODETICO
 	PolyhedronMesh GeodeticPolyhedron;
-	PolyhedronMesh DualPolyhedron;
 	if ( b > 0 && c == 0)
 		Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, b);
 	else if ( b == 0 && c > 0)
@@ -80,47 +84,44 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	
-	// GENERAZIONE DUALE SE q = 3, ALTRIMENTI SOLO ESPORTAZIONE GEODETICO
-	Gedim::UCDUtilities utilities;	
-	if ( q == 3 ){
-		cout << "Generation of a generalized Goldberg polyhedron with Schlafli symbol {3+, 3}_(" << b << ", " << c << ")" << endl;
+	// GENERAZIONE DUALE SE q = 3
+	if ( q == 3){
+		PolyhedronMesh DualPolyhedron;
 		Generation::Dual(GeodeticPolyhedron, DualPolyhedron);
-		utilities.ExportPoints("./Cell0Ds.inp",
-								DualPolyhedron.Cell0DsCoordinates);		
-		utilities.ExportSegments("./Cell1Ds.inp",
-								DualPolyhedron.Cell0DsCoordinates,
-								DualPolyhedron.Cell1DsExtrema);
-		if (!ExportOutputFiles(DualPolyhedron)){
-			cerr << "Error during the export of .txt files" << endl;
-			return 1;
-		}
+		GeodeticPolyhedron = DualPolyhedron;
+		cout << "Generation of a generalized Goldberg polyhedron with Schlafli symbol {3+, 3}_(" << b << ", " << c << ")" << endl;
 	}
-	else {
+	else 
 		cout << "Generation of a geodetic polyhedron with Schlafli symbol {3, " << q << "+}_(" << b << ", " << c << ")" << endl;
-		utilities.ExportPoints("./Cell0Ds.inp",
-								GeodeticPolyhedron.Cell0DsCoordinates);
+	
+	// ESPORTAZIONE FILE .inp. SE PRESENTI, COLLEGARE I VERTICI CON LO SHORTEST PATH
+	{
+		bool flag = true;
 		
-		utilities.ExportSegments("./Cell1Ds.inp",
-								GeodeticPolyhedron.Cell0DsCoordinates,
-								GeodeticPolyhedron.Cell1DsExtrema);
+		Gedim::UCDUtilities utilities;
+		if (argc == 7){
+			convert >> id_vertex_1 >> id_vertex_2;
+			if(ShortestPath(GeodeticPolyhedron, id_vertex_1, id_vertex_2))
+				flag = false;
+			
+			else
+				cerr<<"Invalid Vertices"<< endl;
+			
+		}
+		
+		if (flag) {
+			utilities.ExportPoints("./Cell0Ds.inp",
+									GeodeticPolyhedron.Cell0DsCoordinates);
+			utilities.ExportSegments("./Cell1Ds.inp",
+									GeodeticPolyhedron.Cell0DsCoordinates,
+									GeodeticPolyhedron.Cell1DsExtrema);
+		}
+		
 		if (!ExportOutputFiles(GeodeticPolyhedron)){
 			cerr << "Error during the export of .txt files" << endl;
 			return 1;
-			
-		}	
+		}
 	}
 
-	if (argc == 7){
-		convert >> id_vertex_1 >> id_vertex_2;
-		if(q == 3){
-			if (ShortestPath(DualPolyhedron, id_vertex_1, id_vertex_2))
-				cout<<"minimum path found correctly!"<<endl;
-		}
-		else{
-			if (ShortestPath(GeodeticPolyhedron, id_vertex_1, id_vertex_2))
-				cout<<"minimum path found correctly!"<<endl;
-		}			
-	}
-	
 	return 0;
 }

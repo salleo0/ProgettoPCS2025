@@ -39,34 +39,6 @@ namespace TriangulationLibrary {
 		vector<vector<int>> Cell3DsVertices = {};	
 		vector<vector<int>> Cell3DsEdges = {};
 		vector<vector<int>> Cell3DsFaces = {};
-		
-		PolyhedronMesh();
-		
-		PolyhedronMesh(const PolyhedronMesh& other) {
-			NumCell0Ds = other.NumCell0Ds;
-			Cell0DsId = other.Cell0DsId;
-			Cell0DsCoordinates = other.Cell0DsCoordinates;
-			
-			NumCell1Ds = other.NumCell1Ds;
-			Cell1DsId = other.Cell1DsId;
-			Cell1DsExtrema = other.Cell1DsExtrema;
-			
-			NumCell2Ds = other.NumCell2Ds;
-			Cell2DsId = other.Cell2DsId;
-			Cell2DsNumVertices = other.Cell2DsNumVertices;
-			Cell2DsNumEdges = other.Cell2DsNumEdges;
-			Cell2DsVertices = other.Cell2DsVertices;
-			Cell2DsEdges = other.Cell2DsEdges;
-			
-			NumCell3Ds = other.NumCell3Ds;
-			Cell3DsId = other.Cell3DsId;					
-			Cell3DsNumVertices = other.Cell3DsNumVertices;		
-			Cell3DsNumEdges = other.Cell3DsNumEdges;	
-			Cell3DsNumFaces = other.Cell3DsNumFaces;
-			Cell3DsVertices = other.Cell3DsVertices;	
-			Cell3DsEdges = other.Cell3DsEdges;
-			Cell3DsFaces = other.Cell3DsFaces;
-		}			
-	};	
+	};
 
 }
