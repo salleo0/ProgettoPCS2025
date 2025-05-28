@@ -4,6 +4,7 @@
 #include "UCDUtilities.hpp"
 
 using namespace std;
+using namespace TriangulationLibrary;
 
 int main(int argc, char *argv[])
 {
@@ -26,8 +27,6 @@ int main(int argc, char *argv[])
 		convert << argv[i] << " ";
 	
 	convert >> p >> q >> b >> c;
-	if (argc == 7)
-		convert >> id_vertex_1 >> id_vertex_2;
 	
 	// COSTRUZIONE DELLA MESH DEL POLIEDRO PLATONICO
 	// richiediamo che il poliedro platonico abbia facce di 3 vertici (<=> p = 3)
@@ -62,7 +61,7 @@ int main(int argc, char *argv[])
 			break;
 	}
 	
-	if(!ImportPolyhedronMesh(PlatonicPolyhedron, InputFile)){
+	if(!Import::ImportPolyhedronMesh(PlatonicPolyhedron, InputFile)){
 		cerr << "Something went wrong during the creation of the platonic polyhedron mesh" << endl;
 		return 1;
 	}
@@ -70,38 +69,58 @@ int main(int argc, char *argv[])
 	// COSTRUZIONE DELLA MESH DEL POLIEDRO GEODETICO E DEL SUO DUALE
 	PolyhedronMesh GeodeticPolyhedron;
 	PolyhedronMesh DualPolyhedron;
-	if ( b > 0 && c == 0){
-		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, b);
-		CreateDual(GeodeticPolyhedron, DualPolyhedron);
+	if ( b > 0 && c == 0)
+		Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, b);
+	else if ( b == 0 && c > 0)
+		Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, c);
+	else if (b == c)
+		Generation::GeodeticSolidType2(PlatonicPolyhedron, GeodeticPolyhedron, b);
+	else {
+		cerr << "The case b not equal to c with both b and c greater than 0 is not supported " << endl;
+		return 1;
 	}
-	else if ( b == 0 && c > 0){
-		GenerateGeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, c);
-		CreateDual(GeodeticPolyhedron, DualPolyhedron);
-	}
 	
-	
-	/*for(int i =0; i<GeodeticPolyhedron.NumCell1Ds;i++)
-		cout<<"edge id: "<<GeodeticPolyhedron.Cell1DsId[i]<<" Origin and end: "<<GeodeticPolyhedron.Cell1DsExtrema(0,GeodeticPolyhedron.Cell1DsId[i])<<" "<<GeodeticPolyhedron.Cell1DsExtrema(1,GeodeticPolyhedron.Cell1DsId[i])<<endl;
-	for(int i = 0; i<GeodeticPolyhedron.NumCell2Ds;i++){
-		cout<<"Face id: "<<i<<endl;
-		cout<<"Vertices: "<<GeodeticPolyhedron.Cell2DsVertices[i][0]<<" "<<GeodeticPolyhedron.Cell2DsVertices[i][1]<<" "<<GeodeticPolyhedron.Cell2DsVertices[i][2]<<endl;
-		cout<<"Edges: "<<GeodeticPolyhedron.Cell2DsEdges[i][0]<<" "<<GeodeticPolyhedron.Cell2DsEdges[i][1]<<" "<<GeodeticPolyhedron.Cell2DsEdges[i][2]<<endl;
-		}*/
-	
-	//Per ora, serve esportare su più files...
+	// GENERAZIONE DUALE SE q = 3, ALTRIMENTI SOLO ESPORTAZIONE GEODETICO
 	Gedim::UCDUtilities utilities;	
-    utilities.ExportPoints("./Cell0Ds.inp",
-                           GeodeticPolyhedron.Cell0DsCoordinates);
-
-    utilities.ExportSegments("./Cell1Ds.inp",
-								GeodeticPolyhedron.Cell0DsCoordinates,
-								GeodeticPolyhedron.Cell1DsExtrema); 
-
-    utilities.ExportPoints("./Cell0DsDual.inp",
-                           DualPolyhedron.Cell0DsCoordinates);
-
-    utilities.ExportSegments("./Cell1DsDual.inp",
+	if ( q == 3 ){
+		cout << "Generation of a generalized Goldberg polyhedron with Schlafli symbol {3+, 3}_(" << b << ", " << c << ")" << endl;
+		Generation::Dual(GeodeticPolyhedron, DualPolyhedron);
+		utilities.ExportPoints("./Cell0Ds.inp",
+								DualPolyhedron.Cell0DsCoordinates);		
+		utilities.ExportSegments("./Cell1Ds.inp",
 								DualPolyhedron.Cell0DsCoordinates,
-								DualPolyhedron.Cell1DsExtrema); 
+								DualPolyhedron.Cell1DsExtrema);
+		if (!ExportOutputFiles(DualPolyhedron)){
+			cerr << "Error during the export of .txt files" << endl;
+			return 1;
+		}
+	}
+	else {
+		cout << "Generation of a geodetic polyhedron with Schlafli symbol {3, " << q << "+}_(" << b << ", " << c << ")" << endl;
+		utilities.ExportPoints("./Cell0Ds.inp",
+								GeodeticPolyhedron.Cell0DsCoordinates);
+		
+		utilities.ExportSegments("./Cell1Ds.inp",
+								GeodeticPolyhedron.Cell0DsCoordinates,
+								GeodeticPolyhedron.Cell1DsExtrema);
+		if (!ExportOutputFiles(GeodeticPolyhedron)){
+			cerr << "Error during the export of .txt files" << endl;
+			return 1;
+			
+		}	
+	}
+
+	if (argc == 7){
+		convert >> id_vertex_1 >> id_vertex_2;
+		if(q == 3){
+			if (ShortestPath(DualPolyhedron, id_vertex_1, id_vertex_2))
+				cout<<"minimum path found correctly!"<<endl;
+		}
+		else{
+			if (ShortestPath(GeodeticPolyhedron, id_vertex_1, id_vertex_2))
+				cout<<"minimum path found correctly!"<<endl;
+		}			
+	}
+	
 	return 0;
 }
