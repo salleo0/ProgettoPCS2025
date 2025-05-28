@@ -5,7 +5,7 @@
 #include <queue>
 #include <set>
 #include "Eigen/Eigen"
-#include"utils.hpp"
+#include "utils.hpp"
 #include "UCDUtilities.hpp"
 
 using namespace Eigen;
