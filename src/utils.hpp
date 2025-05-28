@@ -64,12 +64,9 @@ namespace TriangulationLibrary {
 	// ritorna vero se un duplicato è stato trovato, falso altrimenti
 	bool CheckDuplicatesEdge(const MatrixXi& mat, const int& v1, const int& v2, int& matSize, int& duplicate_id);
 	
-	bool CheckDuplicateFaces(const PolyhedronMesh& Polyhedron, vector<int> Current_vertices);
-	
 	// Proietta sulla sfera di raggio 1 e centro l'origine le coordinate dei vertici della mesh
 	// mesh: struct del tipo PolyhedronMesh
 	void ProjectionOnSphere(PolyhedronMesh& mesh);
-
 
 	// Usata nella costruzione dei poliedri: dato un vettore di facce unordered_faces, tutte aventi un vertice comune,
 	// la funzione ordina tale vettore in modo che ciascuna faccia sia seguita da quella adiacente a essa, per costruire correttamente 
