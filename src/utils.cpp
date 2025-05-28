@@ -12,7 +12,7 @@ using namespace Eigen;
 using namespace std;
 
 namespace TriangulationLibrary {
-	namespace Import {
+	namespace FileManagement {
 		bool ImportPolyhedronMesh(PolyhedronMesh& polyhedron, const string& InputFileDirectory){
 			
 			if(!ImportCell0Ds(polyhedron, InputFileDirectory + "Cell0Ds.csv"))
@@ -177,13 +177,95 @@ namespace TriangulationLibrary {
 			
 			return true;
 		}
+		
+		
+		bool ExportOutputFiles(const PolyhedronMesh& mesh)
+		{
+			{
+				ofstream fileout("Cell0Ds.txt");
+				if (!fileout.is_open())
+					return false;
+
+				fileout << "ID;X;Y;Z;" << endl;
+				
+				for (int i = 0; i < mesh.NumCell0Ds; i++)
+					fileout << mesh.Cell0DsId[i] << ";"
+						<< mesh.Cell0DsCoordinates(0,i) << ";"
+						<< mesh.Cell0DsCoordinates(1,i) << ";"
+						<< mesh.Cell0DsCoordinates(2,i) << endl;
+			}
+
+			{
+				ofstream fileout("Cell1Ds.txt");
+				if (!fileout.is_open())
+					return false;
+				
+				fileout << "ID;Origin;End" << endl;
+				
+				for (int i = 0; i < mesh.NumCell1Ds; i++)
+					fileout << mesh.Cell1DsId[i] << ";"
+						<< mesh.Cell1DsExtrema(0,i) << ";"
+						<< mesh.Cell1DsExtrema(1,i) << endl;
+			}
+			
+			{
+				ofstream fileout("Cell2Ds.txt");
+				if (!fileout.is_open())
+					return false;
+
+				fileout << "ID;NumVertices;VerticesID;NumEdges;EdgesID" << endl;
+				
+				for (int i = 0; i < mesh.NumCell2Ds; i++) {
+					fileout << mesh.Cell2DsId[i] << ";"
+						<< mesh.Cell2DsNumVertices[i];
+					
+					for(int j = 0; j < mesh.Cell2DsNumVertices[i]; j++)
+						fileout << ";" << mesh.Cell2DsVertices[i][j];
+					
+					fileout << ";" << mesh.Cell2DsNumEdges[i];
+					
+					for(int j = 0; j < mesh.Cell2DsNumEdges[i]; j++)
+						fileout << ";" << mesh.Cell2DsEdges[i][j];
+					
+					fileout << endl;
+				}
+			}
+			
+			{
+				ofstream fileout("Cell3Ds.txt");
+				if (!fileout.is_open())
+					return false;
+				
+				fileout << "ID;NumVertices;VerticesID;NumEdges;EdgesID;NumFaces;FacesID" << endl;
+				
+				for (int i = 0; i < mesh.NumCell3Ds; i++) {
+					fileout << mesh.Cell3DsId[i] << ";"
+						<< mesh.Cell3DsNumVertices[i];
+					
+					for (int j = 0; j < mesh.Cell3DsNumVertices[i]; j++)
+						fileout << ";" << mesh.Cell3DsVertices[i][j];
+					
+					fileout << ";" << mesh.Cell3DsNumEdges[i];
+					
+					for (int j = 0; j < mesh.Cell3DsNumEdges[i]; j++)
+						fileout << ";" << mesh.Cell3DsEdges[i][j];
+					
+					fileout << ";" << mesh.Cell3DsNumFaces[i];
+					
+					for (int j = 0; j < mesh.Cell3DsNumFaces[i]; j++)
+						fileout << ";" << mesh.Cell3DsFaces[i][j];
+					
+					fileout << endl;
+				}
+			}
+			return true;
+		}
 	
 	}
 
 /************************************/
 	namespace Generation {
-		void GeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, const int& num_segments)
-		{
+		void GeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, const int& num_segments) {
 			int point_id = 0;		// id dei vertici del poliedro geodetico che andremo a generare
 			int duplicate_id = 0;	// id che servirà per controllare se esiste un duplicato
 			int edge_id = 0;		// id degli spigoli del poliedro geodetico che andremo a generare
@@ -356,7 +438,7 @@ namespace TriangulationLibrary {
 
 		/************************************/
 		
-		void GeodeticSolidType2(PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, int TriangulationParameter){
+		void GeodeticSolidType2(const PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, const int& TriangulationParameter){
 			int point_id = 0;		
 			int duplicate_id = 0;
 			int edge_id = 0;		
@@ -614,8 +696,7 @@ namespace TriangulationLibrary {
 		
 		/************************************/
 
-		void Dual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron)
-		{
+		void Dual(const PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron) {
 			int baricenter_id = 0;
 			int face_id = 0;
 			int edge_id = 0;
@@ -743,12 +824,143 @@ namespace TriangulationLibrary {
 			DualPolyhedron.Cell3DsEdges.push_back(DualPolyhedron.Cell1DsId);
 			DualPolyhedron.Cell3DsFaces.push_back(DualPolyhedron.Cell2DsId);
 		}
+		
+		/************************************/
+		
+		bool ShortestPath(const PolyhedronMesh& Polyhedron, const int& StartVertex, const int& EndVertex, double& path_length, int& num_edges_in_path) {
+			
+			if (StartVertex >= Polyhedron.NumCell0Ds || EndVertex >= Polyhedron.NumCell0Ds || StartVertex < 0 || EndVertex < 0)
+				return false;
+			
+			// generazione della lista di adiacenza, poiché è tutto indicizzato sequenzialmente, 
+			// conviene usare un vector di vector anziché un vector di liste
+			vector<vector<int>> adjacency_list;
+			adjacency_list.reserve(Polyhedron.NumCell0Ds);
+			MatrixXd W = MatrixXd::Zero(Polyhedron.NumCell0Ds, Polyhedron.NumCell0Ds);
+			
+			// iterando su tutti gli id dei punti, 
+			// per ciascun punto itero in tutti gli id dei segmenti (origin,end) e guardo quali hanno per estremo quel punto.
+			// L'estremo che è diverso dal punto in questione lo appendo alla "lista" di adiacenza.
+			
+			for(int i = 0; i < Polyhedron.NumCell0Ds; i++){
+				vector<int> neighbors;
+				for(const auto& edge : Polyhedron.Cell1DsId){
+					int Origin = Polyhedron.Cell1DsExtrema(0,edge);
+					int End = Polyhedron.Cell1DsExtrema(1,edge);
+					if (Origin == i)
+						neighbors.push_back(End);
+					else if(End == i)
+						neighbors.push_back(Origin);
+				}
+				adjacency_list.push_back(neighbors);
+			}
+			
+			for(size_t i = 0; i<adjacency_list.size();i++){
+				for(const auto& neighbor: adjacency_list[i]){
+					W(i,neighbor) = (Polyhedron.Cell0DsCoordinates.col(neighbor)-Polyhedron.Cell0DsCoordinates.col(i)).norm();
+				}
+			}
+			
+			// algoritmo di Dijkstra per esplorare il grafo, pred è un vettore
+			// ausiliario usato per ricostruire il percorso
+
+			vector<int> pred(Polyhedron.NumCell0Ds, -1);
+			vector<double> dist(Polyhedron.NumCell0Ds, 1000.0);
+			priority_queue<pair<int, double>, vector<pair<int, double>>, greater<pair<int, double>>> PQ;
+			
+			pred[StartVertex] = StartVertex;
+			dist[StartVertex] = 0;
+			
+			for(int i = 0; i < Polyhedron.NumCell0Ds; i++)
+				PQ.push({i, dist[i]});
+			while(!PQ.empty()){
+				int u = PQ.top().first;
+				int p = PQ.top().second;
+				PQ.pop();
+				if (dist[u]<p)
+					continue;
+				for(const auto& w : adjacency_list[u]){
+					if( dist[w] > dist[u] + W(u,w) ) {
+						dist[w] = dist[u] + W(u,w);
+						pred[w] = u;
+						PQ.push({w, dist[w]});
+					}
+				}
+			}
+			
+			// path contiene gli id dei vertici che compongono il cammino minimo 
+			// al contrario, perché sono id provenienti dal vettore pred
+			
+			vector<int> path;
+			int v = EndVertex;
+			while(v != StartVertex) {
+				path.push_back(v);
+				v = pred[v];
+			} 
+			path.push_back(StartVertex);
+			
+			vector<double> PathPointsProperties(Polyhedron.NumCell0Ds, 0.0);
+			for (const auto& point : path)
+				PathPointsProperties[point] = 1.0;
+
+			
+			Gedim::UCDProperty<double> ShortPathProperty;
+			ShortPathProperty.Label = "shortest path";
+			ShortPathProperty.UnitLabel = "";
+			ShortPathProperty.Size = PathPointsProperties.size();
+			ShortPathProperty.NumComponents = 1;
+			ShortPathProperty.Data = PathPointsProperties.data();  
+
+
+			vector<Gedim::UCDProperty<double>> PointsProperties;
+			PointsProperties.push_back(ShortPathProperty);
+		
+			Gedim::UCDUtilities utilities;
+			utilities.ExportPoints("./Cell0Ds.inp",
+									Polyhedron.Cell0DsCoordinates,
+									PointsProperties);
+		
+			vector<int> pathEdges; 
+			vector<double> PathEdgesProperties(Polyhedron.NumCell1Ds, 0.0);
+
+			for (size_t i = 0; i < path.size()-1; i++){
+				int v1 = path[i];
+				int v2 = path[i+1];
+				for(const auto& edge: Polyhedron.Cell1DsId){
+					if ((Polyhedron.Cell1DsExtrema(0, edge) == v1 && Polyhedron.Cell1DsExtrema(1, edge) == v2) || 
+						(Polyhedron.Cell1DsExtrema(0, edge) == v2 && Polyhedron.Cell1DsExtrema(1,edge) == v1)){
+							pathEdges.push_back(edge);
+							PathEdgesProperties[edge] = 1.0;
+						}
+				}	
+			}
+			
+			for(size_t i = 0; i<path.size()-1;i++)
+				path_length += W(path[i],path[i+1]);
+			num_edges_in_path = pathEdges.size();
+			
+			
+			ShortPathProperty.Label = "shortest path";
+			ShortPathProperty.UnitLabel = "";
+			ShortPathProperty.Size = PathEdgesProperties.size();
+			ShortPathProperty.NumComponents = 1;
+			ShortPathProperty.Data = PathEdgesProperties.data();  
+		
+			vector<Gedim::UCDProperty<double>> EdgesProperties;
+			EdgesProperties.push_back(ShortPathProperty);
+			utilities.ExportSegments("./Cell1Ds.inp",
+									Polyhedron.Cell0DsCoordinates,
+									Polyhedron.Cell1DsExtrema,
+									{},
+									EdgesProperties);
+			return true;
+		}
+		
 	}
 
 	/************************************/
 
-	void OrderFaces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedronMesh& Polyhedron)
-	{	
+	void OrderFaces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedronMesh& Polyhedron) {	
 		//Il vettore di facce rimanenti contiene le facce ancora da ordinare, esso è all'inizio uguale a tutto il vettore.
 		vector<int> remaining_faces = unordered_faces;
 
@@ -797,144 +1009,6 @@ namespace TriangulationLibrary {
 
 	/************************************/
 
-	bool ShortestPath(PolyhedronMesh& Polyhedron, int StartVertex, int EndVertex)
-	{	
-	
-	
-		if (StartVertex>Polyhedron.NumCell0Ds+1 || EndVertex>Polyhedron.NumCell0Ds+1 || StartVertex < 0 || EndVertex < 0){
-			cerr<<"Invalid Vertices"<< endl;
-			return false;
-		}
-		
-		// generazione della lista di adiacenza, poiché è tutto indicizzato sequenzialmente, 
-		// conviene usare un vector di vector anziché un vector di liste
-		
-		vector<vector<int>> adjacency_list;
-		adjacency_list.reserve(Polyhedron.NumCell0Ds);
-		MatrixXd W = MatrixXd::Zero(Polyhedron.NumCell0Ds, Polyhedron.NumCell0Ds);
-		
-		// iterando su tutti gli id dei punti, 
-		// per ciascun punto itero in tutti gli id dei segmenti (origin,end) e guardo quali hanno per estremo quel punto.
-		// L'estremo che è diverso dal punto in questione lo appendo alla "lista" di adiacenza.
-		
-		for(int i = 0; i < Polyhedron.NumCell0Ds; i++){
-			vector<int> neighbors;
-			for(const auto& edge : Polyhedron.Cell1DsId){
-				int Origin = Polyhedron.Cell1DsExtrema(0,edge);
-				int End = Polyhedron.Cell1DsExtrema(1,edge);
-				if (Origin == i)
-					neighbors.push_back(End);
-				else if(End == i)
-					neighbors.push_back(Origin);
-			}
-			adjacency_list.push_back(neighbors);
-		}
-		
-		for(size_t i = 0; i<adjacency_list.size();i++){
-			for(const auto& neighbor: adjacency_list[i]){
-				W(i,neighbor) = (Polyhedron.Cell0DsCoordinates.col(neighbor)-Polyhedron.Cell0DsCoordinates.col(i)).norm();
-			}
-		}
-		
-		// algoritmo di Dijkstra per esplorare il grafo, pred è un vettore
-		// ausiliario usato per ricostruire il percorso
-
-		vector<int> pred(Polyhedron.NumCell0Ds, -1);
-		vector<double> dist(Polyhedron.NumCell0Ds, 1000.0);
-		priority_queue<pair<int, double>, vector<pair<int, double>>, greater<pair<int, double>>> PQ;
-		
-		pred[StartVertex] = StartVertex;
-		dist[StartVertex] = 0;
-		
-		for(int i = 0; i < Polyhedron.NumCell0Ds; i++)
-			PQ.push({i, dist[i]});
-		while(!PQ.empty()){
-			int u = PQ.top().first;
-			int p = PQ.top().second;
-			PQ.pop();
-			if (dist[u]<p)
-				continue;
-			for(const auto& w : adjacency_list[u]){
-				if( dist[w] > dist[u] + W(u,w) ) {
-					dist[w] = dist[u] + W(u,w);
-					pred[w] = u;
-					PQ.push({w, dist[w]});
-				}
-			}
-		}
-		
-		// path contiene gli id dei vertici che compongono il cammino minimo 
-		// al contrario, perché sono id provenienti dal vettore pred
-		
-		vector<int> path;
-		int v = EndVertex;
-		while(v != StartVertex) {
-			path.push_back(v);
-			v = pred[v];
-		} 
-		path.push_back(StartVertex);
-		
-		vector<double> PathPointsProperties(Polyhedron.NumCell0Ds, 0.0);
-		for (const auto& point : path)
-			PathPointsProperties[point] = 1.0;
-
-
-		Gedim::UCDProperty<double> ShortPathProperty;
-		ShortPathProperty.Label = "shortest path";
-		ShortPathProperty.UnitLabel = "";
-		ShortPathProperty.Size = PathPointsProperties.size();
-		ShortPathProperty.NumComponents = 1;
-		ShortPathProperty.Data = PathPointsProperties.data();  
-
-
-		vector<Gedim::UCDProperty<double>> PointsProperties;
-		PointsProperties.push_back(ShortPathProperty);
-	
-		Gedim::UCDUtilities utilities;
-		utilities.ExportPoints("./Cell0DsShortPath.inp",
-								Polyhedron.Cell0DsCoordinates,
-								PointsProperties);
-	
-		vector<int> pathEdges; 
-		vector<double> PathEdgesProperties(Polyhedron.NumCell1Ds, 0.0);
-
-		for (size_t i = 0; i < path.size()-1; i++){
-			int v1 = path[i];
-			int v2 = path[i+1];
-			for(const auto& edge: Polyhedron.Cell1DsId){
-				if ((Polyhedron.Cell1DsExtrema(0, edge) == v1 && Polyhedron.Cell1DsExtrema(1, edge) == v2) || 
-					(Polyhedron.Cell1DsExtrema(0, edge) == v2 && Polyhedron.Cell1DsExtrema(1,edge) == v1)){
-						pathEdges.push_back(edge);
-						PathEdgesProperties[edge] = 1.0;
-					}
-			}	
-		}
-		
-		double Totdist = 0.0;
-		for(size_t i = 0; i<path.size()-1;i++)
-			Totdist += W(path[i],path[i+1]);
-		
-		cout<<"Total length of the walk: "<<Totdist<<", number of edges between nodes "<<pathEdges.size()<<endl;
-		
-		ShortPathProperty.Label = "shortest path";
-		ShortPathProperty.UnitLabel = "";
-		ShortPathProperty.Size = PathEdgesProperties.size();
-		ShortPathProperty.NumComponents = 1;
-		ShortPathProperty.Data = PathEdgesProperties.data();  
-	
-		vector<Gedim::UCDProperty<double>> EdgesProperties;
-		EdgesProperties.push_back(ShortPathProperty);
-		utilities.ExportSegments("./Cell1DsShortPath.inp",
-								Polyhedron.Cell0DsCoordinates,
-								Polyhedron.Cell1DsExtrema,
-								PointsProperties,
-								EdgesProperties);
-								
-		return true;
-	}
-
-	/************************************/
-
 	bool CheckDuplicatesVertex(const MatrixXd& mat, const Vector3d& vec, int& matSize, int& duplicate_id)
 	{
 		for(int i = 0; i < matSize; i++){
@@ -973,90 +1047,6 @@ namespace TriangulationLibrary {
 			mesh.Cell0DsCoordinates(1,i) = mesh.Cell0DsCoordinates(1,i)/Norm_factor;
 			mesh.Cell0DsCoordinates(2,i) = mesh.Cell0DsCoordinates(2,i)/Norm_factor;
 		}
-	}
-
-	/************************************/
-
-	bool ExportOutputFiles(const PolyhedronMesh& mesh)
-	{
-		{
-			ofstream fileout("Cell0Ds.txt");
-			if (!fileout.is_open())
-				return false;
-
-			fileout << "ID;X;Y;Z;" << endl;
-			
-			for (int i = 0; i < mesh.NumCell0Ds; i++)
-				fileout << mesh.Cell0DsId[i] << ";"
-					<< mesh.Cell0DsCoordinates(0,i) << ";"
-					<< mesh.Cell0DsCoordinates(1,i) << ";"
-					<< mesh.Cell0DsCoordinates(2,i) << endl;
-		}
-
-		{
-			ofstream fileout("Cell1Ds.txt");
-			if (!fileout.is_open())
-				return false;
-			
-			fileout << "ID;Origin;End" << endl;
-			
-			for (int i = 0; i < mesh.NumCell1Ds; i++)
-				fileout << mesh.Cell1DsId[i] << ";"
-					<< mesh.Cell1DsExtrema(0,i) << ";"
-					<< mesh.Cell1DsExtrema(1,i) << endl;
-		}
-		
-		{
-			ofstream fileout("Cell2Ds.txt");
-			if (!fileout.is_open())
-				return false;
-
-			fileout << "ID;NumVertices;VerticesID;NumEdges;EdgesID" << endl;
-			
-			for (int i = 0; i < mesh.NumCell2Ds; i++) {
-				fileout << mesh.Cell2DsId[i] << ";"
-					<< mesh.Cell2DsNumVertices[i];
-				
-				for(int j = 0; j < mesh.Cell2DsNumVertices[i]; j++)
-					fileout << ";" << mesh.Cell2DsVertices[i][j];
-				
-				fileout << ";" << mesh.Cell2DsNumEdges[i];
-				
-				for(int j = 0; j < mesh.Cell2DsNumEdges[i]; j++)
-					fileout << ";" << mesh.Cell2DsEdges[i][j];
-				
-				fileout << endl;
-			}
-		}
-		
-		{
-			ofstream fileout("Cell3Ds.txt");
-			if (!fileout.is_open())
-				return false;
-			
-			fileout << "ID;NumVertices;VerticesID;NumEdges;EdgesID;NumFaces;FacesID" << endl;
-			
-			for (int i = 0; i < mesh.NumCell3Ds; i++) {
-				fileout << mesh.Cell3DsId[i] << ";"
-					<< mesh.Cell3DsNumVertices[i];
-				
-				for (int j = 0; j < mesh.Cell3DsNumVertices[i]; j++)
-					fileout << ";" << mesh.Cell3DsVertices[i][j];
-				
-				fileout << ";" << mesh.Cell3DsNumEdges[i];
-				
-				for (int j = 0; j < mesh.Cell3DsNumEdges[i]; j++)
-					fileout << ";" << mesh.Cell3DsEdges[i][j];
-				
-				fileout << ";" << mesh.Cell3DsNumFaces[i];
-				
-				for (int j = 0; j < mesh.Cell3DsNumFaces[i]; j++)
-					fileout << ";" << mesh.Cell3DsFaces[i][j];
-				
-				fileout << endl;
-			}
-		}
-		return true;
 	}
 
 }

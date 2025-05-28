@@ -26,7 +26,7 @@ int VertexDegree(int& ExpectedDegree, const std::vector<int>& Vertices, const st
 TEST(TestGeodeticPolyhedron, TestTetrahedronType1)
 {
 	PolyhedronMesh PlatonicPolyhedron;
-	if (!Import::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Tetraedro/"))
+	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Tetraedro/"))
 		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
 
 	PolyhedronMesh GeodeticPolyhedron;
@@ -56,7 +56,7 @@ TEST(TestGeodeticPolyhedron, TestTetrahedronType1)
 TEST(TestGeodeticPolyhedron, TestOctahedronType1)
 {
 	PolyhedronMesh PlatonicPolyhedron;
-	if (!Import::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Ottaedro/"))
+	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Ottaedro/"))
 		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
 
 	PolyhedronMesh GeodeticPolyhedron;
@@ -86,7 +86,7 @@ TEST(TestGeodeticPolyhedron, TestOctahedronType1)
 TEST(TestGeodeticPolyhedron, TestIcosahedronType1)
 {
 	PolyhedronMesh PlatonicPolyhedron;
-	if (!Import::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Icosaedro/"))
+	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Icosaedro/"))
 		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
 
 	PolyhedronMesh GeodeticPolyhedron;
@@ -117,7 +117,7 @@ TEST(TestGeodeticPolyhedron, TestIcosahedronType1)
 TEST(TestDualPolyhedron, TestType1)
 {
 	PolyhedronMesh PlatonicPolyhedron;
-	if (!Import::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Tetraedro/"))
+	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Tetraedro/"))
 		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
 
 	PolyhedronMesh GeodeticPolyhedron;

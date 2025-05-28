@@ -5,7 +5,7 @@
 using namespace std;
 
 namespace TriangulationLibrary {
-	namespace Import {
+	namespace FileManagement {
 		// Importa il solido platonico di partenza e testa che sia importato correttamente
 		// polyhedron: una struct di tipo PolyhedronMesh
 		// InputFileDirectory: la directory in cui sono salvati i file .csv con i dati del solido
@@ -29,7 +29,8 @@ namespace TriangulationLibrary {
 		// InputFile: nome del file Cell2Ds.csv in formato stringa
 		// ritorna il risultato della lettura: vero se l'importazione di Cell2Ds è andata a buon fine, falso altrimenti
 		bool ImportCell2Ds(PolyhedronMesh& polyhedron, const string& InputFile);
-	
+		
+		bool ExportOutputFiles(const PolyhedronMesh& mesh);
 	}
 	
 	namespace Generation {
@@ -41,11 +42,14 @@ namespace TriangulationLibrary {
 		// ritorna il risultato della generazione della triangolazione, vero se è andato a buon fine, falso altrimenti
 		void GeodeticSolidType1(const PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, const int& num_segments);
 
-		void GeodeticSolidType2(PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, int TriangulationParameter);
+		void GeodeticSolidType2(const PolyhedronMesh& PlatonicPolyhedron, PolyhedronMesh& GeodeticSolid, const int& TriangulationParameter);
 		
 		// Costruisce il poliedro duale DualPolyhedron a partire dal generico poliedro iniziale StartPolyhedron
-		void Dual(PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron);
+		void Dual(const PolyhedronMesh& StartPolyhedron, PolyhedronMesh& DualPolyhedron);
 		
+		// La funzione genera il grafo associato al poliedro.
+		// StarVertex ed EndVertex sono i nodi di inizio e fine del cammino minimo da ricercare
+		bool ShortestPath(const PolyhedronMesh& Polyhedron, const int& StartVertex, const int& EndVertex, double& path_length, int& num_edges_in_path);
 	}
 	
 	// Controlla se ci sono dei duplicati di un vettore di coordinate
@@ -76,9 +80,4 @@ namespace TriangulationLibrary {
 	// Polyhedron: la mesh per avere accesso agli edges delle facce nel vettore unordered_faces
 	void OrderFaces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedronMesh& Polyhedron);
 
-	// La funzione genera il grafo associato al poliedro.
-	// StarVertex ed EndVertex sono i nodi di inizio e fine del cammino minimo da ricercare
-	bool ShortestPath(PolyhedronMesh& Polyhedron, int StartVertex, int EndVertex);
-
-	bool ExportOutputFiles(const PolyhedronMesh& mesh);
 }
