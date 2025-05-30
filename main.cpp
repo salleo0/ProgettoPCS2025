@@ -100,7 +100,8 @@ int main(int argc, char *argv[])
 		convert >> id_vertex_1 >> id_vertex_2;
 		double path_length = 0.0;
 		int num_edges_in_path = 0;
-		if(Generation::ShortestPath(GeodeticPolyhedron, id_vertex_1, id_vertex_2, path_length, num_edges_in_path)){
+		vector<int> visited_vertices;
+		if(Generation::ShortestPath(GeodeticPolyhedron, id_vertex_1, id_vertex_2, path_length, num_edges_in_path, visited_vertices)){
 			cout << "Shortest path between the vertices of id " << id_vertex_1 << " and " << id_vertex_2 << " found" << endl;
 			cout << "Total length of the walk: " << path_length << "\t - \t Number of edges between nodes: " << num_edges_in_path << endl;
 			flag = false;
