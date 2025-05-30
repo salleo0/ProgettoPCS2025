@@ -21,6 +21,11 @@ int main(int argc, char *argv[])
 	int id_vertex_1;
 	int id_vertex_2;
 	
+	if (argc != 5 && argc != 7) {
+		cerr << "Input arguments not valid. The number of input arguments must be equal to 4 (no short path) or to 6 (calculate the short path between two vertices)" << endl;
+		return 1;
+	}
+	
 	stringstream convert;
 	
 	for (int i = 1; i < argc; i++)
@@ -61,14 +66,13 @@ int main(int argc, char *argv[])
 			break;
 	}
 	
-	if(!Import::ImportPolyhedronMesh(PlatonicPolyhedron, InputFile)){
+	if(!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, InputFile)){
 		cerr << "Something went wrong during the creation of the platonic polyhedron mesh" << endl;
 		return 1;
 	}
 	
-	// COSTRUZIONE DELLA MESH DEL POLIEDRO GEODETICO E DEL SUO DUALE
+	// COSTRUZIONE DELLA MESH DEL POLIEDRO GEODETICO
 	PolyhedronMesh GeodeticPolyhedron;
-	PolyhedronMesh DualPolyhedron;
 	if ( b > 0 && c == 0)
 		Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, b);
 	else if ( b == 0 && c > 0)
@@ -80,46 +84,43 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	
-	// GENERAZIONE DUALE SE q = 3, ALTRIMENTI SOLO ESPORTAZIONE GEODETICO
-	Gedim::UCDUtilities utilities;	
-	if ( q == 3 ){
-		cout << "Generation of a generalized Goldberg polyhedron with Schlafli symbol {3+, 3}_(" << b << ", " << c << ")" << endl;
+	// GENERAZIONE DUALE SE q = 3
+	if ( q == 3){
+		PolyhedronMesh DualPolyhedron;
 		Generation::Dual(GeodeticPolyhedron, DualPolyhedron);
-		utilities.ExportPoints("./Cell0Ds.inp",
-								DualPolyhedron.Cell0DsCoordinates);		
-		utilities.ExportSegments("./Cell1Ds.inp",
-								DualPolyhedron.Cell0DsCoordinates,
-								DualPolyhedron.Cell1DsExtrema);
-		if (!ExportOutputFiles(DualPolyhedron)){
-			cerr << "Error during the export of .txt files" << endl;
-			return 1;
-		}
+		GeodeticPolyhedron = DualPolyhedron;
+		cout << "Generation of a generalized Goldberg polyhedron with Schlafli symbol {3+, 3}_(" << b << ", " << c << ")" << endl;
 	}
-	else {
+	else 
 		cout << "Generation of a geodetic polyhedron with Schlafli symbol {3, " << q << "+}_(" << b << ", " << c << ")" << endl;
+	
+	// ESPORTAZIONE FILE .inp E SE PRESENTI, COLLEGARE I VERTICI CON LO SHORTEST PATH
+	bool flag = true;
+	if (argc == 7){
+		convert >> id_vertex_1 >> id_vertex_2;
+		double path_length = 0.0;
+		int num_edges_in_path = 0;
+		if(Generation::ShortestPath(GeodeticPolyhedron, id_vertex_1, id_vertex_2, path_length, num_edges_in_path)){
+			cout << "Shortest path between the vertices of id " << id_vertex_1 << " and " << id_vertex_2 << " found" << endl;
+			cout << "Total length of the walk: " << path_length << "\t - \t Number of edges between nodes: " << num_edges_in_path << endl;
+			flag = false;
+		}
+		else
+			cerr<<"Invalid vertices: Cell0D does not contain vertices of id either " << id_vertex_1 << " or " << id_vertex_2 << "or both; impossible to generate the shortest path. Proceeding with only the exportation of the mesh."<< endl;
+	}
+	
+	if (flag) {
+		Gedim::UCDUtilities utilities;
 		utilities.ExportPoints("./Cell0Ds.inp",
 								GeodeticPolyhedron.Cell0DsCoordinates);
-		
 		utilities.ExportSegments("./Cell1Ds.inp",
 								GeodeticPolyhedron.Cell0DsCoordinates,
 								GeodeticPolyhedron.Cell1DsExtrema);
-		if (!ExportOutputFiles(GeodeticPolyhedron)){
-			cerr << "Error during the export of .txt files" << endl;
-			return 1;
-			
-		}	
 	}
-
-	if (argc == 7){
-		convert >> id_vertex_1 >> id_vertex_2;
-		if(q == 3){
-			if (ShortestPath(DualPolyhedron, id_vertex_1, id_vertex_2))
-				cout<<"minimum path found correctly!"<<endl;
-		}
-		else{
-			if (ShortestPath(GeodeticPolyhedron, id_vertex_1, id_vertex_2))
-				cout<<"minimum path found correctly!"<<endl;
-		}			
+	
+	if (!FileManagement::ExportOutputFiles(GeodeticPolyhedron)){
+		cerr << "Error during the export of .txt files" << endl;
+		return 1;
 	}
 	
 	return 0;
