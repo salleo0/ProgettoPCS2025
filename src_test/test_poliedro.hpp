@@ -133,3 +133,77 @@ TEST(TestDualPolyhedron, TestType1)
 	EXPECT_EQ(DualPolyhedron.NumCell0Ds, ExpectedVertices);
 	EXPECT_EQ(DualPolyhedron.NumCell2Ds, ExpectedFaces);
 }
+
+TEST(TestGeodeticPolyhedron, TestTetrahedronType2)
+{
+	PolyhedronMesh PlatonicPolyhedron;
+	if (!Import::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Tetraedro/"))
+		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
+
+	PolyhedronMesh GeodeticPolyhedron;
+	Generation::GeodeticSolidType2(PlatonicPolyhedron, GeodeticPolyhedron, NUMSEGMENTS);
+	
+	int V = 4;
+	int E = 6;
+	int F = 4;
+	
+	int ExpectedVerticesType2 = V + E*(2*NUMSEGMENTS-1) + F * ( (3*NUMSEGMENTS*NUMSEGMENTS)/2 - (3*NUMSEGMENTS/2) + 1 );
+	int ExpectedEdgesType2 = E * 2 * NUMSEGMENTS + F * ( (9*NUMSEGMENTS*NUMSEGMENTS)/2 + (3*NUMSEGMENTS/2) );
+	int ExpectedFacesType2 = F * ( 3 * NUMSEGMENTS * NUMSEGMENTS + 3 * NUMSEGMENTS);
+
+	EXPECT_EQ(GeodeticPolyhedron.NumCell0Ds, ExpectedVerticesType2);
+	EXPECT_EQ(GeodeticPolyhedron.NumCell1Ds, ExpectedEdgesType2);
+	EXPECT_EQ(GeodeticPolyhedron.NumCell2Ds, ExpectedFacesType2);
+	
+}
+
+TEST(TestGeodeticPolyhedron, TestOctahedronType2)
+{
+	PolyhedronMesh PlatonicPolyhedron;
+	if (!Import::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Ottaedro/"))
+		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
+
+	PolyhedronMesh GeodeticPolyhedron;
+	Generation::GeodeticSolidType2(PlatonicPolyhedron, GeodeticPolyhedron, NUMSEGMENTS);
+	
+	int V = 6;
+	int E = 12;
+	int F = 8;
+	
+	int ExpectedVerticesType2 = V + E*(2*NUMSEGMENTS-1) + F * ( (3*NUMSEGMENTS*NUMSEGMENTS)/2 - (3*NUMSEGMENTS/2) + 1 );
+	int ExpectedEdgesType2 = E * 2 * NUMSEGMENTS + F * ( (9*NUMSEGMENTS*NUMSEGMENTS)/2 + (3*NUMSEGMENTS/2) );
+	int ExpectedFacesType2 = F * ( 3 * NUMSEGMENTS * NUMSEGMENTS + 3 * NUMSEGMENTS);
+
+	EXPECT_EQ(GeodeticPolyhedron.NumCell0Ds, ExpectedVerticesType2);
+	EXPECT_EQ(GeodeticPolyhedron.NumCell1Ds, ExpectedEdgesType2);
+	EXPECT_EQ(GeodeticPolyhedron.NumCell2Ds, ExpectedFacesType2);
+	
+}
+
+TEST(TestGeodeticPolyhedron, TestIcosahedronType2)
+{
+	PolyhedronMesh PlatonicPolyhedron;
+	if (!Import::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Icosaedro/"))
+		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
+
+	PolyhedronMesh GeodeticPolyhedron;
+	Generation::GeodeticSolidType2(PlatonicPolyhedron, GeodeticPolyhedron, NUMSEGMENTS);
+	
+	int V = 12;
+	int E = 30;
+	int F = 20;
+	
+	int ExpectedVerticesType2 = V + E*(2*NUMSEGMENTS-1) + F * ( (3*NUMSEGMENTS*NUMSEGMENTS)/2 - (3*NUMSEGMENTS/2) + 1 );
+	int ExpectedEdgesType2 = E * 2 * NUMSEGMENTS + F * ( (9*NUMSEGMENTS*NUMSEGMENTS)/2 + (3*NUMSEGMENTS/2) );
+	int ExpectedFacesType2 = F * ( 3 * NUMSEGMENTS * NUMSEGMENTS + 3 * NUMSEGMENTS);
+
+	EXPECT_EQ(GeodeticPolyhedron.NumCell0Ds, ExpectedVerticesType2);
+	EXPECT_EQ(GeodeticPolyhedron.NumCell1Ds, ExpectedEdgesType2);
+	EXPECT_EQ(GeodeticPolyhedron.NumCell2Ds, ExpectedFacesType2);
+	
+}
+
+TEST(TestShortestPath, ShortestPathOnTetrahedron){
+	
+	
+}
