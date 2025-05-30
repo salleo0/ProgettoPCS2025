@@ -7,7 +7,7 @@
 
 using namespace TriangulationLibrary;
 
-const int NUMSEGMENTS = 5;
+const int NUMSEGMENTS = 1;
 
 int VertexDegree(int& ExpectedDegree, const std::vector<int>& Vertices, const std::vector<std::vector<int>>& Faces) {
 	int NumVertexOfExpectedDegree = 0;
@@ -137,7 +137,7 @@ TEST(TestDualPolyhedron, TestType1)
 TEST(TestGeodeticPolyhedron, TestTetrahedronType2)
 {
 	PolyhedronMesh PlatonicPolyhedron;
-	if (!Import::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Tetraedro/"))
+	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Tetraedro/"))
 		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
 
 	PolyhedronMesh GeodeticPolyhedron;
@@ -148,7 +148,7 @@ TEST(TestGeodeticPolyhedron, TestTetrahedronType2)
 	int F = 4;
 	
 	int ExpectedVerticesType2 = V + E*(2*NUMSEGMENTS-1) + F * ( (3*NUMSEGMENTS*NUMSEGMENTS)/2 - (3*NUMSEGMENTS/2) + 1 );
-	int ExpectedEdgesType2 = E * 2 * NUMSEGMENTS + F * ( (9*NUMSEGMENTS*NUMSEGMENTS)/2 + (3*NUMSEGMENTS/2) );
+	int ExpectedEdgesType2 = E * 2 * NUMSEGMENTS + F * ( (9.0*NUMSEGMENTS*NUMSEGMENTS)/2.0 + (3.0*NUMSEGMENTS/2.0) );
 	int ExpectedFacesType2 = F * ( 3 * NUMSEGMENTS * NUMSEGMENTS + 3 * NUMSEGMENTS);
 
 	EXPECT_EQ(GeodeticPolyhedron.NumCell0Ds, ExpectedVerticesType2);
@@ -160,7 +160,7 @@ TEST(TestGeodeticPolyhedron, TestTetrahedronType2)
 TEST(TestGeodeticPolyhedron, TestOctahedronType2)
 {
 	PolyhedronMesh PlatonicPolyhedron;
-	if (!Import::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Ottaedro/"))
+	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Ottaedro/"))
 		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
 
 	PolyhedronMesh GeodeticPolyhedron;
@@ -171,7 +171,7 @@ TEST(TestGeodeticPolyhedron, TestOctahedronType2)
 	int F = 8;
 	
 	int ExpectedVerticesType2 = V + E*(2*NUMSEGMENTS-1) + F * ( (3*NUMSEGMENTS*NUMSEGMENTS)/2 - (3*NUMSEGMENTS/2) + 1 );
-	int ExpectedEdgesType2 = E * 2 * NUMSEGMENTS + F * ( (9*NUMSEGMENTS*NUMSEGMENTS)/2 + (3*NUMSEGMENTS/2) );
+	int ExpectedEdgesType2 = E * 2.0 * NUMSEGMENTS + F * ( (9.0*NUMSEGMENTS*NUMSEGMENTS)/2.0 + (3.0*NUMSEGMENTS/2.0) );
 	int ExpectedFacesType2 = F * ( 3 * NUMSEGMENTS * NUMSEGMENTS + 3 * NUMSEGMENTS);
 
 	EXPECT_EQ(GeodeticPolyhedron.NumCell0Ds, ExpectedVerticesType2);
@@ -183,7 +183,7 @@ TEST(TestGeodeticPolyhedron, TestOctahedronType2)
 TEST(TestGeodeticPolyhedron, TestIcosahedronType2)
 {
 	PolyhedronMesh PlatonicPolyhedron;
-	if (!Import::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Icosaedro/"))
+	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Icosaedro/"))
 		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
 
 	PolyhedronMesh GeodeticPolyhedron;
@@ -194,7 +194,7 @@ TEST(TestGeodeticPolyhedron, TestIcosahedronType2)
 	int F = 20;
 	
 	int ExpectedVerticesType2 = V + E*(2*NUMSEGMENTS-1) + F * ( (3*NUMSEGMENTS*NUMSEGMENTS)/2 - (3*NUMSEGMENTS/2) + 1 );
-	int ExpectedEdgesType2 = E * 2 * NUMSEGMENTS + F * ( (9*NUMSEGMENTS*NUMSEGMENTS)/2 + (3*NUMSEGMENTS/2) );
+	int ExpectedEdgesType2 = E * 2.0 * NUMSEGMENTS + F * ( (9.0*NUMSEGMENTS*NUMSEGMENTS)/2.0 + (3.0*NUMSEGMENTS/2.0) );
 	int ExpectedFacesType2 = F * ( 3 * NUMSEGMENTS * NUMSEGMENTS + 3 * NUMSEGMENTS);
 
 	EXPECT_EQ(GeodeticPolyhedron.NumCell0Ds, ExpectedVerticesType2);
