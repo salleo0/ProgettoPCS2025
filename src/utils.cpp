@@ -177,7 +177,8 @@ namespace TriangulationLibrary {
 			
 			return true;
 		}
-		
+
+		/************************************/
 		
 		bool ExportOutputFiles(const PolyhedronMesh& mesh)
 		{
