@@ -1,0 +1,21 @@
+@startuml
+' ========================
+' ACTIVITY DIAGRAM (pipeline logica)
+' ========================
+start
+:Legge input {p,q,b,c} (+ opzionali vertici);
+if (p != 3) then (no)
+  :Errore: p deve essere 3;
+  stop
+endif
+:Importa poliedro platonico dal file;
+:Genera poliedro geodetico (Type1; Type2);
+if (q == 3) then (sì)
+  :Costruisce poliedro duale;
+endif
+if (input include coordinate dei vertici) then (sì)
+  :Calcola shortest path;
+endif
+:Esporta files txt e inp per la visualizzazione grafica;
+stop
+@enduml

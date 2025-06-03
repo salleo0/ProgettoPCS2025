@@ -1,0 +1,37 @@
+@startuml
+
+' Forza layout verticale
+top to bottom direction
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam classFontStyle bold
+skinparam classBackgroundColor<<Funzione>> #E6F7FF
+skinparam classBackgroundColor<<Supporto>> #FFF8DC
+
+package "TriangulationLibrary::Generation" {
+
+  class Dual <<Funzione>> {
+    + input: StartPolyhedron
+    --
+    + output: DualPolyhedron
+    --
+    - Genera tutti i vertici che Coincidono con i baricentri 
+    delle facce del poliedro di partenza
+    - Costruisce gli edges:
+    Per ogni punto del poliedro iniziale bisogna collegare i centroidi delle
+    facce che possiedono questo punto com estremo.
+    - Costruisce le facce: gli edges generati come appena spiegato 
+    formano una ad una le facce del duale.
+    - Proietta sulla sfera (normalizzazione)
+    - Assegna celle 0D, 1D, 2D, 3D
+  }
+
+
+
+  Dual --> "CheckDuplicatesVertex()"
+  Dual --> "CheckDuplicatesEdge()"
+  Dual --> "ProjectionOnSphere()"
+  Dual --> "CheckDuplicatesVertex()"
+  Dual --> "CheckDuplicatesEdge()"
+  Dual --> "ProjectionOnSphere()"  
+}

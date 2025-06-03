@@ -1,0 +1,47 @@
+@startuml
+package "Supporto" {
+  class CheckDuplicatesVertex <<Supporto>> {
+    + input: Matrix (matrice delle coordinate)
+    + input: Vector3d (coordinate del punto che vorrei aggiungere)
+    + input: duplicate_id
+    --
+    + output: bool
+    --
+    Verifica se il punto di coord. Vector3d 
+    è gia presente in Matrix.
+    Se lo è, salva in duplicate_id, 
+    l'id del punto gia aggiunto.
+  }
+
+  class CheckDuplicatesEdge <<Supporto>> {
+    + input: Matrix, v1, v2
+    + input: duplicate_id
+    --
+    + output: bool
+    --
+    Funzionamento analogo a CheckDuplicatesVertex
+  }
+  
+  class ProjectionOnSphere <<Supporto>> {
+    + input: PolyhedronMesh
+    --
+    Normalizza ogni punto sulla sfera unitaria. 
+    Preservando gli edges e le facce 
+  }
+  
+  class OrderFaces <<Supporto>> {
+    + input: unordered_faces
+    + input: Polyhedron
+    --
+    + output: ordered_faces
+    --
+    Dato il vettore "unordered_faces" di facce adiacenti attorno 
+    ad un vertice comune, questa funzione le riordina in modo tale 
+    che ogni faccia condivide un edge con la faccia successiva 
+    del vettore "ordered faces".
+    
+    }
+  
+  
+}
+@enduml
