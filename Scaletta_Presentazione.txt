@@ -33,4 +33,4 @@ SEZIONE 2: "Funzionalità del software"
 		- documentazione UML + spiegazione (complessità)
 		- foto risultati
 		- struttura dati usata per la priority queue
-		- problemi incontrati
+		- problemi incontrati (costruzione matrice pesi)
