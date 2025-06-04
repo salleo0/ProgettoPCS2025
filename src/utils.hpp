@@ -49,7 +49,7 @@ namespace TriangulationLibrary {
 		
 		// La funzione genera il grafo associato al poliedro.
 		// StarVertex ed EndVertex sono i nodi di inizio e fine del cammino minimo da ricercare
-		bool ShortestPath(const PolyhedronMesh& Polyhedron, const int& StartVertex, const int& EndVertex, double& path_length, int& num_edges_in_path);
+		bool ShortestPath(const PolyhedronMesh& Polyhedron, const int& StartVertex, const int& EndVertex, double& path_length, int& num_edges_in_path, vector<int>& path);
 	}
 	
 	// Controlla se ci sono dei duplicati di un vettore di coordinate

@@ -177,7 +177,8 @@ namespace TriangulationLibrary {
 			
 			return true;
 		}
-		
+
+		/************************************/
 		
 		bool ExportOutputFiles(const PolyhedronMesh& mesh)
 		{
@@ -827,7 +828,7 @@ namespace TriangulationLibrary {
 		
 		/************************************/
 		
-		bool ShortestPath(const PolyhedronMesh& Polyhedron, const int& StartVertex, const int& EndVertex, double& path_length, int& num_edges_in_path) {
+		bool ShortestPath(const PolyhedronMesh& Polyhedron, const int& StartVertex, const int& EndVertex, double& path_length, int& num_edges_in_path, vector<int>& path) {
 			
 			if (StartVertex >= Polyhedron.NumCell0Ds || EndVertex >= Polyhedron.NumCell0Ds || StartVertex < 0 || EndVertex < 0)
 				return false;
@@ -891,7 +892,6 @@ namespace TriangulationLibrary {
 			// path contiene gli id dei vertici che compongono il cammino minimo 
 			// al contrario, perché sono id provenienti dal vettore pred
 			
-			vector<int> path;
 			int v = EndVertex;
 			while(v != StartVertex) {
 				path.push_back(v);

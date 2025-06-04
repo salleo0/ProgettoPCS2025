@@ -221,7 +221,108 @@ TEST(TestDualPolyhedron, TestType2)
 	EXPECT_EQ(DualPolyhedron.NumCell2Ds, ExpectedFaces);
 }
 
-TEST(TestShortestPath, ShortestPathOnTetrahedron){
+TEST(TestOrderFaces, Test_unordered)
+{
+	PolyhedronMesh PlatonicPolyhedron;
+	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Ottaedro/"))
+		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
 	
+	vector<int> unordered_faces = {4, 5, 3, 2};
+	vector<int> ordered_faces;
 	
+	OrderFaces(unordered_faces, ordered_faces, PlatonicPolyhedron);
+	vector<int>expected_ordered_faces  = {4, 5, 2, 3};
+	
+	EXPECT_EQ(ordered_faces, expected_ordered_faces);
+}
+
+TEST(TestOrderFaces, Test_ordered)
+{
+	PolyhedronMesh PlatonicPolyhedron;
+	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Icosaedro/"))
+		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
+	
+	vector<int> unordered_faces = {10, 11, 12, 17, 16};
+	vector<int> ordered_faces;
+	
+	OrderFaces(unordered_faces, ordered_faces, PlatonicPolyhedron);
+	vector<int>expected_ordered_faces  = {10, 11, 12, 17, 16};
+	
+	EXPECT_EQ(ordered_faces, expected_ordered_faces);
+}
+
+TEST(TestShortestPath, ShortestPathOnType1)
+{
+	
+	PolyhedronMesh PlatonicPolyhedron;
+	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Ottaedro/"))
+		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
+	
+	PolyhedronMesh GeodeticPolyhedron;
+	Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, 2);
+	
+	double path_length;
+	int number_edges_in_path;
+	vector<int> path_vertices;	
+	
+	if(!Generation::ShortestPath(GeodeticPolyhedron, 3, 7, path_length, number_edges_in_path, path_vertices))
+		FAIL() << "Something went wrong during the execution of ShortestPath function";
+	
+	vector<int>expected_path = {7,3};
+	
+	EXPECT_EQ(path_vertices, expected_path);
+	EXPECT_EQ(number_edges_in_path, 1);
+	EXPECT_NEAR(0.765367, path_length, 1e-6);
+}
+
+TEST(TestShortestPath, ShortestPathOnDual)
+{
+	
+	PolyhedronMesh PlatonicPolyhedron;
+	PolyhedronMesh DualPolyhedron;
+	
+	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Tetraedro/"))
+		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
+	
+	PolyhedronMesh GeodeticPolyhedron;
+	
+	Generation::GeodeticSolidType1(PlatonicPolyhedron, GeodeticPolyhedron, 3);
+	Generation::Dual(GeodeticPolyhedron, DualPolyhedron);
+	
+	double path_length;
+	int number_edges_in_path;
+	vector<int> path_vertices;	
+	
+	if(!Generation::ShortestPath(DualPolyhedron, 21, 27, path_length, number_edges_in_path, path_vertices))
+		FAIL() << "Something went wrong during the execution of ShortestPath function";
+	
+	vector<int>expected_path = {27, 25, 26, 21};
+	
+	EXPECT_EQ(path_vertices, expected_path);
+	EXPECT_EQ(number_edges_in_path, 3);
+	EXPECT_NEAR(1.316185, path_length,1e-6);
+}
+
+TEST(TestShortestPath, ShortestPathOnType2)
+{
+	
+	PolyhedronMesh PlatonicPolyhedron;
+	if (!FileManagement::ImportPolyhedronMesh(PlatonicPolyhedron, "../SolidiPlatonici/Icosaedro/"))
+		FAIL() << "Something went wrong during the creation of the platonic polyhedron mesh";
+	
+	PolyhedronMesh GeodeticPolyhedron;
+	Generation::GeodeticSolidType2(PlatonicPolyhedron, GeodeticPolyhedron, 2);
+	
+	double path_length;
+	int number_edges_in_path;
+	vector<int> path_vertices;	
+	
+	if(!Generation::ShortestPath(GeodeticPolyhedron, 146, 144, path_length, number_edges_in_path, path_vertices))
+		FAIL() << "Something went wrong during the execution of ShortestPath function";
+	
+	vector<int>expected_path = {144,145,34,151,146};
+	
+	EXPECT_EQ(path_vertices, expected_path);
+	EXPECT_EQ(number_edges_in_path, 4);
+	EXPECT_NEAR(1.451372, path_length, 1e-5);
 }
