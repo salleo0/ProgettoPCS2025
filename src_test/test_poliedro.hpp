@@ -24,9 +24,9 @@ int VertexDegree(int& ExpectedDegree, const std::vector<int>& Vertices, const st
 }		
 
 array<int, 3> SolidProperties(const int& V, const int& E, const int& F, const int& TriangulationParameter) {
-	int Exp_V = V + E*(2*TRIANGULATION_PARAMETER-1) + F * ( (3.0*TRIANGULATION_PARAMETER*TRIANGULATION_PARAMETER)/2.0 - (3.0*TRIANGULATION_PARAMETER/2.0) + 1);
-	int Exp_E = E * 2 * TRIANGULATION_PARAMETER + F * ( (9.0*TRIANGULATION_PARAMETER*TRIANGULATION_PARAMETER)/2.0 + (3.0*TRIANGULATION_PARAMETER/2.0) );
-	int Exp_F = F * ( 3 * TRIANGULATION_PARAMETER * TRIANGULATION_PARAMETER + 3 * TRIANGULATION_PARAMETER);
+	int Exp_V = V + E*(2*TriangulationParameter-1) + F * ( (3.0*TriangulationParameter*TriangulationParameter)/2.0 - (3.0*TriangulationParameter/2.0) + 1);
+	int Exp_E = E * 2 * TriangulationParameter + F * ( (9.0*TriangulationParameter*TriangulationParameter)/2.0 + (3.0*TriangulationParameter/2.0) );
+	int Exp_F = F * ( 3 * TriangulationParameter * TriangulationParameter + 3 * TriangulationParameter);
 	array<int, 3> solid_properties = {Exp_V, Exp_E, Exp_F};
 	return solid_properties;
 }
@@ -230,7 +230,7 @@ TEST(TestOrderFaces, Test_unordered)
 	vector<int> unordered_faces = {4, 5, 3, 2};
 	vector<int> ordered_faces;
 	
-	OrderFaces(unordered_faces, ordered_faces, PlatonicPolyhedron);
+	InternalTools::OrderFaces(unordered_faces, ordered_faces, PlatonicPolyhedron);
 	vector<int>expected_ordered_faces  = {4, 5, 2, 3};
 	
 	EXPECT_EQ(ordered_faces, expected_ordered_faces);
@@ -245,7 +245,7 @@ TEST(TestOrderFaces, Test_ordered)
 	vector<int> unordered_faces = {10, 11, 12, 17, 16};
 	vector<int> ordered_faces;
 	
-	OrderFaces(unordered_faces, ordered_faces, PlatonicPolyhedron);
+	InternalTools::OrderFaces(unordered_faces, ordered_faces, PlatonicPolyhedron);
 	vector<int>expected_ordered_faces  = {10, 11, 12, 17, 16};
 	
 	EXPECT_EQ(ordered_faces, expected_ordered_faces);

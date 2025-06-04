@@ -52,32 +52,34 @@ namespace TriangulationLibrary {
 		bool ShortestPath(const PolyhedronMesh& Polyhedron, const int& StartVertex, const int& EndVertex, double& path_length, int& num_edges_in_path, vector<int>& path);
 	}
 	
-	// Controlla se ci sono dei duplicati di un vettore di coordinate
-	// mat: matrice di dim 3xmatSize in cui sono salvate le coordinate
-	// vec: vettore di cui controllare se ci sono duplicati
-	// matSize: numero di colonne della matrice mat
-	// duplicate_id: posizione di un eventuale duplicato del vettore vec
-	// ritorna vero se un duplicato è stato trovato, falso altrimenti
-	bool CheckDuplicatesVertex(const MatrixXd& mat, const Vector3d& vec, int& matSize, int& duplicate_id);
-	
-	// Controlla se ci sono dei duplicati di un segmento che connette due vertici v1 e v2
-	// mat: matrice di dimensione 2xmatSize in cui sono salvati i vertici agli estremi di un segmento 
-	// v1 e v2: id di vertici
-	// matSize: numero di colonne della matrice mat
-	// duplicate_id: posizione di un eventuale duplicato dell'edge di estremi v1 e v2
-	// ritorna vero se un duplicato è stato trovato, falso altrimenti
-	bool CheckDuplicatesEdge(const MatrixXi& mat, const int& v1, const int& v2, int& matSize, int& duplicate_id);
-	
-	// Proietta sulla sfera di raggio 1 e centro l'origine le coordinate dei vertici della mesh
-	// mesh: struct del tipo PolyhedronMesh
-	void ProjectionOnSphere(PolyhedronMesh& mesh);
+	namespace InternalTools {
+		
+		// Controlla se ci sono dei duplicati di un vettore di coordinate
+		// mat: matrice di dim 3xmatSize in cui sono salvate le coordinate
+		// vec: vettore di cui controllare se ci sono duplicati
+		// matSize: numero di colonne della matrice mat
+		// duplicate_id: posizione di un eventuale duplicato del vettore vec
+		// ritorna vero se un duplicato è stato trovato, falso altrimenti
+		bool CheckDuplicatesVertex(const MatrixXd& mat, const Vector3d& vec, int& matSize, int& duplicate_id);
+		
+		// Controlla se ci sono dei duplicati di un segmento che connette due vertici v1 e v2
+		// mat: matrice di dimensione 2xmatSize in cui sono salvati i vertici agli estremi di un segmento 
+		// v1 e v2: id di vertici
+		// matSize: numero di colonne della matrice mat
+		// duplicate_id: posizione di un eventuale duplicato dell'edge di estremi v1 e v2
+		// ritorna vero se un duplicato è stato trovato, falso altrimenti
+		bool CheckDuplicatesEdge(const MatrixXi& mat, const int& v1, const int& v2, int& matSize, int& duplicate_id);
+		
+		// Proietta sulla sfera di raggio 1 e centro l'origine le coordinate dei vertici della mesh
+		// mesh: struct del tipo PolyhedronMesh
+		void ProjectionOnSphere(PolyhedronMesh& mesh);
 
-	// Usata nella costruzione dei poliedri: dato un vettore di facce unordered_faces, tutte aventi un vertice comune,
-	// la funzione ordina tale vettore in modo che ciascuna faccia sia seguita da quella adiacente a essa, per costruire correttamente 
-	// gli edges.
-	// unordered_faces: il vettore di facce da ordinare
-	// ordered_faces: il vettore ordinato in cui vengono aggiunte uno a uno le facce da unordered_faces
-	// Polyhedron: la mesh per avere accesso agli edges delle facce nel vettore unordered_faces
-	void OrderFaces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedronMesh& Polyhedron);
-
+		// Usata nella costruzione dei poliedri: dato un vettore di facce unordered_faces, tutte aventi un vertice comune,
+		// la funzione ordina tale vettore in modo che ciascuna faccia sia seguita da quella adiacente a essa, per costruire correttamente 
+		// gli edges.
+		// unordered_faces: il vettore di facce da ordinare
+		// ordered_faces: il vettore ordinato in cui vengono aggiunte uno a uno le facce da unordered_faces
+		// Polyhedron: la mesh per avere accesso agli edges delle facce nel vettore unordered_faces
+		void OrderFaces(const vector<int>& unordered_faces, vector<int>& ordered_faces, const PolyhedronMesh& Polyhedron);
+	}
 }
