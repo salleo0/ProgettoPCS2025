@@ -1,0 +1,13 @@
+SEZIONE 1: "Funzionamento del software"
+	- 1 slide: presentazione (più che ripetere la richiesta, mostrerei che file di input abbiamo 				usato + foto dei poliedri platonici su paraview)
+
+	- 1 slide: illustrazione della struct usata per i solidi
+
+	- 1 slide: funzionamento main + documentazione uml del main
+
+	- 2 slides: foto output (accompagnare screenshot dell'input da terminale con relativa immagine 				elaborata su paraview)
+
+SEZIONE 2: "Funzionalità del software"
+	- 1 slide: namespace FileManagement (molto rapidamente, giusto far vedere come sono fatti i 				file di output)
+	
+	-
