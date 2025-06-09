@@ -1,0 +1,27 @@
+@startuml
+title Funzione Dual
+
+start
+
+repeat
+  :Calcolo baricentro faccia;
+  :Aggiunta baricentro a Dual.Cell0Ds;
+  :Aggiornamento mappa Faces_Bar;
+repeat while (ci sono altre facce in StartPolyhedron?) is (yes)
+
+repeat
+  repeat
+    :Ricerca facce che hanno il vertice in comune;
+    :VertexFaces.push_back(face_id);
+  repeat while (Ci sono altre facce nel poliedro di partenza?) is (yes)
+  :Chiamata funzione OrderFaces;
+  :Calcolo della valenza della nuova faccia;
+  :Uso della mappa Faces_Bar per ottenere i baricentri
+  relativi alla faccia;
+  :Aggiunta vertici a Dual.Cell0Ds;
+  :Aggiunta edges a Dual.Cell1Ds;
+  :Aggiunta faccia, edges e vertici a Dual.Cell2Ds;
+repeat while (Ci sono altri vertici in StartPolyhedron?) is (yes)
+  :Aggiornamento di Dual.Cell3Ds;
+stop
+@enduml
