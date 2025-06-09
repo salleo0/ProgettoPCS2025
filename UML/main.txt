@@ -1,0 +1,36 @@
+@startuml
+
+start
+:Legge input {p,q,b,c} (+ opzionali vertici);
+if (p != 3) then (sì)
+  :Errore: p deve essere 3;
+  stop
+endif
+switch (valore di q)
+case (q == 3)
+   :Importa Tetraedro;
+case (q == 4)
+   :Importa Ottaedro;
+case (q == 5)
+   :Importa Icosaedro;
+case (altrimenti)
+   :Errore: valore non accettabile;
+   stop
+endswitch
+if (b o c uguali a 0) then (sì)
+   :Genera poliedro geodetico Type1;
+elseif (b == c) then (sì)
+   :Genera poliedro geodetico Type2;
+else
+   :Errore: tipo di triangolazione non implementata;
+   stop
+endif
+if (q == 3) then (sì)
+  :Genera poliedro duale;
+endif
+if (input include coordinate dei vertici) then (sì)
+  :Calcola shortest path sull'ultimo poliedro generato;
+endif
+:Esporta file .txt e .inp;
+stop
+@enduml
