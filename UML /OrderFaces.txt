@@ -1,0 +1,31 @@
+@startuml
+title Funzione OrderFaces
+
+start
+
+:Copia del vettore unordered_faces in remaining_faces;
+:Inserimento della prima faccia di remaining_faces in current;
+:Inserimento di current in ordered_faces;
+:Cancellazione di current da remaining_faces;
+
+repeat
+  :La funzione ottiene gli edges della faccia in current;
+
+  repeat
+    :Ricerca in remaining_faces della faccia con un edge 
+    in comune con current;
+  repeat while (Ci sono altre facce in remaining_faces?) is (yes)
+
+  :Rimozione della faccia trovata da remaining_faces;
+  note left
+      Si cerca la faccia successiva
+      che ha necessariamente un edge in comune con 
+      la current face
+    end note
+  :Inserimento della faccia trovata in ordered_faces;
+  :Aggiornamento di current con la faccia trovata;
+repeat while (Ci sono altre facce in remaining_faces?) is (yes)
+
+stop
+
+@enduml
