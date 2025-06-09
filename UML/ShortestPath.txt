@@ -1,0 +1,42 @@
+@startuml
+title Funzione ShortestPath
+
+start
+
+if (I vertici passati alla funzione sono validi?) then (no)
+  :Return False;
+endif
+
+:Costruzione della lista di adiacenza;
+note left: Complessità O(n)
+:Costruzione della matrice dei pesi; 
+note left: Complessità O(n*m)
+:Inizializzazione vettori pred, dist e una priority queue;
+note left: Implementazione algoritmo di Dijkstra;
+repeat
+  :Estrai coppia (u, p) dalla priority queue;
+  :Elimina (u, p) dalla coda;
+
+  if (dist[u] < p) then (yes)
+    :Salta l'iterazione;
+  endif
+
+  repeat
+    if (dist[u] + peso(u,w) < dist[w]?) then (yes)
+      :Aggiorna dist[w] e pred[w];
+      :Inserisci (w, nuova distanza) nella coda;
+    endif
+  repeat while (ci sono altri vertici w adiacenti a u?) is (yes)
+repeat while (La coda è vuota?) is (no)
+:v = EndVertex;
+note left: Ricostruzione dello ShortestPath;
+repeat 
+  :path.push_back(v);
+  :v = pred[v];
+repeat while (v!=StartVertex?) is (yes)
+:Ricerca edges che compongono lo ShortestPath;
+:Assegnazione proprietà "ShortestPath" a punti 
+ed edges che compongono il cammino minimo;
+:Return True;
+stop
+@enduml
