@@ -1,10 +1,11 @@
 @startuml
-title Funzione ShortestPath
+title Funzione bool ShortestPath()
 
 start
 
 if (I vertici passati alla funzione sono validi?) then (no)
   :Return False;
+  stop
 endif
 
 :Costruzione della lista di adiacenza;
@@ -33,7 +34,7 @@ note left: Ricostruzione dello ShortestPath;
 repeat 
   :path.push_back(v);
   :v = pred[v];
-repeat while (v!=StartVertex?) is (yes)
+repeat while (v != StartVertex?) is (yes)
 :Ricerca edges che compongono lo ShortestPath;
 :Assegnazione proprietà "ShortestPath" a punti 
 ed edges che compongono il cammino minimo;
