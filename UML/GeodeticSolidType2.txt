@@ -1,0 +1,30 @@
+@startuml
+title Funzione void GeodeticSolidType2()
+start
+
+:Generazione vertici in comune con la triangolazione Type1;
+
+repeat 
+
+repeat
+
+:Prende 3 vertici della Type1 che formano un triangolo "a punta in su" di essa;
+
+:Genera il baricentro;
+
+if (Triangolo della type1 posizionato sul bordo?) then (yes)
+  :Genera triangoli adiacenti al bordo;
+endif
+
+if (Triangolo della type1 è al "secondo livello"?) then (yes)
+  :Prende 3 vertici della Type1 che formano un triangolo a "punta in giù";
+  :Genera il baricentro;
+  :Genera le 6 facce adicenti a tale baricentro;
+endif
+
+repeat while (Altri triangoli "a punta in su"?) is (yes) not (no)
+
+repeat while (Altre facce del poliedro platonico da triangolare?) is (yes) not (no)
+
+stop
+@enduml
