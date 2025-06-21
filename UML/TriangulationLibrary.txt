@@ -1,0 +1,72 @@
+@startuml
+set separator :: 
+
+package TriangulationLibrary {
+
+  struct PolyhedronMesh {
+    .. Cell0D ..
+    + int NumCell0Ds
+    + vector<int> Cell0DsId
+    + MatrixXd Cell0DsCoordinates
+    .. Cell1D ..
+    + int NumCell1Ds
+    + vector<int> Cell1DsId
+    + MatrixXi Cell1DsExtrema
+    .. Cell2D ..
+    + int NumCell2Ds
+    + vector<int> Cell2DsId
+    + vector<vector<int>> Cell2DsVertices
+    + vector<vector<int>> Cell2DsEdges
+    + vector<int> Cell2DsNumVertices
+    + vector<int> Cell2DsNumEdges
+    .. Cell3D..
+    + int NumCell3Ds
+    + vector<int> Cell3DsId
+    + vector<int> Cell3DsNumVertices
+    + vector<int> Cell3DsNumEdges
+    + vector<int> Cell3DsNumFaces
+    + vector<vector<int>> Cell3DsVertices
+    + vector<vector<int>> Cell3DsEdges
+    + vector<vector<int>> Cell3DsFaces
+  }
+  
+  Generation --> PolyhedronMesh
+  PolyhedronMesh --> Generation
+  PolyhedronMesh --> FileManagement
+  FileManagement --> PolyhedronMesh
+  Generation -- InternalTools
+
+}
+
+package TriangulationLibrary::Generation {
+  abstract Generation <<namespace>>  {
+    .. Polyhedra generation ..
+    # void GeodeticSolidType1()
+    # void GeodeticSolidType2()
+    # void Dual()
+    .. Path generation ..
+    # void ShortestPath()
+  }
+}
+
+package TriangulationLibrary::FileManagement {
+  abstract FileManagement <<namespace>> {
+    .. Import functions ..
+    # bool ImportPolyhedronMesh()
+    # bool ImportCell0Ds()
+    # bool ImportCell1Ds()
+    # bool ImportCell2Ds()
+    .. Export functions ..
+    # bool ExportOutputFiles()
+  }
+}
+
+package TriangulationLibrary::InternalTools {
+  abstract InternalTools <<namespace>> {
+  # bool CheckDuplicatesVertex()
+  # bool CheckDuplicatesEdge()
+  # void ProjectionOnSphere()
+  # void OrderFaces()
+  }
+}
+@enduml

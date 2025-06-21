@@ -1,0 +1,45 @@
+@startuml
+title Funzione GeodeticSolidType1
+start
+
+:Inizializzazione GeodeticSolid;
+
+repeat
+  :Calcolo coefficienti della combinazione lineare;
+ note left
+  I punti sono generati tramite una 
+  combinazione lineare dei vertici
+  della faccia di partenza; 
+  i coefficienti di tale combinazione 
+  lineare vengono memorizzati
+  in una mappa Point_Coefficients, 
+  utile per costruire edges e faces 
+  della triangolazione di tipo 1;
+end note
+  :Generazione punti di GeodeticSolid;
+  :Controllo duplicato con funzione CheckDuplicatesVertex;
+
+  if (Il punto è duplicato?) then (yes)
+    :Recupero ID del punto duplicato;
+    :Aggiornamento mappa Point_Coefficients;
+  else (no)
+     :Aggiunta a GeodeticSolid.Cell0Ds;
+  endif
+:Proiezione dei punti sulla sfera tramite ProjectionOnSphere;
+repeat while (Ci sono ancora facce nel solido platonico su cui generare punti?) is (yes)
+repeat
+  :Recupero dalla mappa Point_Coefficients dei 3 vertici per costruire una nuova faccia;
+  :Aggiunta dei vertici a GeodeticSolid.Cell2DsVertices;
+  :Costruzione degli edges della faccia triangolata;
+  :Controllo edge duplicati con funzione CheckDuplicatesEdge;
+  if(edge duplicato?) then (yes)
+    :recupero ID dell edge duplicato;
+    :Aggiunta ID a GeodeticPolyhedron.Cell2DsEdges;
+  else(no)
+    :Aggiunta dell'edge a GeodeticPolyhedron.Cell2DsEdges;
+    :Aggiunta dell'edge a GeodeticPolyhedron.Cell1DsId;
+  endif
+repeat while(Ci sono ancora facce da triangolare nel solido platonico?) is (yes)
+:Inserimento dati in GeodeticPolyhedron.Cell3Ds;
+stop
+@enduml
