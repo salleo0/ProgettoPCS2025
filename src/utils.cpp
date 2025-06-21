@@ -446,11 +446,11 @@ namespace TriangulationLibrary {
 			int edge_id = 0;		
 			int face_id = 0;		
 			
-			// allocare memoria
-			int T = 30*TriangulationParameter*TriangulationParameter;
-			int total_points = 10*T + 2;
-			int total_edges = 60*T;
-			int total_faces = 40*T;
+			// allocare memoria (CASO PEGGIORE = icosaedro)
+			// int T = 30*TriangulationParameter*TriangulationParameter;
+			int total_points = 12 + 30*(2*TriangulationParameter-1) + 20 * ( (3.0*TriangulationParameter*TriangulationParameter)/2.0 - (3.0*TriangulationParameter/2.0) + 1);
+			int total_edges = 30 * 2 * TriangulationParameter + 20 * ( (9.0*TriangulationParameter*TriangulationParameter)/2.0 + (3.0*TriangulationParameter/2.0) );
+			int total_faces = 20 * ( 3 * TriangulationParameter * TriangulationParameter + 3 * TriangulationParameter);
 			
 			GeodeticSolid.Cell0DsId.reserve(total_points);
 			GeodeticSolid.Cell0DsCoordinates = MatrixXd::Zero(3,total_points);	
